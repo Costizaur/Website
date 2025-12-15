@@ -1,2 +1,6 @@
 node_modules/
 dist/
+.vite/
+Portofolio website/node_modules/
+Portofolio website/dist/
+Portofolio website/.vite/

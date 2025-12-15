@@ -5,6 +5,9 @@ import './Projects.css';
 import canva from '../assets/canva.png';
 import sketch from '../assets/sketch.png';
 import figma from '../assets/figma.png';
+import html from '../assets/html.png';
+import css from '../assets/css.png';
+import js from '../assets/js.png';
 
 const projects = [
   {
@@ -27,6 +30,7 @@ const projects = [
     link: '#',
     color: '#ec4899',
     images: ['#ec4899', '#f472b6', '#fbcfe8'],
+    folderImages: [html, css, js],
     longDescription: 'A comprehensive social media platform built with Vue.js. This project features real-time chat, file sharing, and a responsive design that works seamlessly across devices.'
   },
   {

@@ -19,7 +19,7 @@ const projects = [
     color: '#3b82f6',
     images: ['#3b82f6', '#60a5fa', '#93c5fd'], // Color placeholders for carousel
     folderImages: [figma, sketch, canva], // Reversed images for folder papers
-    longDescription: 'multiple projects in this area. This is a detailed view where you can explain your design process, tools used, and the outcome of the project.'
+    longDescription: ''
 
   },
   {

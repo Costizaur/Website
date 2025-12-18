@@ -19,8 +19,7 @@ const Contact = () => {
                             <div className="contact-item">
                                 <span className="label">Socials</span>
                                 <div className="social-links">
-                                    <a href="#">Twitter</a>
-                                    <a href="#">LinkedIn</a>
+                                    <a href="https://www.linkedin.com/in/costin-sarghiuta-b01788217/?locale=en_US">LinkedIn</a>
                                     <a href="#">GitHub</a>
                                 </div>
                             </div>

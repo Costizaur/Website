@@ -32,9 +32,10 @@ const Modal = ({ project, onClose }) => {
         }
     };
 
-    const activeUnfoldVideo = project?.images?.[currentIndex]?.unfoldVideo;
+    const activeUnfoldVideoStart = project?.images?.[currentIndex]?.unfoldVideoStart;
+    const activeUnfoldVideoEnd = project?.images?.[currentIndex]?.unfoldVideoEnd;
     const activeUnfoldImage = project?.images?.[currentIndex]?.unfoldImage;
-    const canUnfold = !!activeUnfoldVideo;
+    const canUnfold = !!activeUnfoldVideoStart;
 
     const handleUnfoldClick = () => {
         if (canUnfold) {
@@ -69,13 +70,22 @@ const Modal = ({ project, onClose }) => {
 
                 {unfoldState !== 'idle' ? (
                     <div className="unfold-overlay">
-                        {(unfoldState === 'playing-1' || unfoldState === 'playing-2') && (
+                        {unfoldState === 'playing-1' && (
                             <video
-                                src={activeUnfoldVideo}
+                                src={activeUnfoldVideoStart}
                                 autoPlay
                                 className="unfold-media"
                                 onEnded={handleVideoEnd}
-                                onClick={handleVideoEnd} /* Fallback for quick testing */
+                                onClick={handleVideoEnd}
+                            />
+                        )}
+                        {unfoldState === 'playing-2' && (
+                            <video
+                                src={activeUnfoldVideoEnd}
+                                autoPlay
+                                className="unfold-media"
+                                onEnded={handleVideoEnd}
+                                onClick={handleVideoEnd}
                             />
                         )}
                         {unfoldState === 'showing-image' && (

@@ -8,8 +8,8 @@ import figma from '../assets/figma.png';
 import html from '../assets/html.png';
 import css from '../assets/css.png';
 import js from '../assets/js.png';
-import unfoldStart from '../assets/unfold-1-1.webm';
-import unfoldEnd from '../assets/unfold-reverse-1-1.webm';
+import unfoldStart from '../assets/unfold-g.webm';
+import unfoldEnd from '../assets/unfold-g-reverse.webm';
 
 
 const projects = [

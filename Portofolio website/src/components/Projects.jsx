@@ -40,7 +40,7 @@ const projects = [
       { src: js, description: 'JavaScript: Implemented dynamic features and real-time interactions.', unfoldVideo: unfoldVideo, unfoldImage: unfoldImage }
     ],
     folderImages: [html, css, js],
-    longDescription: "I've build this portfolio website using react html and css"
+    longDescription: "This portfolio website is a custom project built with React, HTML, and CSS, created to demonstrate my growth and experience in front-end development."
   },
   {
     id: 3,

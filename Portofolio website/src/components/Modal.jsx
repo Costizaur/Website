@@ -50,9 +50,10 @@ const Modal = ({ project, onClose }) => {
         }
     };
 
-    const handleImageClick = () => {
+    const handleImageClick = (e) => {
+        e.stopPropagation();
         if (unfoldState === 'showing-image') {
-            setUnfoldState('idle');
+            setUnfoldState('playing-2');
         }
     };
 

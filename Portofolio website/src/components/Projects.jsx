@@ -20,12 +20,12 @@ const projects = [
     link: '#', // Replace with actual project link
     color: '#6366f1', // Indigo
     images: [
-      { src: figma, description: 'Figma: Used for high-fidelity prototyping and interface design.', unfoldVideo: unfoldVideo, unfoldImage: unfoldImage },
+      { src: figma, description: 'I built a high-fidelity app prototype in Figma based on an Instagram-style vertical swipe, translating familiar social media interaction patterns into a student matching experience. The design focuses on ease of use, fast decision-making, and clear information, reducing the learning curve and making browsing matches feel natural and intuitive.', unfoldVideo: unfoldVideo, unfoldImage: unfoldImage },
       { src: sketch, description: 'Sketch: Utilized for vector-based icon and layout design.', unfoldVideo: unfoldVideo, unfoldImage: unfoldImage },
       { src: canva, description: 'Canva: Created rapid mockups and presentation assets.', unfoldVideo: unfoldVideo, unfoldImage: unfoldImage }
     ],
     folderImages: [figma, sketch, canva],
-    longDescription: 'This portfolio highlights my expertise in User Interface and User Experience design. I leverage tools like Figma for collaborative design and prototyping, Sketch for detailed vector work, and Canva for quick, impactful visual assets. Each project demonstrates a focus on user-centric design principles and aesthetic excellence.'
+    longDescription: ''
   },
   {
     id: 2,

@@ -28,9 +28,9 @@ const projects = [
   },
   {
     id: 2,
-    title: 'Social Media App',
-    description: 'A responsive social platform allowing users to connect, share content, and interact in real-time.',
-    tags: ['Vue.js', 'Firebase', 'Sass'],
+    title: 'Portfolio Website',
+    description: "I've build this portfolio website using react html and css",
+    tags: ['React', 'HTML', 'CSS'],
     link: '#',
     color: '#ec4899',
     images: [
@@ -39,7 +39,7 @@ const projects = [
       { src: js, description: 'JavaScript: Implemented dynamic features and real-time interactions.' }
     ],
     folderImages: [html, css, js],
-    longDescription: 'A comprehensive social media platform built with Vue.js. This project features real-time chat, file sharing, and a responsive design that works seamlessly across devices.'
+    longDescription: "I've build this portfolio website using react html and css"
   },
   {
     id: 3,

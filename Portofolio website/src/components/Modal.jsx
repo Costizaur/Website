@@ -34,6 +34,7 @@ const Modal = ({ project, onClose }) => {
 
     const activeUnfoldVideoStart = project?.images?.[currentIndex]?.unfoldVideoStart;
     const activeUnfoldVideoEnd = project?.images?.[currentIndex]?.unfoldVideoEnd;
+    const activeUnfoldText = project?.images?.[currentIndex]?.unfoldText;
 
     const canUnfold = !!activeUnfoldVideoStart;
 
@@ -88,11 +89,15 @@ const Modal = ({ project, onClose }) => {
                             />
                         )}
                         {unfoldState === 'showing-image' && (
-                            <video
-                                src={activeUnfoldVideoEnd}
-                                className="unfold-media clickable"
-                                onClick={handleReverseStart}
-                            />
+                            <div className="unfold-paused-container" onClick={handleReverseStart}>
+                                <video
+                                    src={activeUnfoldVideoEnd}
+                                    className="unfold-media"
+                                />
+                                <div className="unfold-text-overlay">
+                                    <p>{activeUnfoldText}</p>
+                                </div>
+                            </div>
                         )}
                     </div>
                 ) : (

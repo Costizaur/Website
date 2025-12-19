@@ -113,3 +113,47 @@
         font-size: 1.5rem;
     }
 }
+.unfold-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    backdrop-filter: blur(4px);
+    z-index: 1001;
+    transition: all 0.3s ease;
+}
+
+.unfold-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.unfold-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: black;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.unfold-media {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.unfold-media.clickable {
+    cursor: pointer;
+}

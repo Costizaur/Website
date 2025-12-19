@@ -17,7 +17,11 @@ const projects = [
     tags: ['Figma', 'Canva', 'Sketch'],
     link: '#', // Not used for modal trigger
     color: '#3b82f6',
-    images: ['#3b82f6', '#60a5fa', '#93c5fd'], // Color placeholders for carousel
+    images: [
+      { src: figma, description: 'Figma: Used for high-fidelity prototyping and interface design.' },
+      { src: sketch, description: 'Sketch: Utilized for vector-based icon and layout design.' },
+      { src: canva, description: 'Canva: Created rapid mockups and presentation assets.' }
+    ],
     folderImages: [figma, sketch, canva], // Reversed images for folder papers
     longDescription: ''
 
@@ -29,7 +33,11 @@ const projects = [
     tags: ['Vue.js', 'Firebase', 'Sass'],
     link: '#',
     color: '#ec4899',
-    images: ['#ec4899', '#f472b6', '#fbcfe8'],
+    images: [
+      { src: html, description: 'HTML5: Structured the semantic foundation of the application.' },
+      { src: css, description: 'CSS3: Styled the interface with responsive and modern techniques.' },
+      { src: js, description: 'JavaScript: Implemented dynamic features and real-time interactions.' }
+    ],
     folderImages: [html, css, js],
     longDescription: 'A comprehensive social media platform built with Vue.js. This project features real-time chat, file sharing, and a responsive design that works seamlessly across devices.'
   },

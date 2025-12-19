@@ -27,8 +27,17 @@ const Carousel = ({ images }) => {
             <div className="carousel-inner" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
                 {images.map((img, index) => (
                     <div key={index} className="carousel-item">
-                        {/* If it's a hex color string, render a div, else render img */}
-                        {img.startsWith('#') ? (
+                        {/* Check if it's an object with src and description */}
+                        {typeof img === 'object' && img.src ? (
+                            <>
+                                <img src={img.src} alt={`Slide ${index + 1}`} />
+                                {img.description && (
+                                    <div className="carousel-description">
+                                        <p>{img.description}</p>
+                                    </div>
+                                )}
+                            </>
+                        ) : typeof img === 'string' && img.startsWith('#') ? (
                             <div className="carousel-placeholder" style={{ backgroundColor: img }}>
                                 <span>Image {index + 1}</span>
                             </div>

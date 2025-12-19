@@ -23,7 +23,7 @@ const Modal = ({ project, onClose }) => {
     const handleSlideChange = (index) => {
         setCurrentIndex(index);
         if (!project || !project.images) return;
-        
+
         const currentImage = project.images[index];
         if (typeof currentImage === 'object' && currentImage.description) {
             setCurrentDescription(currentImage.description);
@@ -52,7 +52,7 @@ const Modal = ({ project, onClose }) => {
 
     const handleImageClick = () => {
         if (unfoldState === 'showing-image') {
-            setUnfoldState('playing-2');
+            setUnfoldState('idle');
         }
     };
 

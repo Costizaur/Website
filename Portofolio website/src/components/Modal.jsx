@@ -54,7 +54,7 @@ const Modal = ({ project, onClose }) => {
 
     const handleReverseStart = (e) => {
         e.stopPropagation();
-        e.target.play();
+        // e.target.play(); // Removed: causing error if target is not video. State change triggers autoPlay video.
         setUnfoldState('playing-2');
     };
 

@@ -43,13 +43,14 @@ const projects = [
   },
   {
     id: 3,
-    title: 'Task Management Tool',
-    description: 'A productivity application designed to help teams organize tasks and collaborate efficiently.',
-    tags: ['TypeScript', 'React', 'Redux'],
+    title: 'Project 3',
+    description: 'Coming Soon',
+    tags: [],
     link: '#',
     color: '#10b981',
     images: ['#10b981', '#34d399', '#6ee7b7'],
-    longDescription: 'An efficient task management tool built with React and TypeScript. It includes drag-and-drop task organization, team collaboration features, and detailed progress tracking.'
+    folderImages: ['#10b981', '#34d399', '#6ee7b7'],
+    longDescription: 'Coming Soon'
   }
 ];
 

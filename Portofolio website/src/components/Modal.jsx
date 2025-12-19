@@ -3,13 +3,30 @@ import Carousel from './Carousel';
 import './Modal.css';
 
 const Modal = ({ project, onClose }) => {
+    const [currentDescription, setCurrentDescription] = React.useState('');
+
     useEffect(() => {
         // Prevent scrolling when modal is open
         document.body.style.overflow = 'hidden';
+        // Initialize description
+        if (project) {
+            setCurrentDescription(project.description);
+        }
         return () => {
             document.body.style.overflow = 'unset';
         };
-    }, []);
+    }, [project]);
+
+    const handleSlideChange = (index) => {
+        if (!project || !project.images) return;
+
+        const currentImage = project.images[index];
+        if (typeof currentImage === 'object' && currentImage.description) {
+            setCurrentDescription(currentImage.description);
+        } else {
+            setCurrentDescription(project.description);
+        }
+    };
 
     if (!project) return null;
 
@@ -20,7 +37,7 @@ const Modal = ({ project, onClose }) => {
 
                 <div className="modal-body">
                     <div className="modal-carousel-container">
-                        <Carousel images={project.images || [project.color]} />
+                        <Carousel images={project.images || [project.color]} onSlideChange={handleSlideChange} />
                     </div>
 
                     <div className="modal-info">
@@ -30,7 +47,7 @@ const Modal = ({ project, onClose }) => {
                                 <span key={tag} className="tag">{tag}</span>
                             ))}
                         </div>
-                        <p className="modal-description">{project.description}</p>
+                        <p className="modal-description">{currentDescription}</p>
                         {/* Add more detailed description here if available in project object */}
                         <div className="modal-long-description">
                             <p>{project.longDescription}</p>

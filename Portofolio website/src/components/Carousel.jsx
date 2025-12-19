@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
 import './Carousel.css';
 
-const Carousel = ({ images }) => {
+const Carousel = ({ images, onSlideChange }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
+
+    // Notify parent of slide change
+    React.useEffect(() => {
+        if (onSlideChange) {
+            onSlideChange(currentIndex);
+        }
+    }, [currentIndex, onSlideChange]);
 
     const nextSlide = () => {
         setCurrentIndex((prevIndex) =>
@@ -29,14 +36,7 @@ const Carousel = ({ images }) => {
                     <div key={index} className="carousel-item">
                         {/* Check if it's an object with src and description */}
                         {typeof img === 'object' && img.src ? (
-                            <>
-                                <img src={img.src} alt={`Slide ${index + 1}`} />
-                                {img.description && (
-                                    <div className="carousel-description">
-                                        <p>{img.description}</p>
-                                    </div>
-                                )}
-                            </>
+                            <img src={img.src} alt={`Slide ${index + 1}`} />
                         ) : typeof img === 'string' && img.startsWith('#') ? (
                             <div className="carousel-placeholder" style={{ backgroundColor: img }}>
                                 <span>Image {index + 1}</span>

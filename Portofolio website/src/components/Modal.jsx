@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
 import Carousel from './Carousel';
 import './Modal.css';
-import unfoldVideo from '../assets/unfold-video.mp4';
-import unfoldImage from '../assets/unfold-image.png';
 
 const Modal = ({ project, onClose }) => {
     const [currentDescription, setCurrentDescription] = React.useState('');
     const [unfoldState, setUnfoldState] = React.useState('idle'); // idle, playing-1, showing-image, playing-2
+    const [currentIndex, setCurrentIndex] = React.useState(0);
 
     useEffect(() => {
         // Prevent scrolling when modal is open
@@ -14,6 +13,7 @@ const Modal = ({ project, onClose }) => {
         // Initialize description
         if (project) {
             setCurrentDescription(project.description);
+            setCurrentIndex(0); // Reset to first slide on open
         }
         return () => {
             document.body.style.overflow = 'unset';
@@ -21,8 +21,9 @@ const Modal = ({ project, onClose }) => {
     }, [project]);
 
     const handleSlideChange = (index) => {
+        setCurrentIndex(index);
         if (!project || !project.images) return;
-
+        
         const currentImage = project.images[index];
         if (typeof currentImage === 'object' && currentImage.description) {
             setCurrentDescription(currentImage.description);
@@ -31,8 +32,14 @@ const Modal = ({ project, onClose }) => {
         }
     };
 
+    const activeUnfoldVideo = project?.images?.[currentIndex]?.unfoldVideo;
+    const activeUnfoldImage = project?.images?.[currentIndex]?.unfoldImage;
+    const canUnfold = !!activeUnfoldVideo;
+
     const handleUnfoldClick = () => {
-        setUnfoldState('playing-1');
+        if (canUnfold) {
+            setUnfoldState('playing-1');
+        }
     };
 
     const handleVideoEnd = () => {
@@ -54,7 +61,7 @@ const Modal = ({ project, onClose }) => {
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" onClick={e => e.stopPropagation()}>
-                {unfoldState === 'idle' && (
+                {unfoldState === 'idle' && canUnfold && (
                     <button className="unfold-btn" onClick={handleUnfoldClick}>Unfold</button>
                 )}
                 <button className="modal-close" onClick={onClose}>&times;</button>
@@ -63,7 +70,7 @@ const Modal = ({ project, onClose }) => {
                     <div className="unfold-overlay">
                         {(unfoldState === 'playing-1' || unfoldState === 'playing-2') && (
                             <video
-                                src={unfoldVideo}
+                                src={activeUnfoldVideo}
                                 autoPlay
                                 className="unfold-media"
                                 onEnded={handleVideoEnd}
@@ -72,7 +79,7 @@ const Modal = ({ project, onClose }) => {
                         )}
                         {unfoldState === 'showing-image' && (
                             <img
-                                src={unfoldImage}
+                                src={activeUnfoldImage}
                                 alt="Unfolded"
                                 className="unfold-media clickable"
                                 onClick={handleImageClick}
@@ -107,3 +114,4 @@ const Modal = ({ project, onClose }) => {
 };
 
 export default Modal;
+

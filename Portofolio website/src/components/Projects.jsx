@@ -8,6 +8,8 @@ import figma from '../assets/figma.png';
 import html from '../assets/html.png';
 import css from '../assets/css.png';
 import js from '../assets/js.png';
+import unfoldVideo from '../assets/unfold-video.mp4';
+import unfoldImage from '../assets/unfold-image.png';
 
 const projects = [
   {
@@ -15,16 +17,15 @@ const projects = [
     title: 'UI/UX Design Portfolio',
     description: 'A showcase of my design projects using industry-standard tools. Explore my work in Figma, Canva, and Sketch.',
     tags: ['Figma', 'Canva', 'Sketch'],
-    link: '#', // Not used for modal trigger
-    color: '#3b82f6',
+    link: '#', // Replace with actual project link
+    color: '#6366f1', // Indigo
     images: [
-      { src: figma, description: 'Figma: Used for high-fidelity prototyping and interface design.' },
-      { src: sketch, description: 'Sketch: Utilized for vector-based icon and layout design.' },
-      { src: canva, description: 'Canva: Created rapid mockups and presentation assets.' }
+      { src: figma, description: 'Figma: Used for high-fidelity prototyping and interface design.', unfoldVideo: unfoldVideo, unfoldImage: unfoldImage },
+      { src: sketch, description: 'Sketch: Utilized for vector-based icon and layout design.', unfoldVideo: unfoldVideo, unfoldImage: unfoldImage },
+      { src: canva, description: 'Canva: Created rapid mockups and presentation assets.', unfoldVideo: unfoldVideo, unfoldImage: unfoldImage }
     ],
-    folderImages: [figma, sketch, canva], // Reversed images for folder papers
-    longDescription: ''
-
+    folderImages: [figma, sketch, canva],
+    longDescription: 'This portfolio highlights my expertise in User Interface and User Experience design. I leverage tools like Figma for collaborative design and prototyping, Sketch for detailed vector work, and Canva for quick, impactful visual assets. Each project demonstrates a focus on user-centric design principles and aesthetic excellence.'
   },
   {
     id: 2,
@@ -34,9 +35,9 @@ const projects = [
     link: '#',
     color: '#ec4899',
     images: [
-      { src: html, description: 'HTML5: Structured the semantic foundation of the application.' },
-      { src: css, description: 'CSS3: Styled the interface with responsive and modern techniques.' },
-      { src: js, description: 'JavaScript: Implemented dynamic features and real-time interactions.' }
+      { src: html, description: 'HTML5: Structured the semantic foundation of the application.', unfoldVideo: unfoldVideo, unfoldImage: unfoldImage },
+      { src: css, description: 'CSS3: Styled the interface with responsive and modern techniques.', unfoldVideo: unfoldVideo, unfoldImage: unfoldImage },
+      { src: js, description: 'JavaScript: Implemented dynamic features and real-time interactions.', unfoldVideo: unfoldVideo, unfoldImage: unfoldImage }
     ],
     folderImages: [html, css, js],
     longDescription: "I've build this portfolio website using react html and css"

@@ -10,7 +10,7 @@ import css from '../assets/css.png';
 import js from '../assets/js.png';
 import unfoldStart from '../assets/unfold-1-1.webm';
 import unfoldEnd from '../assets/unfold-reverse-1-1.webm';
-import unfoldImage from '../assets/unfold-image.png';
+
 
 const projects = [
   {
@@ -21,9 +21,9 @@ const projects = [
     link: '#', // Replace with actual project link
     color: '#6366f1', // Indigo
     images: [
-      { src: figma, description: 'I built a high-fidelity app prototype in Figma based on an Instagram-style vertical swipe, translating familiar social media interaction patterns into a student matching experience. The design focuses on ease of use, fast decision-making, and clear information, reducing the learning curve and making browsing matches feel natural and intuitive.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldImage: unfoldImage },
-      { src: sketch, description: 'Sketch: Utilized for vector-based icon and layout design.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldImage: unfoldImage },
-      { src: canva, description: 'Canva: Created rapid mockups and presentation assets.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldImage: unfoldImage }
+      { src: figma, description: 'I built a high-fidelity app prototype in Figma based on an Instagram-style vertical swipe, translating familiar social media interaction patterns into a student matching experience. The design focuses on ease of use, fast decision-making, and clear information, reducing the learning curve and making browsing matches feel natural and intuitive.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd },
+      { src: sketch, description: 'Sketch: Utilized for vector-based icon and layout design.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd },
+      { src: canva, description: 'Canva: Created rapid mockups and presentation assets.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd }
     ],
     folderImages: [figma, sketch, canva],
     longDescription: ''
@@ -36,9 +36,9 @@ const projects = [
     link: '#',
     color: '#ec4899',
     images: [
-      { src: html, description: 'HTML5: Structured the semantic foundation of the application.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldImage: unfoldImage },
-      { src: css, description: 'CSS3: Styled the interface with responsive and modern techniques.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldImage: unfoldImage },
-      { src: js, description: 'JavaScript: Implemented dynamic features and real-time interactions.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldImage: unfoldImage }
+      { src: html, description: 'HTML5: Structured the semantic foundation of the application.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd },
+      { src: css, description: 'CSS3: Styled the interface with responsive and modern techniques.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd },
+      { src: js, description: 'JavaScript: Implemented dynamic features and real-time interactions.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd }
     ],
     folderImages: [html, css, js],
     longDescription: "This portfolio website is a custom project built with React, HTML, and CSS, created to demonstrate my growth and experience in front-end development."

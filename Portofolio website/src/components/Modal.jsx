@@ -34,7 +34,7 @@ const Modal = ({ project, onClose }) => {
 
     const activeUnfoldVideoStart = project?.images?.[currentIndex]?.unfoldVideoStart;
     const activeUnfoldVideoEnd = project?.images?.[currentIndex]?.unfoldVideoEnd;
-    const activeUnfoldImage = project?.images?.[currentIndex]?.unfoldImage;
+
     const canUnfold = !!activeUnfoldVideoStart;
 
     const handleUnfoldClick = () => {
@@ -51,11 +51,10 @@ const Modal = ({ project, onClose }) => {
         }
     };
 
-    const handleImageClick = (e) => {
+    const handleReverseStart = (e) => {
         e.stopPropagation();
-        if (unfoldState === 'showing-image') {
-            setUnfoldState('playing-2');
-        }
+        e.target.play();
+        setUnfoldState('playing-2');
     };
 
     if (!project) return null;
@@ -89,11 +88,10 @@ const Modal = ({ project, onClose }) => {
                             />
                         )}
                         {unfoldState === 'showing-image' && (
-                            <img
-                                src={activeUnfoldImage}
-                                alt="Unfolded"
+                            <video
+                                src={activeUnfoldVideoEnd}
                                 className="unfold-media clickable"
-                                onClick={handleImageClick}
+                                onClick={handleReverseStart}
                             />
                         )}
                     </div>

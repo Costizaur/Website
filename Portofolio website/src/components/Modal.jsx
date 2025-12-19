@@ -6,6 +6,13 @@ const Modal = ({ project, onClose }) => {
     const [currentDescription, setCurrentDescription] = React.useState('');
     const [unfoldState, setUnfoldState] = React.useState('idle'); // idle, playing-1, showing-image, playing-2
     const [currentIndex, setCurrentIndex] = React.useState(0);
+    const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         // Prevent scrolling when modal is open
@@ -32,8 +39,14 @@ const Modal = ({ project, onClose }) => {
         }
     };
 
-    const activeUnfoldVideoStart = project?.images?.[currentIndex]?.unfoldVideoStart;
-    const activeUnfoldVideoEnd = project?.images?.[currentIndex]?.unfoldVideoEnd;
+    const activeUnfoldVideoStart = (isMobile && project?.images?.[currentIndex]?.unfoldVideoStartMobile)
+        ? project.images[currentIndex].unfoldVideoStartMobile
+        : project?.images?.[currentIndex]?.unfoldVideoStart;
+
+    const activeUnfoldVideoEnd = (isMobile && project?.images?.[currentIndex]?.unfoldVideoEndMobile)
+        ? project.images[currentIndex].unfoldVideoEndMobile
+        : project?.images?.[currentIndex]?.unfoldVideoEnd;
+
     const activeUnfoldText = project?.images?.[currentIndex]?.unfoldText;
 
     const canUnfold = !!activeUnfoldVideoStart;

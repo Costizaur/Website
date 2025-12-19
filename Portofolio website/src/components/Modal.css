@@ -22,7 +22,9 @@
     border-radius: 20px;
     border: 1px solid var(--border-color);
     position: relative;
-    overflow-y: auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -47,6 +49,10 @@
 
 .modal-body {
     padding: 0;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-carousel-container {
@@ -56,6 +62,7 @@
 
 .modal-info {
     padding: 2rem;
+    padding-bottom: 5rem;
 }
 
 .modal-title {

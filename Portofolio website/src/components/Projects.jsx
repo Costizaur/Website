@@ -30,7 +30,7 @@ const projects = [
   {
     id: 2,
     title: 'Portfolio Website',
-    description: "I've build this portfolio website using react html and css",
+    description: "This portfolio website is a custom project built with React, HTML, and CSS, created to demonstrate my growth and experience in front-end development.",
     tags: ['React', 'HTML', 'CSS'],
     link: '#',
     color: '#ec4899',

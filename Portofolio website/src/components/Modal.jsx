@@ -94,9 +94,24 @@ const Modal = ({ project, onClose }) => {
                                     src={activeUnfoldVideoEnd}
                                     className="unfold-media"
                                 />
-                                <div className="unfold-text-overlay">
-                                    <p>{activeUnfoldText}</p>
-                                </div>
+                                {Array.isArray(activeUnfoldText) ? (
+                                    <div className="unfold-grid-overlay">
+                                        {activeUnfoldText.map((section, index) => (
+                                            <div key={index} className="unfold-grid-item">
+                                                <h4>{section.title}</h4>
+                                                <ul>
+                                                    {section.items.map((item, i) => (
+                                                        <li key={i}>{item}</li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="unfold-text-overlay">
+                                        <p>{activeUnfoldText}</p>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

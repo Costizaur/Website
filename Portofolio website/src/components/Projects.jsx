@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Folder from './Folder';
 import Modal from './Modal';
 import './Projects.css';
+import Finder from './Finder';
 import canva from '../assets/canva.png';
 import sketch from '../assets/sketch.png';
 import figma from '../assets/figma.png';
@@ -24,6 +25,7 @@ const projects = [
     color: '#6366f1', // Indigo
     images: [
       {
+        title: 'Roomerr',
         src: figma, description: 'I built a high-fidelity app prototype in Figma based on an Instagram-style vertical swipe, translating familiar social media interaction patterns into a student matching experience. The design focuses on ease of use, fast decision-making, and clear information, reducing the learning curve and making browsing matches feel natural and intuitive.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: [
           { title: "Process", items: ["Analyzed student housing platforms to identify usability and trust issues", "Studied popular social media apps to understand familiar interaction patterns", "Defined core needs: speed, clarity, and compatibility"] },
           { title: "Concept", items: ["Explored swipe-based matching to reduce decision fatigue", "Defined key matching criteria (budget, location, lifestyle)", "Created simple, fast user flows"] },
@@ -31,8 +33,8 @@ const projects = [
           { title: "Test & Decide", items: ["A/B tested: Instagram-like vertical swipe vs Tinder-like horizontal swipe", "Chose vertical swiping for its familiarity and ease of use", "Finalized a matching experience optimized for quick browsing"] }
         ]
       },
-      { src: sketch, description: 'Sketch: Utilized for vector-based icon and layout design.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: 'Click to Reverse' },
-      { src: canva, description: 'Canva: Created rapid mockups and presentation assets.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: 'Click to Reverse' }
+      { title: 'Vector Icons', src: sketch, description: 'Sketch: Utilized for vector-based icon and layout design.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: 'Click to Reverse' },
+      { title: 'Marketing Mockups', src: canva, description: 'Canva: Created rapid mockups and presentation assets.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: 'Click to Reverse' }
     ],
     folderImages: [figma, sketch, canva],
     longDescription: ''
@@ -45,9 +47,9 @@ const projects = [
     link: '#',
     color: '#ec4899',
     images: [
-      { src: html, description: 'HTML5: Structured the semantic foundation of the application.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: 'Click to Reverse' },
-      { src: css, description: 'CSS3: Styled the interface with responsive and modern techniques.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: 'Click to Reverse' },
-      { src: js, description: 'JavaScript: Implemented dynamic features and real-time interactions.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: 'Click to Reverse' }
+      { title: 'HTML Structure', src: html, description: 'HTML5: Structured the semantic foundation of the application.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: 'Click to Reverse' },
+      { title: 'CSS Styling', src: css, description: 'CSS3: Styled the interface with responsive and modern techniques.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: 'Click to Reverse' },
+      { title: 'JS Interactivity', src: js, description: 'JavaScript: Implemented dynamic features and real-time interactions.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: 'Click to Reverse' }
     ],
     folderImages: [html, css, js],
     longDescription: "This portfolio website is a custom project built with React, HTML, and CSS, created to demonstrate my growth and experience in front-end development."
@@ -59,7 +61,7 @@ const projects = [
     tags: [],
     link: '#',
     color: '#10b981',
-    images: ['#10b981', '#34d399', '#6ee7b7'],
+    images: [],
     folderImages: ['#10b981', '#34d399', '#6ee7b7'],
     longDescription: 'Coming Soon'
   }
@@ -67,16 +69,36 @@ const projects = [
 
 const Projects = () => {
   const [selectedProject, setSelectedProject] = useState(null);
+  const [showFinder, setShowFinder] = useState(false);
 
-  const handleViewProject = (e, project) => {
+  const [currentCategoryProject, setCurrentCategoryProject] = useState(null);
+
+  const handleOpenFinder = (e, project) => {
     e.preventDefault();
-    setSelectedProject(project);
+    setCurrentCategoryProject(project);
+    setShowFinder(true);
+  };
+
+  const handleSelectProject = (project, index = 0) => {
+    setShowFinder(false);
+
+    // Create a scoped project object for the selected item
+    const selectedItem = project.images[index];
+    const scopedProject = {
+      ...project,
+      title: selectedItem.title || project.title,
+      description: selectedItem.description || project.description,
+      images: [selectedItem, '#333', '#555'], // Isolate this item + placeholders
+      initialIndex: 0 // Always start at 0 since there's only 1 item
+    };
+
+    setSelectedProject(scopedProject);
   };
 
   return (
     <section id="projects" className="section projects-section">
       <div className="container">
-        <h2 className="section-title">Featured Projects</h2>
+        <h2 className="section-title">Projects</h2>
         <div className="projects-grid">
           {projects.map((project) => (
             <div key={project.id} className="project-card">
@@ -108,7 +130,7 @@ const Projects = () => {
               </div>
               <div
                 className="project-content"
-                onClick={(e) => handleViewProject(e, project)}
+                onClick={(e) => handleOpenFinder(e, project)}
                 style={{ cursor: 'pointer' }}
               >
                 <h3 className="project-title">{project.title}</h3>
@@ -118,8 +140,8 @@ const Projects = () => {
                     <span key={tag} className="tag">{tag}</span>
                   ))}
                 </div>
-                <a href={project.link} className="project-link" onClick={(e) => handleViewProject(e, project)}>
-                  View Project &rarr;
+                <a href={project.link} className="project-link" onClick={(e) => handleOpenFinder(e, project)}>
+                  Projects &rarr;
                 </a>
               </div>
             </div>
@@ -131,6 +153,19 @@ const Projects = () => {
         <Modal
           project={selectedProject}
           onClose={() => setSelectedProject(null)}
+          onBack={() => {
+            setSelectedProject(null);
+            setShowFinder(true);
+          }}
+        />
+      )}
+
+      {showFinder && (
+        <Finder
+          categories={projects}
+          initialCategory={currentCategoryProject}
+          onClose={() => setShowFinder(false)}
+          onSelectProject={handleSelectProject}
         />
       )}
     </section>

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import './Carousel.css';
 
-const Carousel = ({ images, onSlideChange }) => {
-    const [currentIndex, setCurrentIndex] = useState(0);
+const Carousel = ({ images, onSlideChange, initialIndex = 0 }) => {
+    const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
     // Notify parent of slide change
     React.useEffect(() => {
@@ -48,8 +48,12 @@ const Carousel = ({ images, onSlideChange }) => {
                 ))}
             </div>
 
-            <button className="carousel-btn prev" onClick={prevSlide}>&lt;</button>
-            <button className="carousel-btn next" onClick={nextSlide}>&gt;</button>
+            {images.length > 1 && (
+                <>
+                    <button className="carousel-btn prev" onClick={prevSlide}>&lt;</button>
+                    <button className="carousel-btn next" onClick={nextSlide}>&gt;</button>
+                </>
+            )}
 
             <div className="carousel-indicators">
                 {images.map((_, index) => (

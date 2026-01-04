@@ -246,3 +246,50 @@
         /* Allow scrolling on mobile */
     }
 }
+
+/* Back Button Styles */
+.modal-back {
+    position: absolute;
+    bottom: 20px;
+    /* Same as unfold-btn */
+    left: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    /* Same as unfold-btn */
+    font-size: 1.2rem;
+    width: auto;
+    height: auto;
+    padding: 8px 16px;
+    /* Same padding as unfold-btn */
+    border-radius: 20px;
+    /* Same radius */
+    cursor: pointer;
+    z-index: 101;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+}
+
+.modal-back:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+    transform: scale(1.1);
+}
+
+/* Hide scrollbars in modal info */
+.modal-info,
+.modal-body {
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE/Edge */
+}
+
+.modal-info::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari */
+}

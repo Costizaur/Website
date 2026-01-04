@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import Carousel from './Carousel';
 import './Modal.css';
 
-const Modal = ({ project, onClose }) => {
+const Modal = ({ project, onClose, onBack }) => {
     const [currentDescription, setCurrentDescription] = React.useState('');
     const [unfoldState, setUnfoldState] = React.useState('idle'); // idle, playing-1, showing-image, playing-2
-    const [currentIndex, setCurrentIndex] = React.useState(0);
+    const [currentIndex, setCurrentIndex] = React.useState(project.initialIndex || 0); // Use initialIndex if provided
     const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
 
     useEffect(() => {
@@ -20,7 +20,7 @@ const Modal = ({ project, onClose }) => {
         // Initialize description
         if (project) {
             setCurrentDescription(project.description);
-            setCurrentIndex(0); // Reset to first slide on open
+            setCurrentIndex(project.initialIndex || 0); // Reset to initialIndex on open
         }
         return () => {
             document.body.style.overflow = 'unset';
@@ -39,15 +39,19 @@ const Modal = ({ project, onClose }) => {
         }
     };
 
-    const activeUnfoldVideoStart = (isMobile && project?.images?.[currentIndex]?.unfoldVideoStartMobile)
-        ? project.images[currentIndex].unfoldVideoStartMobile
-        : project?.images?.[currentIndex]?.unfoldVideoStart;
+    // Use the FIRST image (primary item) for unfold logic to keep it persistent
+    const primaryItem = project.images[0];
+    const activeUnfoldVideoStart = (isMobile && primaryItem?.unfoldVideoStartMobile)
+        ? primaryItem.unfoldVideoStartMobile
+        : primaryItem?.unfoldVideoStart;
 
-    const activeUnfoldVideoEnd = (isMobile && project?.images?.[currentIndex]?.unfoldVideoEndMobile)
-        ? project.images[currentIndex].unfoldVideoEndMobile
-        : project?.images?.[currentIndex]?.unfoldVideoEnd;
+    const activeUnfoldVideoEnd = (isMobile && primaryItem?.unfoldVideoEndMobile)
+        ? primaryItem.unfoldVideoEndMobile
+        : primaryItem?.unfoldVideoEnd;
 
-    const activeUnfoldText = project?.images?.[currentIndex]?.unfoldText;
+    const activeUnfoldText = primaryItem?.unfoldText;
+
+
 
     const canUnfold = !!activeUnfoldVideoStart;
 
@@ -80,6 +84,14 @@ const Modal = ({ project, onClose }) => {
                     <button className="unfold-btn" onClick={handleUnfoldClick}>Unfold</button>
                 )}
                 <button className="modal-close" onClick={onClose}>&times;</button>
+                {onBack && (
+                    <button
+                        className="modal-back"
+                        onClick={onBack}
+                    >
+                        &larr;
+                    </button>
+                )}
 
                 {unfoldState !== 'idle' ? (
                     <div className="unfold-overlay">
@@ -131,7 +143,7 @@ const Modal = ({ project, onClose }) => {
                 ) : (
                     <div className="modal-body">
                         <div className="modal-carousel-container">
-                            <Carousel images={project.images || [project.color]} onSlideChange={handleSlideChange} />
+                            <Carousel images={project.images || [project.color]} onSlideChange={handleSlideChange} initialIndex={project.initialIndex || 0} />
                         </div>
 
                         <div className="modal-info">

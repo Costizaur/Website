@@ -3,15 +3,10 @@ import Folder from './Folder';
 import Modal from './Modal';
 import './Projects.css';
 import Finder from './Finder';
-import canva from '../assets/canva.png';
-import sketch from '../assets/sketch.png';
 import figma from '../assets/figma.png';
 import roomerrLogo from '../assets/roomerr-logo.png';
 import roomerrScreens1 from '../assets/roomerr-screens-1.png';
 import roomerrScreens2 from '../assets/roomerr-screens-2.png';
-import html from '../assets/html.png';
-import css from '../assets/css.png';
-import js from '../assets/js.png';
 import unfoldStart from '../assets/unfold-g.webm';
 import unfoldEnd from '../assets/unfold-g-reverse.webm';
 import unfoldStartMobile from '../assets/unfold-g-90.webm';
@@ -23,7 +18,7 @@ const projects = [
     id: 1,
     title: 'UI/UX Design Portfolio',
     description: 'A showcase of my design projects using industry-standard tools. Explore my work in Figma, Canva, and Sketch.',
-    tags: ['Figma', 'Canva', 'Sketch'],
+    tags: ['Figma'],
     link: '#', // Replace with actual project link
     color: '#6366f1', // Indigo
     images: [
@@ -39,10 +34,9 @@ const projects = [
           { title: "Test & Decide", items: ["A/B tested: Instagram-like vertical swipe vs Tinder-like horizontal swipe", "Chose vertical swiping for its familiarity and ease of use", "Finalized a matching experience optimized for quick browsing"] }
         ]
       },
-      { title: 'Vector Icons', src: sketch, description: 'Sketch: Utilized for vector-based icon and layout design.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: 'Click to Reverse' },
-      { title: 'Marketing Mockups', src: canva, description: 'Canva: Created rapid mockups and presentation assets.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: 'Click to Reverse' }
+      { title: 'Coming Soon', description: 'More design projects are in the works.' }
     ],
-    folderImages: [figma, sketch, canva],
+    folderImages: [figma, '#e0e7ff', '#c7d2fe'],
     longDescription: ''
   },
   {
@@ -53,11 +47,9 @@ const projects = [
     link: '#',
     color: '#ec4899',
     images: [
-      { title: 'HTML Structure', src: html, description: 'HTML5: Structured the semantic foundation of the application.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: 'Click to Reverse' },
-      { title: 'CSS Styling', src: css, description: 'CSS3: Styled the interface with responsive and modern techniques.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: 'Click to Reverse' },
-      { title: 'JS Interactivity', src: js, description: 'JavaScript: Implemented dynamic features and real-time interactions.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: 'Click to Reverse' }
+      { title: 'Coming Soon', description: 'Detailed breakdown of the portfolio development process coming soon.' }
     ],
-    folderImages: [html, css, js],
+    folderImages: ['#ec4899', '#fbcfe8', '#fce7f3'],
     longDescription: "This portfolio website is a custom project built with React, HTML, and CSS, created to demonstrate my growth and experience in front-end development."
   },
   {

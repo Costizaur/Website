@@ -159,6 +159,17 @@ const Modal = ({ project, onClose, onBack }) => {
                                 <p>{project.longDescription}</p>
                                 <p>Tools used: {project.tags.join(', ')}</p>
                             </div>
+                            {project.designLink && (
+                                <a
+                                    href={project.designLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="project-link"
+                                    style={{ marginTop: '20px', display: 'inline-block' }}
+                                >
+                                    View Design in Figma &rarr;
+                                </a>
+                            )}
                         </div>
                     </div>
                 )}

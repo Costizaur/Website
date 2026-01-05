@@ -6,6 +6,9 @@ import Finder from './Finder';
 import canva from '../assets/canva.png';
 import sketch from '../assets/sketch.png';
 import figma from '../assets/figma.png';
+import roomerrLogo from '../assets/roomerr-logo.png';
+import roomerrScreens1 from '../assets/roomerr-screens-1.png';
+import roomerrScreens2 from '../assets/roomerr-screens-2.png';
 import html from '../assets/html.png';
 import css from '../assets/css.png';
 import js from '../assets/js.png';
@@ -26,7 +29,10 @@ const projects = [
     images: [
       {
         title: 'Roomerr',
-        src: figma, description: 'I built a high-fidelity app prototype in Figma based on an Instagram-style vertical swipe, translating familiar social media interaction patterns into a student matching experience. The design focuses on ease of use, fast decision-making, and clear information, reducing the learning curve and making browsing matches feel natural and intuitive.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: [
+        src: roomerrLogo,
+        extraImages: [roomerrScreens1, roomerrScreens2],
+        designLink: 'https://www.figma.com/proto/GsGKhpn6RRXChjF1Ux9aot/Untitled?page-id=0%3A1&node-id=136-1722&p=f&viewport=-7268%2C-3208%2C0.66&t=e9NU9ARW2bsyHmj4-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=136%3A1722',
+        description: 'I built a high-fidelity app prototype in Figma based on an Instagram-style vertical swipe, translating familiar social media interaction patterns into a student matching experience. The design focuses on ease of use, fast decision-making, and clear information, reducing the learning curve and making browsing matches feel natural and intuitive.', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: [
           { title: "Process", items: ["Analyzed student housing platforms to identify usability and trust issues", "Studied popular social media apps to understand familiar interaction patterns", "Defined core needs: speed, clarity, and compatibility"] },
           { title: "Concept", items: ["Explored swipe-based matching to reduce decision fatigue", "Defined key matching criteria (budget, location, lifestyle)", "Created simple, fast user flows"] },
           { title: "Design", items: ["Designed low- to high-fidelity prototypes", "Built a mobile-first, card-based interface", "Focused on clear, scannable profile information"] },
@@ -84,11 +90,33 @@ const Projects = () => {
 
     // Create a scoped project object for the selected item
     const selectedItem = project.images[index];
+
+    let scopedImages;
+    if (selectedItem.extraImages && selectedItem.extraImages.length > 0) {
+      scopedImages = selectedItem.extraImages.map((imgSrc, i) => {
+        if (i === 0) {
+          // Attach metadata to the first image so Modal picks it up
+          return {
+            src: imgSrc,
+            unfoldVideoStart: selectedItem.unfoldVideoStart,
+            unfoldVideoEnd: selectedItem.unfoldVideoEnd,
+            unfoldVideoStartMobile: selectedItem.unfoldVideoStartMobile,
+            unfoldVideoEndMobile: selectedItem.unfoldVideoEndMobile,
+            unfoldText: selectedItem.unfoldText
+          };
+        }
+        return imgSrc;
+      });
+    } else {
+      scopedImages = [selectedItem, '#333', '#555'];
+    }
+
     const scopedProject = {
       ...project,
       title: selectedItem.title || project.title,
       description: selectedItem.description || project.description,
-      images: [selectedItem, '#333', '#555'], // Isolate this item + placeholders
+      images: scopedImages,
+      designLink: selectedItem.designLink,
       initialIndex: 0 // Always start at 0 since there's only 1 item
     };
 

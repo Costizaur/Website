@@ -39,6 +39,7 @@
             });
 
             peer.on('connection', (conn) => {
+                document.getElementById("qrcode").style.display = "none";
                 conn.on('data', (data) => {
                     if (data.tiltX !== undefined) tiltX = data.tiltX;
                     if (data.tiltY !== undefined) tiltY = data.tiltY;

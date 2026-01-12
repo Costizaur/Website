@@ -73,7 +73,15 @@
             if (!conn || !conn.open) return;
 
             if (millis() - lastSendTime > 50) {
-                conn.send({ tiltX: e.gamma || 0, tiltY: e.beta || 0 });
+                let tiltX = e.gamma || 0;
+                let tiltY = e.beta || 0;
+
+
+                conn.send({
+                    tiltX: tiltX,
+                    tiltY: -tiltY
+                });
+
                 lastSendTime = millis();
             }
         }

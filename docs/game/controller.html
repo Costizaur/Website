@@ -115,6 +115,20 @@
             resizeCanvas(windowWidth, windowHeight);
             if (enableBtn) enableBtn.center();
         }
+
+        function mousePressed() {
+            if (conn && conn.open) {
+                conn.send({
+                    action: 'shoot'
+                });
+
+                // Visual feedback (flash)
+                // Note: Since draw() runs every frame and clears background, 
+                // this might be subtle, but we'll include it as requested.
+                background(255);
+                setTimeout(() => background(200), 50);
+            }
+        }
     </script>
 </body>
 

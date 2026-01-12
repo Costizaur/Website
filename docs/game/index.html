@@ -54,7 +54,7 @@
             text("Scan QR to play!", width / 2, 50);
 
             playerX += tiltX * 0.5;
-            playerY -= tiltY * 0.5;
+            playerY += tiltY * 0.5;
 
             playerX = constrain(playerX, 25, width - 25);
             playerY = constrain(playerY, 25, height - 25);

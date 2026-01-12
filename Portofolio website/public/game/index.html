@@ -34,7 +34,7 @@
             peer = new Peer();
 
             peer.on('open', (id) => {
-                // Use production domain for QR code to ensure phone can connect even when host is localhost
+
                 const baseUrl = 'https://www.costinsarghiuta.com/game/';
                 let controllerURL = baseUrl + 'controller.html?hostId=' + id;
 

@@ -170,6 +170,17 @@ const Modal = ({ project, onClose, onBack }) => {
                                     View Design in Figma &rarr;
                                 </a>
                             )}
+                            {project.gameLink && (
+                                <a
+                                    href={project.gameLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="project-link"
+                                    style={{ marginTop: '20px', marginLeft: '10px', display: 'inline-block' }}
+                                >
+                                    Play Game &rarr;
+                                </a>
+                            )}
                         </div>
                     </div>
                 )}

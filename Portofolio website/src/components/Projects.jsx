@@ -4,6 +4,7 @@ import Modal from './Modal';
 import './Projects.css';
 import Finder from './Finder';
 import figma from '../assets/figma.png';
+import calorieApp from '../assets/calorie-app.png';
 import roomerrLogo from '../assets/roomerr-logo.png';
 import roomerrScreens1 from '../assets/roomerr-screens-1.png';
 import roomerrScreens2 from '../assets/roomerr-screens-2.png';
@@ -34,9 +35,16 @@ const projects = [
           { title: "Test & Decide", items: ["A/B tested: Instagram-like vertical swipe vs Tinder-like horizontal swipe", "Chose vertical swiping for its familiarity and ease of use", "Finalized a matching experience optimized for quick browsing"] }
         ]
       },
-      { title: 'Coming Soon', description: 'More design projects are in the works.' }
+      {
+        title: 'Calorie App', src: calorieApp, description: 'This prototype exemplifies how I would gamify a simple calorie-tracking app to motivate people to continue their journey by adding rankings and badges. The app becomes more engaging and lively. Alongside this app, I also created a watch companion prototype that helps users log their food and track their progress.', designLink: 'https://www.figma.com/proto/hQbNFs1uEQt65pwNjoC4nO/Untitled?page-id=0%3A1&node-id=1-2&viewport=-155%2C334%2C0.51&t=tpcoy8Bx0x2wpUVq-1&scaling=scale-down&content-scaling=fixed&starting-point-node-id=1%3A2', unfoldVideoStart: unfoldStart, unfoldVideoEnd: unfoldEnd, unfoldVideoStartMobile: unfoldStartMobile, unfoldVideoEndMobile: unfoldEndMobile, unfoldText: [
+          { title: "Process", items: ["Analyzed standard calorie-tracking apps to identify user churn and engagement drop-offs", "Conducted user research via Google Forms to understand what motivates users to log data consistently", "Defined the core challenge: transforming a monotonous data-entry task into a rewarding habit"] },
+          { title: "Concept", items: ["Explored diverse gamification mechanics, ranging from mini-games to point systems and social leaderboards", "Conceptualized a \"Mission Tab\" to centralize goals and visualize progress", "Focused on extrinsic motivation triggers (badges and rankings) to combat user fatigue"] },
+          { title: "Design", items: ["Integrated new features seamlessly by strictly adhering to the app’s existing visual language and UI patterns", "Designed a cohesive system of badges and a competitive ranking interface", "Expanded the ecosystem by creating a watch companion prototype for friction-free, on-the-go logging"] },
+          { title: "Test & Decide", items: ["Surveyed potential users to compare the appeal of complex mini-games versus streamlined ranking systems", "Prioritized badges and rankings based on user preference for clear, achievement-based motivation"] }
+        ]
+      }
     ],
-    folderImages: [figma, '#e0e7ff', '#c7d2fe'],
+    folderImages: [roomerrLogo, calorieApp],
     longDescription: ''
   },
   {
@@ -54,12 +62,14 @@ const projects = [
   },
   {
     id: 3,
-    title: 'Project 3',
-    description: 'Coming Soon',
-    tags: [],
+    title: 'Creative Coding',
+    description: 'Experiments with code, interactivity, and generative art.',
+    tags: ['p5.js', 'PeerJS'],
     link: '#',
     color: '#10b981',
-    images: [],
+    images: [
+      { title: 'PeerJS Game', description: 'A multiplayer game experiment using PeerJS for WebRTC connection. Scan the QR code with your phone to control the player on the screen using device orientation.', gameLink: '/game/index.html' }
+    ],
     folderImages: ['#10b981', '#34d399', '#6ee7b7'],
     longDescription: 'Coming Soon'
   }
@@ -100,7 +110,7 @@ const Projects = () => {
         return imgSrc;
       });
     } else {
-      scopedImages = [selectedItem, '#333', '#555'];
+      scopedImages = [selectedItem];
     }
 
     const scopedProject = {
@@ -109,6 +119,7 @@ const Projects = () => {
       description: selectedItem.description || project.description,
       images: scopedImages,
       designLink: selectedItem.designLink,
+      gameLink: selectedItem.gameLink,
       initialIndex: 0 // Always start at 0 since there's only 1 item
     };
 

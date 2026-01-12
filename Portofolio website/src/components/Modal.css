@@ -200,16 +200,18 @@
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 1fr 1fr;
     gap: 1.5rem;
-    padding: 2rem;
+    padding: 4rem;
     pointer-events: none;
     animation: fadeIn 0.3s ease;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 .unfold-grid-item {
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(8px);
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 1rem;
     color: white;
     display: flex;
     flex-direction: column;
@@ -218,7 +220,7 @@
 }
 
 .unfold-grid-item h4 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     margin-bottom: 1rem;
     color: var(--accent-color, #6366f1);
     font-weight: 600;
@@ -231,7 +233,7 @@
 }
 
 .unfold-grid-item li {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     margin-bottom: 0.5rem;
     line-height: 1.4;
     opacity: 0.9;

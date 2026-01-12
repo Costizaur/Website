@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+
+<body>
+    <div id="qrcode" style="position: absolute; top: 10px; right: 10px;"></div>
+
+    <script>
+        let peer;
+        let playerX, playerY;
+        let tiltX = 0, tiltY = 0;
+        let detectedColor = "white";
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            playerX = width / 2;
+            playerY = height / 2;
+            textAlign(CENTER, CENTER);
+
+            peer = new Peer();
+
+            peer.on('open', (id) => {
+                // Use production domain for QR code to ensure phone can connect even when host is localhost
+                const baseUrl = 'https://www.costinsarghiuta.com/game/';
+                let controllerURL = baseUrl + 'controller.html?hostId=' + id;
+
+                new QRCode(document.getElementById("qrcode"), {
+                    text: controllerURL,
+                    width: 128,
+                    height: 128
+                });
+            });
+
+            peer.on('connection', (conn) => {
+                conn.on('data', (data) => {
+                    if (data.tiltX !== undefined) tiltX = data.tiltX;
+                    if (data.tiltY !== undefined) tiltY = data.tiltY;
+                    if (data.color) detectedColor = data.color;
+                });
+            });
+        }
+
+        function draw() {
+            if (detectedColor === 'Red') background(255, 200, 200);
+            else if (detectedColor === 'Blue') background(200, 200, 255);
+            else background(220);
+
+            fill(0);
+            text("Scan QR to play!", width / 2, 50);
+
+            playerX += tiltX * 0.5;
+            playerY += tiltY * 0.5;
+
+            playerX = constrain(playerX, 25, width - 25);
+            playerY = constrain(playerY, 25, height - 25);
+
+            fill(50, 150, 255);
+            ellipse(playerX, playerY, 50, 50);
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+    </script>
+</body>
+
+</html>

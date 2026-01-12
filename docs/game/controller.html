@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+    <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+</head>
+
+<body>
+    <script>
+        let peer, conn;
+        let enableBtn;
+        let statusLabel = 'Tap Enable to Start';
+        let classifier;
+        let lastSendTime = 0;
+
+        function setup() {
+            createCanvas(windowWidth, windowHeight);
+            textAlign(CENTER, CENTER);
+            textSize(20);
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const hostId = urlParams.get('hostId');
+
+            if (!hostId) {
+                statusLabel = "Error: No Host ID found.";
+                return;
+            }
+
+            peer = new Peer();
+            peer.on('open', (id) => {
+                conn = peer.connect(hostId);
+                conn.on('open', () => {
+                    statusLabel = "Connected! Tap Enable.";
+                });
+            });
+
+            enableBtn = createButton('Enable Sensors');
+            enableBtn.center();
+            enableBtn.mousePressed(enableTilt);
+
+            classifier = ml5.soundClassifier(
+                'https://teachablemachine.withgoogle.com/models/3fT44CmY8/model.json',
+                modelReady
+            );
+        }
+
+        function modelReady() {
+            classifier.classify(gotResult);
+        }
+
+        function enableTilt() {
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response === 'granted') {
+                            window.addEventListener('deviceorientation', handleOrientation);
+                            enableBtn.hide();
+                            statusLabel = "Sending Data...";
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                window.addEventListener('deviceorientation', handleOrientation);
+                enableBtn.hide();
+                statusLabel = "Sending Data...";
+            }
+        }
+
+        function handleOrientation(e) {
+            if (!conn || !conn.open) return;
+
+            if (millis() - lastSendTime > 50) {
+                conn.send({ tiltX: e.gamma || 0, tiltY: e.beta || 0 });
+                lastSendTime = millis();
+            }
+        }
+
+        function gotResult(error, results) {
+            if (error) return;
+
+            let label = results[0].label;
+            let conf = results[0].confidence;
+
+            if (conn && conn.open && conf > 0.8) {
+                if (['Red', 'Blue', 'Green'].includes(label)) {
+                    conn.send({ color: label });
+                }
+            }
+        }
+
+        function draw() {
+            background(200);
+            text(statusLabel, width / 2, height / 2);
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+            if (enableBtn) enableBtn.center();
+        }
+    </script>
+</body>
+
+</html>

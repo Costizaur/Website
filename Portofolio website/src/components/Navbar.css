@@ -59,3 +59,24 @@
     transform: translateY(-2px);
     opacity: 0.9;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .nav-links {
+        gap: 1rem;
+    }
+
+    .nav-links a {
+        font-size: 0.85rem;
+    }
+
+    .nav-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    .logo {
+        font-size: 1.25rem;
+    }
+}

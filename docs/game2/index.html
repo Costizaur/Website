@@ -140,6 +140,19 @@
             color: #000000;
             font-weight: bold;
         }
+
+        #menu-screen {
+            pointer-events: auto;
+            z-index: 1000;
+        }
+
+        #qrcode-container {
+            z-index: 1000;
+        }
+
+        #hud {
+            z-index: 1000;
+        }
     </style>
 </head>
 
@@ -196,7 +209,11 @@
         }
 
         function setup() {
-            createCanvas(windowWidth, windowHeight);
+            let cnv = createCanvas(windowWidth, windowHeight);
+            cnv.style('position', 'absolute');
+            cnv.style('top', '0');
+            cnv.style('padding', '0');
+            cnv.style('z-index', '-1');
             rectMode(CENTER); textAlign(CENTER, CENTER);
 
             grassImg.resize(250, 250);

@@ -2,6 +2,9 @@
 <html>
 
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>River Racer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -11,15 +14,6 @@
             overflow: hidden;
             background: #000;
             font-family: 'Courier New', sans-serif;
-        }
-
-        #ui-layer {
-            position: absolute;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 10;
         }
 
         #menu-screen {
@@ -34,6 +28,7 @@
             justify-content: center;
             align-items: center;
             pointer-events: auto;
+            z-index: 20;
         }
 
         h1 {
@@ -84,6 +79,11 @@
             text-align: center;
             color: white;
             pointer-events: auto;
+            z-index: 10;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #555;
         }
 
         #qrcode {
@@ -101,6 +101,7 @@
             color: white;
             font-size: 20px;
             font-weight: bold;
+            z-index: 5;
         }
 
         .p1-score {
@@ -115,15 +116,16 @@
 
         #tutorial-overlay {
             position: absolute;
-            bottom: 100px;
+            bottom: 50px;
             width: 100%;
             text-align: center;
             color: white;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             text-shadow: 1px 1px 2px black;
             pointer-events: none;
             opacity: 0.9;
+            line-height: 1.5;
         }
 
         .key {
@@ -134,8 +136,17 @@
             margin-top: 10px;
             font-size: 14px;
             opacity: 1;
-            color: #000000;
+            color: #fff;
             font-weight: bold;
+        }
+
+        .keyboard-hint {
+            color: #FFFF00;
+            font-size: 18px;
+            margin-top: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -148,16 +159,17 @@
         <button class="btn btn-blue" onclick="setMode(2)">2 PLAYERS</button>
 
         <div id="tutorial-overlay">
-            <p>CONTROLS:</p>
-            <p>HOLD <span class="key">BOTH BUTTONS</span> TO ACCELERATE</p>
-            <p>PRESS <span class="key">L</span> OR <span class="key">R</span> TO STEER</p>
+            <p>P1 (RED): HOLD <span class="key">LEFT + RIGHT</span> TO ACCELERATE</p>
+            <p>P2 (BLUE): HOLD <span class="key">A + D</span> TO ACCELERATE</p>
+            <p style="font-size: 12px; margin-top:5px; opacity:0.7">Release one key to steer.</p>
         </div>
     </div>
 
     <div id="qrcode-container">
         <h2 id="lobby-status">Scan to Join</h2>
         <div id="qrcode"></div>
-        <p class="wifi-text">Make sure phones are on same Wi-Fi</p>
+        <p class="wifi-text">Scan with Phone</p>
+        <p id="kb-start-msg" class="keyboard-hint">PRESS [ENTER] TO JOIN LOCAL PLAYER</p>
     </div>
 
     <div id="hud">
@@ -172,6 +184,11 @@
         let ripples = [];
         let gameState = "MENU";
         let requiredPlayers = 2;
+
+        let keysPressed = {
+            p1: { left: false, right: false },
+            p2: { a: false, d: false }
+        };
 
         const FINISH_LINE_Y = -5000;
         const TRACK_WIDTH = 700;
@@ -191,9 +208,24 @@
             createCanvas(windowWidth, windowHeight);
             rectMode(CENTER); textAlign(CENTER, CENTER);
 
+            if (!grassImg) {
+                let g = createGraphics(250, 250);
+                g.background(34, 139, 34);
+                g.noStroke();
+                g.fill(20, 100, 20);
+                for (let i = 0; i < 50; i++) g.rect(random(250), random(250), 5, 5);
+                grassImg = g.get();
+                g.remove();
+            }
+            if (!waterImg) {
+                let w = createGraphics(250, 250);
+                w.background(0, 116, 217);
+                waterImg = w.get();
+                w.remove();
+            }
+
             grassImg.resize(250, 250);
 
-            // Seamless blur workaround: Draw 3x3 grid, blur, take center
             let g = createGraphics(750, 750);
             for (let i = 0; i < 3; i++) {
                 for (let j = 0; j < 3; j++) {
@@ -207,19 +239,45 @@
             waterPattern = drawingContext.createPattern(waterImg.canvas, 'repeat');
             grassPattern = drawingContext.createPattern(grassImg.canvas, 'repeat');
 
-            for (let y = -400; y > FINISH_LINE_Y; y -= 300) {
+            generateObstacles();
+            setupNetworking();
+        }
+
+        function generateObstacles() {
+            obstacles = [];
+            for (let y = height - 600; y > FINISH_LINE_Y; y -= 250) {
                 let count = random() > 0.5 ? 2 : 1;
                 for (let i = 0; i < count; i++) {
-                    obstacles.push({
-                        x: random(width / 2 - TRACK_WIDTH / 2 + 50, width / 2 + TRACK_WIDTH / 2 - 50),
-                        y: y + random(-50, 50),
-                        size: random(50, 90),
-                        shape: random() > 0.5 ? 'box' : 'triangle'
-                    });
+                    let attempts = 0;
+                    let placed = false;
+                    while (!placed && attempts < 50) {
+                        let potentialX = random(width / 2 - TRACK_WIDTH / 2 + 50, width / 2 + TRACK_WIDTH / 2 - 50);
+                        let potentialY = y + random(-100, 100);
+                        let potentialSize = random(60, 100);
+                        let valid = true;
+
+                        for (let other of obstacles) {
+                            let d = dist(potentialX, potentialY, other.x, other.y);
+                            let requiredDistance = (potentialSize / 2) + (other.size / 2) + 40;
+                            if (d < requiredDistance) {
+                                valid = false;
+                                break;
+                            }
+                        }
+
+                        if (valid) {
+                            obstacles.push({
+                                x: potentialX,
+                                y: potentialY,
+                                size: potentialSize,
+                                shape: random() > 0.5 ? 'box' : 'triangle'
+                            });
+                            placed = true;
+                        }
+                        attempts++;
+                    }
                 }
             }
-
-            setupNetworking();
         }
 
         function setMode(players) {
@@ -230,6 +288,57 @@
             updateLobbyText();
         }
 
+        function keyPressed() {
+            if (gameState === "LOBBY" && keyCode === ENTER) {
+                spawnLocalPlayer();
+                return;
+            }
+            if (keyCode === LEFT_ARROW) keysPressed.p1.left = true;
+            if (keyCode === RIGHT_ARROW) keysPressed.p1.right = true;
+            if (keyCode === 65) keysPressed.p2.a = true;
+            if (keyCode === 68) keysPressed.p2.d = true;
+            updateLocalInputs();
+        }
+
+        function keyReleased() {
+            if (keyCode === LEFT_ARROW) keysPressed.p1.left = false;
+            if (keyCode === RIGHT_ARROW) keysPressed.p1.right = false;
+            if (keyCode === 65) keysPressed.p2.a = false;
+            if (keyCode === 68) keysPressed.p2.d = false;
+            updateLocalInputs();
+        }
+
+        function updateLocalInputs() {
+            if (playerSlots[0] && playerSlots[0].id.startsWith('local')) {
+                playerSlots[0].inputs.left = keysPressed.p1.left;
+                playerSlots[0].inputs.right = keysPressed.p1.right;
+            }
+            if (playerSlots[1] && playerSlots[1].id.startsWith('local')) {
+                playerSlots[1].inputs.left = keysPressed.p2.a;
+                playerSlots[1].inputs.right = keysPressed.p2.d;
+            }
+        }
+
+        function spawnLocalPlayer() {
+            let slot = playerSlots.findIndex(s => s === null);
+            if (slot === -1) return;
+            let color = slot === 0 ? '#FF4136' : '#0074D9';
+            let startX = requiredPlayers === 2 ? width / 2 + (slot === 0 ? -120 : 120) : width / 2;
+            playerSlots[slot] = {
+                conn: { send: () => { } },
+                id: 'local-' + slot,
+                color: color,
+                x: startX,
+                y: height - 150,
+                speedY: 0,
+                stunned: 0,
+                inputs: { left: false, right: false },
+                finished: false,
+                offScreenTimer: 5.0
+            };
+            checkLobby();
+        }
+
         function setupNetworking() {
             peer = new Peer(null, {
                 debug: 2,
@@ -237,7 +346,8 @@
             });
 
             peer.on('open', (id) => {
-                let controllerURL = window.location.href.replace('index.html', '').replace(/\/$/, '') + '/controller.html?hostId=' + id;
+                const STATIC_HOST = "https://costinsarghiuta.com/game2";
+                let controllerURL = STATIC_HOST + '/controller.html?hostId=' + id;
                 document.getElementById("qrcode").innerHTML = "";
                 new QRCode(document.getElementById("qrcode"), { text: controllerURL, width: 200, height: 200 });
             });
@@ -257,16 +367,15 @@
             if (gameState !== "LOBBY") return;
             let slot = playerSlots.findIndex(s => s === null);
             if (requiredPlayers === 1 && slot > 0) return;
-
             if (slot !== -1) {
                 let color = slot === 0 ? '#FF4136' : '#0074D9';
                 let startX = requiredPlayers === 2 ? width / 2 + (slot === 0 ? -120 : 120) : width / 2;
-
                 playerSlots[slot] = {
                     conn: conn, id: conn.peer, color: color,
                     x: startX, y: height - 150,
                     speedY: 0, stunned: 0, inputs: { left: false, right: false },
-                    finished: false
+                    finished: false,
+                    offScreenTimer: 5.0
                 };
                 conn.send({ type: 'assignColor', color: color });
                 checkLobby();
@@ -278,6 +387,7 @@
             let count = playerSlots.filter(p => p).length;
             if (count === requiredPlayers) {
                 document.getElementById('lobby-status').innerText = "STARTING...";
+                document.getElementById('kb-start-msg').style.display = 'none';
                 setTimeout(startRace, 2000);
             }
         }
@@ -298,7 +408,6 @@
             if (gameState === "MENU") {
                 background(34, 139, 34);
                 translate(0, (millis() * 0.1) % 100);
-
                 drawEnvironment();
                 return;
             }
@@ -315,12 +424,28 @@
             translate(0, cameraY);
 
             drawEnvironment();
-
             drawRipples();
 
             playerSlots.forEach((p, index) => {
                 if (!p) return;
+
+                let screenY = p.y + cameraY;
+
                 if (gameState === "RACING" && !p.finished) {
+                    if (screenY > height) {
+                        p.offScreenTimer -= 1 / 60;
+                        if (p.offScreenTimer <= 0) {
+                            p.finished = true;
+                            let winnerIndex = (index === 0) ? 1 : 0;
+                            if (playerSlots[winnerIndex]) {
+                                handleWin(winnerIndex);
+                            } else {
+                                handleWin(-1);
+                            }
+                        }
+                    } else {
+                        p.offScreenTimer = 5.0;
+                    }
 
                     if (p.stunned > 0) {
                         p.stunned--;
@@ -333,10 +458,8 @@
                         } else {
                             p.speedY = lerp(p.speedY, 2, 0.05);
                         }
-
                         if (p.inputs.left && !p.inputs.right) p.x -= 8;
                         if (p.inputs.right && !p.inputs.left) p.x += 8;
-
                         fill(p.color);
                     }
                     p.y += p.speedY;
@@ -374,15 +497,30 @@
             });
             pop();
 
+            playerSlots.forEach((p, index) => {
+                if (!p) return;
+                if (gameState === "RACING" && p.offScreenTimer < 5.0 && p.offScreenTimer > 0) {
+                    drawOffScreenArrow(p.x, p.offScreenTimer, p.color);
+                }
+            });
+
             updateHUD();
         }
 
+        function drawOffScreenArrow(x, timer, color) {
+            push();
+            translate(x, height - 60);
+            fill(color);
+            stroke(255); strokeWeight(2);
+            triangle(-20, 0, 20, 0, 0, 25);
+            noStroke(); fill(255, 50, 50);
+            textSize(40); textStyle(BOLD);
+            text(Math.ceil(timer), 0, -20);
+            pop();
+        }
+
         function spawnRipple(x, y) {
-            ripples.push({
-                x: x, y: y,
-                size: 10,
-                opacity: 255
-            });
+            ripples.push({ x: x, y: y, size: 10, opacity: 255 });
         }
 
         function drawRipples() {
@@ -392,15 +530,20 @@
                 let r = ripples[i];
                 r.size += 4;
                 r.opacity -= 3;
-
                 stroke(255, 255, 255, r.opacity);
                 arc(r.x, r.y, r.size, r.size / 2, 0, PI);
-
                 if (r.opacity <= 0) ripples.splice(i, 1);
             }
         }
 
         function drawEnvironment() {
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                let obs = obstacles[i];
+                if (obs.y + cameraY > height + 200) {
+                    obstacles.splice(i, 1);
+                }
+            }
+
             push();
             rectMode(CORNER);
             drawingContext.fillStyle = grassPattern;
@@ -448,10 +591,11 @@
         function handleWin(playerIndex) {
             if (gameState === "FINISHED") return;
             gameState = "FINISHED";
-
-            let winnerName = playerIndex === 0 ? "RED" : "BLUE";
-            let color = playerIndex === 0 ? "#FF4136" : "#0074D9";
-
+            let winnerName = "";
+            let color = "#333";
+            if (playerIndex === 0) { winnerName = "RED"; color = "#FF4136"; }
+            else if (playerIndex === 1) { winnerName = "BLUE"; color = "#0074D9"; }
+            else { winnerName = "NO ONE"; color = "#000"; }
             let winDiv = createDiv(winnerName + " WINS!");
             winDiv.style('position', 'absolute');
             winDiv.style('top', '50%'); winDiv.style('left', '50%');
@@ -464,7 +608,7 @@
             winDiv.style('border', '5px solid ' + color);
             winDiv.style('border-radius', '20px');
             winDiv.style('box-shadow', '0 10px 30px rgba(0,0,0,0.5)');
-
+            winDiv.style('text-align', 'center');
             let subText = createDiv("Refresh page to restart");
             subText.parent(winDiv);
             subText.style('font-size', '20px');

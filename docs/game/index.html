@@ -5,72 +5,174 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <style>
         body {
             margin: 0;
             overflow: hidden;
+            background: #333;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        #ui-layer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            background: #000;
+            border-top: 4px solid #fff;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        #qrcode {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 10px;
+            border: 4px solid white;
         }
     </style>
 </head>
 
 <body>
-    <img src="frame.png"
-        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; object-fit: stretch;">
-    <div id="qrcode" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20;">
+
+    <div id="ui-layer">
+        <span id="score-el">SCORE: 0</span>
+        <span id="status-el">WAVE 1</span>
     </div>
+
+    <div id="qrcode"></div>
 
     <script>
         let peer;
-        let playerX, playerY;
+        let crosshairX, crosshairY;
         let tiltX = 0, tiltY = 0;
-        let detectedColor = "white";
+
+        let ducks = [];
+        let score = 0;
+        let wave = 1;
+        let gameActive = false;
 
         function setup() {
             createCanvas(windowWidth, windowHeight);
-            playerX = width / 2;
-            playerY = height / 2;
+            crosshairX = width / 2;
+            crosshairY = height / 2;
             textAlign(CENTER, CENTER);
 
             peer = new Peer();
-
             peer.on('open', (id) => {
-
                 const baseUrl = 'https://www.costinsarghiuta.com/game/';
                 let controllerURL = baseUrl + 'controller.html?hostId=' + id;
 
                 new QRCode(document.getElementById("qrcode"), {
                     text: controllerURL,
-                    width: 128,
-                    height: 128
+                    width: 100,
+                    height: 100
                 });
             });
 
             peer.on('connection', (conn) => {
-                document.getElementById("qrcode").style.display = "none";
+                gameActive = true;
+                document.getElementById('status-el').innerText = "GO!";
+                document.getElementById('qrcode').style.display = 'none';
+
                 conn.on('data', (data) => {
                     if (data.tiltX !== undefined) tiltX = data.tiltX;
                     if (data.tiltY !== undefined) tiltY = data.tiltY;
-                    if (data.color) detectedColor = data.color;
+
+                    if (data.action === 'shoot') {
+                        fireGun();
+                    }
                 });
             });
+
+            setInterval(spawnDuck, 2000);
         }
 
         function draw() {
-            if (detectedColor === 'Red') background(255, 200, 200);
-            else if (detectedColor === 'Blue') background(200, 200, 255);
-            else background(220);
+            background(60, 188, 252);
 
-            fill(0);
-            text("Scan QR to play!", width / 2, 50);
+            noStroke();
+            fill(118, 174, 59);
+            rect(0, height - 100, width, 100);
 
-            playerX += tiltX * 0.5;
-            playerY += tiltY * 0.5;
+            if (gameActive) {
+                for (let i = ducks.length - 1; i >= 0; i--) {
+                    let d = ducks[i];
+                    d.x += d.speed;
 
-            playerX = constrain(playerX, 80, width - 70);
-            playerY = constrain(playerY, 80, height - 80);
+                    fill(255, 255, 0);
+                    ellipse(d.x, d.y, 60, 40);
+                    fill(200, 200, 0);
+                    ellipse(d.x - 10, d.y - 5, 20, 20);
 
-            fill(50, 150, 255);
-            ellipse(playerX, playerY, 50, 50);
+                    if (d.x > width + 50) {
+                        ducks.splice(i, 1);
+                    }
+                }
+            } else {
+                fill(0);
+                textSize(30);
+                text("Waiting for Player...", width / 2, height / 2);
+            }
+
+            crosshairX += tiltX * 0.8;
+            crosshairY += tiltY * 0.8;
+            crosshairX = constrain(crosshairX, 0, width);
+            crosshairY = constrain(crosshairY, 0, height - 100);
+
+            drawCrosshair(crosshairX, crosshairY);
+        }
+
+        function spawnDuck() {
+            if (!gameActive) return;
+            let duck = {
+                x: -50,
+                y: random(50, height - 150),
+                speed: random(3, 8) + (wave * 0.5)
+            };
+            ducks.push(duck);
+        }
+
+        function fireGun() {
+            background(255);
+
+            for (let i = ducks.length - 1; i >= 0; i--) {
+                let d = ducks[i];
+                let distance = dist(crosshairX, crosshairY, d.x, d.y);
+
+                if (distance < 40) {
+                    ducks.splice(i, 1);
+                    score += 100;
+                    updateUI();
+                    break;
+                }
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('score-el').innerText = "SCORE: " + score;
+            if (score > 0 && score % 500 === 0) {
+                wave++;
+                document.getElementById('status-el').innerText = "WAVE " + wave;
+            }
+        }
+
+        function drawCrosshair(x, y) {
+            noFill();
+            stroke(255, 0, 0);
+            strokeWeight(3);
+            ellipse(x, y, 40, 40);
+            line(x - 25, y, x + 25, y);
+            line(x, y - 25, x, y + 25);
         }
 
         function windowResized() {

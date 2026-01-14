@@ -68,10 +68,11 @@ const projects = [
     link: '#',
     color: '#10b981',
     images: [
-      { title: 'PeerJS Game', description: 'A game experiment using PeerJS for WebRTC connection. Scan the QR code with your phone to control the player on the screen using device orientation.', gameLink: '/game/index.html' }
+      { title: 'PeerJS Game', description: 'A game experiment using PeerJS for WebRTC connection. Scan the QR code with your phone to control the player on the screen using device orientation.', gameLink: '/game/index.html' },
+      { title: 'Boat Race', description: 'Two player boat race game! Connect with a friend and race to the finish line.', gameLink: '/game2/index.html' }
     ],
     folderImages: ['#10b981', '#34d399', '#6ee7b7'],
-    longDescription: 'Coming Soon'
+    longDescription: 'Experiments with code and interactivity.'
   }
 ];
 

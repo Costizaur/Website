@@ -27,8 +27,7 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -43,7 +42,6 @@
             text-transform: uppercase;
             letter-spacing: 5px;
             text-align: center;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .btn {
@@ -58,7 +56,6 @@
             min-width: 200px;
             font-family: inherit;
             font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
         .btn:hover {
@@ -112,31 +109,6 @@
             color: #0074D9;
             text-shadow: 2px 2px 0px #000;
         }
-
-        #tutorial-overlay {
-            position: absolute;
-            bottom: 100px;
-            width: 100%;
-            text-align: center;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px black;
-            pointer-events: none;
-            opacity: 0.9;
-        }
-
-        .key {
-            color: #FFFF00;
-        }
-
-        .wifi-text {
-            margin-top: 10px;
-            font-size: 14px;
-            opacity: 1;
-            color: #000000;
-            font-weight: bold;
-        }
     </style>
 </head>
 
@@ -146,18 +118,17 @@
         <h1>RIVER RACER</h1>
         <button class="btn" onclick="setMode(1)">1 PLAYER</button>
         <button class="btn btn-blue" onclick="setMode(2)">2 PLAYERS</button>
-
-        <div id="tutorial-overlay">
-            <p>CONTROLS:</p>
-            <p>HOLD <span class="key">BOTH BUTTONS</span> TO ACCELERATE</p>
-            <p>PRESS <span class="key">L</span> OR <span class="key">R</span> TO STEER</p>
-        </div>
     </div>
 
     <div id="qrcode-container">
         <h2 id="lobby-status">Scan to Join</h2>
         <div id="qrcode"></div>
-        <p class="wifi-text">Make sure phones are on same Wi-Fi</p>
+        <p style="margin-top:10px; font-size: 14px; opacity: 0.7;">Make sure phones are on same Wi-Fi</p>
+
+        <button class="btn" style="margin-top: 20px; font-size: 16px; padding: 10px 20px; background: #333;"
+            onclick="addKeyboardPlayer()">
+            JOIN WITH KEYBOARD ⌨️
+        </button>
     </div>
 
     <div id="hud">
@@ -177,35 +148,9 @@
         const TRACK_WIDTH = 700;
         let cameraY = 0;
 
-        let waterImg;
-        let waterPattern;
-        let grassImg;
-        let grassPattern;
-
-        function preload() {
-            waterImg = loadImage('water.png');
-            grassImg = loadImage('grass.png');
-        }
-
         function setup() {
             createCanvas(windowWidth, windowHeight);
             rectMode(CENTER); textAlign(CENTER, CENTER);
-
-            grassImg.resize(250, 250);
-
-            // Seamless blur workaround: Draw 3x3 grid, blur, take center
-            let g = createGraphics(750, 750);
-            for (let i = 0; i < 3; i++) {
-                for (let j = 0; j < 3; j++) {
-                    g.image(grassImg, i * 250, j * 250);
-                }
-            }
-            g.filter(BLUR, 3);
-            grassImg = g.get(250, 250, 250, 250);
-            g.remove();
-
-            waterPattern = drawingContext.createPattern(waterImg.canvas, 'repeat');
-            grassPattern = drawingContext.createPattern(grassImg.canvas, 'repeat');
 
             for (let y = -400; y > FINISH_LINE_Y; y -= 300) {
                 let count = random() > 0.5 ? 2 : 1;
@@ -230,6 +175,25 @@
             updateLobbyText();
         }
 
+        function addKeyboardPlayer() {
+            let slot = playerSlots.findIndex(s => s === null);
+            if (slot === -1) return;
+
+            let color = slot === 0 ? '#FF4136' : '#0074D9';
+            let startX = requiredPlayers === 2 ? width / 2 + (slot === 0 ? -120 : 120) : width / 2;
+
+            playerSlots[slot] = {
+                conn: null,
+                isKeyboard: true,
+                id: 'local-kb',
+                color: color,
+                x: startX, y: height - 150,
+                speedY: 0, stunned: 0, inputs: { left: false, right: false },
+                finished: false, eliminationTimer: 180
+            };
+            checkLobby();
+        }
+
         function setupNetworking() {
             peer = new Peer(null, {
                 debug: 2,
@@ -246,7 +210,7 @@
                 conn.on('data', (data) => {
                     if (data.type === 'handshake') handlePlayerJoin(conn);
                     if (data.type === 'input') {
-                        let p = playerSlots.find(pl => pl && pl.conn.peer === conn.peer);
+                        let p = playerSlots.find(pl => pl && pl.conn && pl.conn.peer === conn.peer);
                         if (p) p.inputs = { left: data.left, right: data.right };
                     }
                 });
@@ -266,7 +230,8 @@
                     conn: conn, id: conn.peer, color: color,
                     x: startX, y: height - 150,
                     speedY: 0, stunned: 0, inputs: { left: false, right: false },
-                    finished: false
+                    finished: false,
+                    eliminationTimer: 180
                 };
                 conn.send({ type: 'assignColor', color: color });
                 checkLobby();
@@ -291,19 +256,18 @@
             gameState = "RACING";
             document.getElementById('qrcode-container').style.display = 'none';
             document.getElementById('hud').style.display = 'block';
-            playerSlots.forEach(p => { if (p) p.conn.send({ type: 'gameStart' }) });
+            playerSlots.forEach(p => { if (p && p.conn) p.conn.send({ type: 'gameStart' }) });
         }
 
         function draw() {
             if (gameState === "MENU") {
-                background(34, 139, 34);
+                background(20);
                 translate(0, (millis() * 0.1) % 100);
-
                 drawEnvironment();
                 return;
             }
 
-            background(34, 139, 34);
+            background(30, 100, 150);
 
             let leaderY = height;
             playerSlots.forEach(p => { if (p) leaderY = min(leaderY, p.y); });
@@ -315,12 +279,16 @@
             translate(0, cameraY);
 
             drawEnvironment();
-
             drawRipples();
 
             playerSlots.forEach((p, index) => {
                 if (!p) return;
                 if (gameState === "RACING" && !p.finished) {
+
+                    if (p.isKeyboard) {
+                        p.inputs.left = keyIsDown(LEFT_ARROW);
+                        p.inputs.right = keyIsDown(RIGHT_ARROW);
+                    }
 
                     if (p.stunned > 0) {
                         p.stunned--;
@@ -341,17 +309,23 @@
                     }
                     p.y += p.speedY;
 
-                    if (p.y > height - 100) { p.y = height - 100; p.speedY = 0; }
                     let leftLimit = width / 2 - TRACK_WIDTH / 2 + 30;
                     let rightLimit = width / 2 + TRACK_WIDTH / 2 - 30;
                     p.x = constrain(p.x, leftLimit, rightLimit);
+
+                    if (p.y > height - 100 && cameraY < 10) {
+                        p.y = height - 100; p.speedY = 0;
+                    }
 
                     obstacles.forEach(obs => {
                         if (dist(p.x, p.y, obs.x, obs.y) < (obs.size / 2 + 25)) {
                             if (p.stunned <= 0) {
                                 p.stunned = 60; p.speedY = 8;
-                                p.conn.send({ type: 'assignColor', color: '#fff' });
-                                setTimeout(() => p.conn.send({ type: 'assignColor', color: p.color }), 200);
+
+                                if (p.conn) {
+                                    p.conn.send({ type: 'assignColor', color: '#fff' });
+                                    setTimeout(() => p.conn.send({ type: 'assignColor', color: p.color }), 200);
+                                }
                             }
                         }
                     });
@@ -370,61 +344,71 @@
                 triangle(0, -35, -20, 25, 20, 25);
                 fill(255); noStroke(); textAlign(CENTER); textSize(14);
                 text("P" + (index + 1), 0, 10);
+                if (p.isKeyboard) { textSize(10); text("(KEYS)", 0, 25); }
                 pop();
             });
             pop();
 
+            if (gameState === "RACING") {
+                playerSlots.forEach((p, index) => {
+                    if (!p) return;
+                    let screenY = p.y + cameraY;
+                    if (screenY > height + 20) {
+                        p.eliminationTimer--;
+                        drawWarningArrow(p.x, p.eliminationTimer);
+                        if (p.eliminationTimer <= 0) {
+                            p.finished = true;
+                            handleWin(index === 0 ? 1 : 0);
+                        }
+                    } else {
+                        p.eliminationTimer = 180;
+                    }
+                });
+            }
             updateHUD();
         }
 
-        function spawnRipple(x, y) {
-            ripples.push({
-                x: x, y: y,
-                size: 10,
-                opacity: 255
-            });
+        function drawWarningArrow(x, timer) {
+            push();
+            let secondsLeft = Math.ceil(timer / 60);
+            let pulse = 1 + sin(millis() * 0.02) * 0.2;
+            translate(x, height - 80);
+            scale(pulse);
+            fill(255, 0, 0); stroke(255); strokeWeight(2);
+            beginShape(); vertex(-20, 20); vertex(20, 20); vertex(0, -20); endShape(CLOSE);
+            fill(255); noStroke(); textSize(16); text("SPEED UP!", 0, 40);
+            textSize(24); text(secondsLeft, 0, 5);
+            pop();
         }
 
+        function spawnRipple(x, y) { ripples.push({ x: x, y: y, size: 10, opacity: 255 }); }
+
         function drawRipples() {
-            noFill();
-            strokeWeight(3);
+            noFill(); strokeWeight(3);
             for (let i = ripples.length - 1; i >= 0; i--) {
                 let r = ripples[i];
-                r.size += 4;
-                r.opacity -= 3;
-
+                r.size += 4; r.opacity -= 3;
                 stroke(255, 255, 255, r.opacity);
                 arc(r.x, r.y, r.size, r.size / 2, 0, PI);
-
                 if (r.opacity <= 0) ripples.splice(i, 1);
             }
         }
 
         function drawEnvironment() {
-            push();
-            rectMode(CORNER);
-            drawingContext.fillStyle = grassPattern;
-            rect(-5000, FINISH_LINE_Y - 2000, 5000 + (width / 2 - TRACK_WIDTH / 2), -FINISH_LINE_Y + 7000);
-            rect(width / 2 + TRACK_WIDTH / 2, FINISH_LINE_Y - 2000, 5000, -FINISH_LINE_Y + 7000);
-            pop();
-
-            push();
-            rectMode(CORNER);
-            drawingContext.fillStyle = waterPattern;
-            rect(width / 2 - TRACK_WIDTH / 2, FINISH_LINE_Y - 2000, TRACK_WIDTH, -FINISH_LINE_Y + 5000);
-            pop();
-
+            noStroke(); fill(34, 139, 34);
+            rect(width / 2 - TRACK_WIDTH / 2 - 400, FINISH_LINE_Y / 2, 800, -FINISH_LINE_Y + 4000);
+            rect(width / 2 + TRACK_WIDTH / 2 + 400, FINISH_LINE_Y / 2, 800, -FINISH_LINE_Y + 4000);
             stroke(255, 255, 255, 50); strokeWeight(5);
             line(width / 2 - TRACK_WIDTH / 2, 1000, width / 2 - TRACK_WIDTH / 2, FINISH_LINE_Y);
             line(width / 2 + TRACK_WIDTH / 2, 1000, width / 2 + TRACK_WIDTH / 2, FINISH_LINE_Y);
             noStroke();
-
             for (let i = 0; i < 10; i++) {
                 fill(i % 2 == 0 ? 0 : 255);
                 rect(width / 2 - TRACK_WIDTH / 2 + i * (TRACK_WIDTH / 10) + (TRACK_WIDTH / 20), FINISH_LINE_Y, TRACK_WIDTH / 10, 40);
             }
-
-            obstacles.forEach(obs => {
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                let obs = obstacles[i];
+                if (obs.y > height - cameraY + 200) { obstacles.splice(i, 1); continue; }
                 fill(120);
                 if (obs.shape === 'box') {
                     rect(obs.x, obs.y, obs.size, obs.size, 5);
@@ -432,11 +416,10 @@
                 } else {
                     push(); translate(obs.x, obs.y);
                     triangle(0, -obs.size / 2, -obs.size / 2, obs.size / 2, obs.size / 2, obs.size / 2);
-                    fill(160); scale(0.7);
-                    triangle(0, -obs.size / 2, -obs.size / 2, obs.size / 2, obs.size / 2, obs.size / 2);
+                    fill(160); scale(0.7); triangle(0, -obs.size / 2, -obs.size / 2, obs.size / 2, obs.size / 2, obs.size / 2);
                     pop();
                 }
-            });
+            }
         }
 
         function updateHUD() {
@@ -448,28 +431,18 @@
         function handleWin(playerIndex) {
             if (gameState === "FINISHED") return;
             gameState = "FINISHED";
-
+            if (playerSlots[playerIndex] === undefined) return;
             let winnerName = playerIndex === 0 ? "RED" : "BLUE";
             let color = playerIndex === 0 ? "#FF4136" : "#0074D9";
-
             let winDiv = createDiv(winnerName + " WINS!");
-            winDiv.style('position', 'absolute');
-            winDiv.style('top', '50%'); winDiv.style('left', '50%');
-            winDiv.style('transform', 'translate(-50%, -50%)');
-            winDiv.style('color', color);
-            winDiv.style('font-size', '60px');
-            winDiv.style('font-family', 'sans-serif');
-            winDiv.style('background', 'rgba(255,255,255,0.9)');
-            winDiv.style('padding', '40px');
-            winDiv.style('border', '5px solid ' + color);
-            winDiv.style('border-radius', '20px');
-            winDiv.style('box-shadow', '0 10px 30px rgba(0,0,0,0.5)');
-
+            winDiv.style('position', 'absolute'); winDiv.style('top', '50%'); winDiv.style('left', '50%');
+            winDiv.style('transform', 'translate(-50%, -50%)'); winDiv.style('color', color);
+            winDiv.style('font-size', '60px'); winDiv.style('font-family', 'sans-serif');
+            winDiv.style('background', 'rgba(255,255,255,0.9)'); winDiv.style('padding', '40px');
+            winDiv.style('border', '5px solid ' + color); winDiv.style('border-radius', '20px');
+            winDiv.style('box-shadow', '0 10px 30px rgba(0,0,0,0.5)'); winDiv.style('text-align', 'center');
             let subText = createDiv("Refresh page to restart");
-            subText.parent(winDiv);
-            subText.style('font-size', '20px');
-            subText.style('color', '#333');
-            subText.style('margin-top', '10px');
+            subText.parent(winDiv); subText.style('font-size', '20px'); subText.style('color', '#333'); subText.style('margin-top', '10px');
         }
 
         function windowResized() { resizeCanvas(windowWidth, windowHeight); }

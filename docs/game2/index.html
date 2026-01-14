@@ -27,7 +27,8 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -42,6 +43,7 @@
             text-transform: uppercase;
             letter-spacing: 5px;
             text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .btn {
@@ -56,6 +58,7 @@
             min-width: 200px;
             font-family: inherit;
             font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
         .btn:hover {
@@ -282,8 +285,21 @@
 
         function draw() {
             if (gameState === "MENU") {
-                background(20);
+                background(34, 139, 34);
                 translate(0, (millis() * 0.1) % 100);
+
+                push();
+                rectMode(CORNER);
+                drawingContext.fillStyle = grassPattern;
+                rect(-5000, -2000, 10000, 10000);
+                pop();
+
+                push();
+                rectMode(CORNER);
+                drawingContext.fillStyle = waterPattern;
+                rect(width / 2 - TRACK_WIDTH / 2, -2000, TRACK_WIDTH, 10000);
+                pop();
+
                 drawEnvironment();
                 return;
             }
@@ -379,17 +395,17 @@
             ripples.push({
                 x: x, y: y,
                 size: 10,
-                opacity: 255
+                opacity: 200
             });
         }
 
         function drawRipples() {
             noFill();
-            strokeWeight(3);
+            strokeWeight(2);
             for (let i = ripples.length - 1; i >= 0; i--) {
                 let r = ripples[i];
-                r.size += 4;
-                r.opacity -= 3;
+                r.size += 2;
+                r.opacity -= 5;
 
                 stroke(255, 255, 255, r.opacity);
                 arc(r.x, r.y, r.size, r.size / 2, 0, PI);

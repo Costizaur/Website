@@ -5,8 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         body {
+            margin: 0;
             overflow: hidden;
             touch-action: none;
+            background: #222;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: white;
+        }
+
+        /* Status Overlay */
+        #status-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 20;
+            pointer-events: none;
+            /* Let touches pass through if needed, though usually we want to block until ready */
+        }
+
+        /* Rotate Overlay - Hidden by default */
+        #rotate-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #111;
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+
+        p {
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        /* Show Rotate Overlay only in Portrait */
+        @media (orientation: portrait) {
+            #rotate-overlay {
+                display: flex;
+            }
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
@@ -14,62 +75,70 @@
 </head>
 
 <body>
+    <!-- Overlays -->
+    <div id="rotate-overlay">
+        <div class="icon">📱↻</div>
+        <h1>Please Rotate Device</h1>
+        <p>This game requires landscape mode.</p>
+    </div>
+
+    <div id="status-overlay">
+        <h1 id="status-text">Connecting...</h1>
+    </div>
     <script>
         let peer, conn;
-        let statusLabel = 'Connecting...';
-
         let inputs = { left: false, right: false };
         let myColor = '#ccc';
 
         function setup() {
-
+            // Force landscape aspect ratio for canvas
             let w = max(windowWidth, windowHeight);
             let h = min(windowWidth, windowHeight);
             createCanvas(w, h);
-            textAlign(CENTER, CENTER);
-            textSize(30);
 
             const urlParams = new URLSearchParams(window.location.search);
             const hostId = urlParams.get('hostId');
 
-            if (!hostId) { statusLabel = "Error: No Host ID."; return; }
+            if (!hostId) { updateStatus("Error: No Host ID."); return; }
 
             peer = new Peer();
             peer.on('open', (id) => {
                 conn = peer.connect(hostId);
 
                 conn.on('open', () => {
-                    statusLabel = "Connected! Waiting for Player 2...";
-
+                    updateStatus("Connected!<br>Waiting for Player 2...");
                     conn.send({ type: 'handshake' });
                 });
-
 
                 conn.on('data', (data) => {
                     if (data.type === 'assignColor') {
                         myColor = data.color;
-                        statusLabel = "READY!";
+                        updateStatus("READY!", true); // Hide after a moment
                     }
                     if (data.type === 'gameStart') {
-                        statusLabel = "";
+                        document.getElementById('status-overlay').style.display = 'none';
                     }
                 });
             });
         }
 
-        function draw() {
-            background(220);
+        function updateStatus(msg, hide = false) {
+            let el = document.getElementById('status-overlay');
+            let text = document.getElementById('status-text');
+            el.style.display = 'flex';
+            text.innerHTML = msg;
 
-
-            if (statusLabel !== "") {
-                fill(0);
-                text(statusLabel, width / 2, height / 2);
-                text("Please rotate phone to landscape", width / 2, height / 2 + 50);
-                return;
+            if (hide) {
+                setTimeout(() => {
+                    el.style.display = 'none';
+                }, 1500);
             }
+        }
 
+        function draw() {
+            background(30);
 
-
+            // 1. DETECT TOUCHES
             inputs.left = false;
             inputs.right = false;
 

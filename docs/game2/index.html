@@ -109,6 +109,23 @@
             color: #0074D9;
             text-shadow: 2px 2px 0px #000;
         }
+
+        #tutorial-overlay {
+            position: absolute;
+            bottom: 100px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px black;
+            pointer-events: none;
+            opacity: 0.9;
+        }
+
+        .key {
+            color: #FFFF00;
+        }
     </style>
 </head>
 
@@ -118,6 +135,12 @@
         <h1>RIVER RACER</h1>
         <button class="btn" onclick="setMode(1)">1 PLAYER</button>
         <button class="btn btn-blue" onclick="setMode(2)">2 PLAYERS</button>
+
+        <div id="tutorial-overlay">
+            <p>CONTROLS:</p>
+            <p>HOLD <span class="key">BOTH BUTTONS</span> TO ACCELERATE</p>
+            <p>PRESS <span class="key">L</span> OR <span class="key">R</span> TO STEER</p>
+        </div>
     </div>
 
     <div id="qrcode-container">
@@ -183,7 +206,7 @@
             });
 
             peer.on('open', (id) => {
-                let controllerURL = 'https://www.costinsarghiuta.com/game2/controller.html?hostId=' + id;
+                let controllerURL = window.location.href.replace('index.html', '').replace(/\/$/, '') + '/controller.html?hostId=' + id;
 
                 document.getElementById("qrcode").innerHTML = "";
                 new QRCode(document.getElementById("qrcode"), { text: controllerURL, width: 200, height: 200 });
@@ -283,6 +306,16 @@
                     }
                     p.y += p.speedY;
 
+                    if (p.y > height - 100) {
+                        p.y = height - 100;
+                        p.speedY = 0;
+                    }
+
+                    let leftLimit = width / 2 - TRACK_WIDTH / 2 + 30;
+                    let rightLimit = width / 2 + TRACK_WIDTH / 2 - 30;
+
+                    p.x = constrain(p.x, leftLimit, rightLimit);
+
                     obstacles.forEach(obs => {
                         if (dist(p.x, p.y, obs.x, obs.y) < (obs.size / 2 + 25)) {
                             if (p.stunned <= 0) {
@@ -299,11 +332,6 @@
                         handleWin(index);
                     }
                 }
-
-                let leftLimit = width / 2 - TRACK_WIDTH / 2 + 30;
-                let rightLimit = width / 2 + TRACK_WIDTH / 2 - 30;
-
-                p.x = constrain(p.x, leftLimit, rightLimit);
 
                 push();
                 translate(p.x, p.y);

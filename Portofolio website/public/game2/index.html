@@ -126,6 +126,14 @@
         .key {
             color: #FFFF00;
         }
+
+        .wifi-text {
+            margin-top: 10px;
+            font-size: 14px;
+            opacity: 1;
+            color: #FFD700;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -146,7 +154,7 @@
     <div id="qrcode-container">
         <h2 id="lobby-status">Scan to Join</h2>
         <div id="qrcode"></div>
-        <p style="margin-top:10px; font-size: 14px; opacity: 0.7;">Make sure phones are on same Wi-Fi</p>
+        <p class="wifi-text">Make sure phones are on same Wi-Fi</p>
     </div>
 
     <div id="hud">
@@ -371,17 +379,17 @@
             ripples.push({
                 x: x, y: y,
                 size: 10,
-                opacity: 200
+                opacity: 255
             });
         }
 
         function drawRipples() {
             noFill();
-            strokeWeight(2);
+            strokeWeight(3);
             for (let i = ripples.length - 1; i >= 0; i--) {
                 let r = ripples[i];
-                r.size += 2;
-                r.opacity -= 5;
+                r.size += 4;
+                r.opacity -= 3;
 
                 stroke(255, 255, 255, r.opacity);
                 arc(r.x, r.y, r.size, r.size / 2, 0, PI);

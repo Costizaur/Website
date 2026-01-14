@@ -368,26 +368,24 @@
             updateHUD();
         }
 
-        function drawWarningArrow(x, timer) {
-            push();
-            let secondsLeft = Math.ceil(timer / 60);
-            let pulse = 1 + sin(millis() * 0.02) * 0.2;
-            translate(x, height - 80);
-            scale(pulse);
-            fill(255, 0, 0); stroke(255); strokeWeight(2);
-            beginShape(); vertex(-20, 20); vertex(20, 20); vertex(0, -20); endShape(CLOSE);
-            fill(255); noStroke(); textSize(16); text("SPEED UP!", 0, 40);
-            textSize(24); text(secondsLeft, 0, 5);
-            pop();
+        function spawnRipple(x, y) {
+            ripples.push({
+                x: x, y: y,
+                size: 10,
+                opacity: 200
+            });
         }
 
         function spawnRipple(x, y) { ripples.push({ x: x, y: y, size: 10, opacity: 255 }); }
 
         function drawRipples() {
-            noFill(); strokeWeight(3);
+            noFill();
+            strokeWeight(2);
             for (let i = ripples.length - 1; i >= 0; i--) {
                 let r = ripples[i];
-                r.size += 4; r.opacity -= 3;
+                r.size += 2;
+                r.opacity -= 5;
+
                 stroke(255, 255, 255, r.opacity);
                 arc(r.x, r.y, r.size, r.size / 2, 0, PI);
                 if (r.opacity <= 0) ripples.splice(i, 1);

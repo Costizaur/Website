@@ -158,11 +158,6 @@
         <h2 id="lobby-status">Scan to Join</h2>
         <div id="qrcode"></div>
         <p class="wifi-text">Make sure phones are on same Wi-Fi</p>
-
-        <button class="btn" style="margin-top: 20px; font-size: 16px; padding: 10px 20px; background: #333;"
-            onclick="addKeyboardPlayer()">
-            JOIN WITH KEYBOARD ⌨️
-        </button>
     </div>
 
     <div id="hud">
@@ -198,6 +193,7 @@
 
             grassImg.resize(250, 250);
 
+            // Seamless blur workaround: Draw 3x3 grid, blur, take center
             let g = createGraphics(750, 750);
             for (let i = 0; i < 3; i++) {
                 for (let j = 0; j < 3; j++) {
@@ -234,25 +230,6 @@
             updateLobbyText();
         }
 
-        function addKeyboardPlayer() {
-            let slot = playerSlots.findIndex(s => s === null);
-            if (slot === -1) return;
-
-            let color = slot === 0 ? '#FF4136' : '#0074D9';
-            let startX = requiredPlayers === 2 ? width / 2 + (slot === 0 ? -120 : 120) : width / 2;
-
-            playerSlots[slot] = {
-                conn: null,
-                isKeyboard: true,
-                id: 'local-kb',
-                color: color,
-                x: startX, y: height - 150,
-                speedY: 0, stunned: 0, inputs: { left: false, right: false },
-                finished: false, eliminationTimer: 180
-            };
-            checkLobby();
-        }
-
         function setupNetworking() {
             peer = new Peer(null, {
                 debug: 2,
@@ -269,7 +246,7 @@
                 conn.on('data', (data) => {
                     if (data.type === 'handshake') handlePlayerJoin(conn);
                     if (data.type === 'input') {
-                        let p = playerSlots.find(pl => pl && pl.conn && pl.conn.peer === conn.peer);
+                        let p = playerSlots.find(pl => pl && pl.conn.peer === conn.peer);
                         if (p) p.inputs = { left: data.left, right: data.right };
                     }
                 });
@@ -289,8 +266,7 @@
                     conn: conn, id: conn.peer, color: color,
                     x: startX, y: height - 150,
                     speedY: 0, stunned: 0, inputs: { left: false, right: false },
-                    finished: false,
-                    eliminationTimer: 180
+                    finished: false
                 };
                 conn.send({ type: 'assignColor', color: color });
                 checkLobby();
@@ -315,7 +291,7 @@
             gameState = "RACING";
             document.getElementById('qrcode-container').style.display = 'none';
             document.getElementById('hud').style.display = 'block';
-            playerSlots.forEach(p => { if (p && p.conn) p.conn.send({ type: 'gameStart' }) });
+            playerSlots.forEach(p => { if (p) p.conn.send({ type: 'gameStart' }) });
         }
 
         function draw() {
@@ -346,11 +322,6 @@
                 if (!p) return;
                 if (gameState === "RACING" && !p.finished) {
 
-                    if (p.isKeyboard) {
-                        p.inputs.left = keyIsDown(LEFT_ARROW);
-                        p.inputs.right = keyIsDown(RIGHT_ARROW);
-                    }
-
                     if (p.stunned > 0) {
                         p.stunned--;
                         p.speedY = lerp(p.speedY, 3, 0.1);
@@ -379,10 +350,8 @@
                         if (dist(p.x, p.y, obs.x, obs.y) < (obs.size / 2 + 25)) {
                             if (p.stunned <= 0) {
                                 p.stunned = 60; p.speedY = 8;
-                                if (p.conn) {
-                                    p.conn.send({ type: 'assignColor', color: '#fff' });
-                                    setTimeout(() => p.conn.send({ type: 'assignColor', color: p.color }), 200);
-                                }
+                                p.conn.send({ type: 'assignColor', color: '#fff' });
+                                setTimeout(() => p.conn.send({ type: 'assignColor', color: p.color }), 200);
                             }
                         }
                     });
@@ -401,42 +370,11 @@
                 triangle(0, -35, -20, 25, 20, 25);
                 fill(255); noStroke(); textAlign(CENTER); textSize(14);
                 text("P" + (index + 1), 0, 10);
-                if (p.isKeyboard) { textSize(10); text("(KEYS)", 0, 25); }
                 pop();
             });
             pop();
 
-            if (gameState === "RACING") {
-                playerSlots.forEach((p, index) => {
-                    if (!p) return;
-                    let screenY = p.y + cameraY;
-                    if (screenY > height + 20) {
-                        p.eliminationTimer--;
-                        drawWarningArrow(p.x, p.eliminationTimer);
-                        if (p.eliminationTimer <= 0) {
-                            p.finished = true;
-                            handleWin(index === 0 ? 1 : 0);
-                        }
-                    } else {
-                        p.eliminationTimer = 180;
-                    }
-                });
-            }
-
             updateHUD();
-        }
-
-        function drawWarningArrow(x, timer) {
-            push();
-            let secondsLeft = Math.ceil(timer / 60);
-            let pulse = 1 + sin(millis() * 0.02) * 0.2;
-            translate(x, height - 80);
-            scale(pulse);
-            fill(255, 0, 0); stroke(255); strokeWeight(2);
-            beginShape(); vertex(-20, 20); vertex(20, 20); vertex(0, -20); endShape(CLOSE);
-            fill(255); noStroke(); textSize(16); text("SPEED UP!", 0, 40);
-            textSize(24); text(secondsLeft, 0, 5);
-            pop();
         }
 
         function spawnRipple(x, y) {

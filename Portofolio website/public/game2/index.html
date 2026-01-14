@@ -179,22 +179,33 @@
 
         let waterImg;
         let waterPattern;
+        let grassImg;
         let grassPattern;
-        let leftShorePattern;
-        let rightShorePattern;
 
         function preload() {
             waterImg = loadImage('water.png');
+            grassImg = loadImage('grass.png');
         }
 
         function setup() {
             createCanvas(windowWidth, windowHeight);
             rectMode(CENTER); textAlign(CENTER, CENTER);
 
+            grassImg.resize(250, 250);
+
+            // Seamless blur workaround: Draw 3x3 grid, blur, take center
+            let g = createGraphics(750, 750);
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    g.image(grassImg, i * 250, j * 250);
+                }
+            }
+            g.filter(BLUR, 3);
+            grassImg = g.get(250, 250, 250, 250);
+            g.remove();
+
             waterPattern = drawingContext.createPattern(waterImg.canvas, 'repeat');
-            grassPattern = createGrassPattern();
-            leftShorePattern = createShorePattern('left');
-            rightShorePattern = createShorePattern('right');
+            grassPattern = drawingContext.createPattern(grassImg.canvas, 'repeat');
 
             for (let y = -400; y > FINISH_LINE_Y; y -= 300) {
                 let count = random() > 0.5 ? 2 : 1;
@@ -209,67 +220,6 @@
             }
 
             setupNetworking();
-        }
-
-        function createGrassPattern() {
-            let gfx = createGraphics(200, 200);
-            gfx.noStroke();
-            for (let i = 0; i < gfx.width; i += 4) {
-                for (let j = 0; j < gfx.height; j += 4) {
-                    let n = noise(i * 0.1, j * 0.1);
-                    let c = lerpColor(color(34, 139, 34), color(50, 160, 50), n);
-                    gfx.fill(c);
-                    gfx.rect(i, j, 4, 4);
-                }
-            }
-            return drawingContext.createPattern(gfx.canvas, 'repeat');
-        }
-
-        function createShorePattern(side) {
-            let w = 400;
-            let h = 200;
-            let gfx = createGraphics(w, h);
-            gfx.noStroke();
-
-            let cBrown = color(101, 67, 33);
-            let cGreen = color(34, 139, 34);
-
-            for (let i = 0; i < w; i += 4) {
-                for (let j = 0; j < h; j += 4) {
-                    let n = noise(i * 0.05, j * 0.05);
-
-                    let t = i / w; // 0 to 1
-                    if (side === 'left') {
-                        // Green -> Brown (Left to Right)
-                        // t=0 (left) -> Green, t=1 (right) -> Brown
-                        // Apply easing?
-                    } else {
-                        // Brown -> Green (Left to Right)
-                        // t=0 (left) -> Brown, t=1 (right) -> Green
-                        // We want Brown UP TO Green
-                    }
-
-                    let baseColor;
-                    if (side === 'left') {
-                        // Left Bank: ...Green -> Brown | Water
-                        // So at i=w (Right edge), it should be Brown.
-                        baseColor = lerpColor(cGreen, cBrown, t * t); // Square for steeper transition near water
-                    } else {
-                        // Right Bank: Water | Brown -> Green...
-                        // So at i=0 (Left edge), it should be Brown.
-                        baseColor = lerpColor(cBrown, cGreen, t * t); // Square for steeper transition near water? No, t*t makes it stay brown longer then quick green?
-                        // t=0 -> Brown. t=1 -> Green.
-                        // We want it to be Brown for a bit then fade to Green.
-                        baseColor = lerpColor(cBrown, cGreen, Math.pow(t, 0.5)); // Sqrt for quick fade? Or keep linear.
-                    }
-
-                    // Add noise
-                    let noisyColor = lerpColor(baseColor, color(0, 0, 0), (n - 0.5) * 0.2);
-                    gfx.fill(noisyColor);
-                    gfx.rect(i, j, 4, 4);
-                }
-            }
-            return drawingContext.createPattern(gfx.canvas, 'repeat');
         }
 
         function setMode(players) {
@@ -349,7 +299,7 @@
                 background(34, 139, 34);
                 translate(0, (millis() * 0.1) % 100);
 
-                drawEnvironment(); // Use shared render logic
+                drawEnvironment();
                 return;
             }
 
@@ -451,31 +401,13 @@
         }
 
         function drawEnvironment() {
-            // Base Grass (Infinite)
             push();
             rectMode(CORNER);
             drawingContext.fillStyle = grassPattern;
-            // Draw huge rects to cover potential screen area
-            rect(-5000, -5000 + FINISH_LINE_Y, 15000, 15000 + -FINISH_LINE_Y);
+            rect(-5000, FINISH_LINE_Y - 2000, 5000 + (width / 2 - TRACK_WIDTH / 2), -FINISH_LINE_Y + 7000);
+            rect(width / 2 + TRACK_WIDTH / 2, FINISH_LINE_Y - 2000, 5000, -FINISH_LINE_Y + 7000);
             pop();
 
-            // Shore transition strips (400px wide)
-            let leftBankX = width / 2 - TRACK_WIDTH / 2 - 400;
-            let rightBankX = width / 2 + TRACK_WIDTH / 2;
-
-            push();
-            rectMode(CORNER);
-            drawingContext.fillStyle = leftShorePattern;
-            rect(leftBankX, FINISH_LINE_Y - 2000, 400, -FINISH_LINE_Y + 7000);
-            pop();
-
-            push();
-            rectMode(CORNER);
-            drawingContext.fillStyle = rightShorePattern;
-            rect(rightBankX, FINISH_LINE_Y - 2000, 400, -FINISH_LINE_Y + 7000);
-            pop();
-
-            // Water
             push();
             rectMode(CORNER);
             drawingContext.fillStyle = waterPattern;

@@ -5,7 +5,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
     <style>
         body {
             margin: 0;
@@ -43,77 +42,61 @@
 </head>
 
 <body>
-
     <div id="ui-layer">
         <span id="score-el">SCORE: 0</span>
         <span id="status-el">WAVE 1</span>
     </div>
-
     <div id="qrcode"></div>
-
     <script>
         let peer;
         let crosshairX, crosshairY;
         let tiltX = 0, tiltY = 0;
-
         let ducks = [];
         let score = 0;
         let wave = 1;
         let gameActive = false;
-
         function setup() {
             createCanvas(windowWidth, windowHeight);
             crosshairX = width / 2;
             crosshairY = height / 2;
             textAlign(CENTER, CENTER);
-
             peer = new Peer();
             peer.on('open', (id) => {
                 const baseUrl = 'https://www.costinsarghiuta.com/game/';
                 let controllerURL = baseUrl + 'controller.html?hostId=' + id;
-
                 new QRCode(document.getElementById("qrcode"), {
                     text: controllerURL,
                     width: 100,
                     height: 100
                 });
             });
-
             peer.on('connection', (conn) => {
                 gameActive = true;
                 document.getElementById('status-el').innerText = "GO!";
                 document.getElementById('qrcode').style.display = 'none';
-
                 conn.on('data', (data) => {
                     if (data.tiltX !== undefined) tiltX = data.tiltX;
                     if (data.tiltY !== undefined) tiltY = data.tiltY;
-
                     if (data.action === 'shoot') {
                         fireGun();
                     }
                 });
             });
-
             setInterval(spawnDuck, 2000);
         }
-
         function draw() {
             background(60, 188, 252);
-
             noStroke();
             fill(118, 174, 59);
             rect(0, height - 100, width, 100);
-
             if (gameActive) {
                 for (let i = ducks.length - 1; i >= 0; i--) {
                     let d = ducks[i];
                     d.x += d.speed;
-
                     fill(255, 255, 0);
                     ellipse(d.x, d.y, 60, 40);
                     fill(200, 200, 0);
                     ellipse(d.x - 10, d.y - 5, 20, 20);
-
                     if (d.x > width + 50) {
                         ducks.splice(i, 1);
                     }
@@ -123,15 +106,12 @@
                 textSize(30);
                 text("Waiting for Player...", width / 2, height / 2);
             }
-
             crosshairX += tiltX * 0.8;
             crosshairY += tiltY * 0.8;
             crosshairX = constrain(crosshairX, 0, width);
             crosshairY = constrain(crosshairY, 0, height - 100);
-
             drawCrosshair(crosshairX, crosshairY);
         }
-
         function spawnDuck() {
             if (!gameActive) return;
             let duck = {
@@ -141,14 +121,11 @@
             };
             ducks.push(duck);
         }
-
         function fireGun() {
             background(255);
-
             for (let i = ducks.length - 1; i >= 0; i--) {
                 let d = ducks[i];
                 let distance = dist(crosshairX, crosshairY, d.x, d.y);
-
                 if (distance < 40) {
                     ducks.splice(i, 1);
                     score += 100;
@@ -157,7 +134,6 @@
                 }
             }
         }
-
         function updateUI() {
             document.getElementById('score-el').innerText = "SCORE: " + score;
             if (score > 0 && score % 500 === 0) {
@@ -165,7 +141,6 @@
                 document.getElementById('status-el').innerText = "WAVE " + wave;
             }
         }
-
         function drawCrosshair(x, y) {
             noFill();
             stroke(255, 0, 0);
@@ -174,7 +149,6 @@
             line(x - 25, y, x + 25, y);
             line(x, y - 25, x, y + 25);
         }
-
         function windowResized() {
             resizeCanvas(windowWidth, windowHeight);
         }

@@ -13,7 +13,6 @@
             color: white;
         }
 
-        /* Status Overlay */
         #status-overlay {
             position: absolute;
             top: 0;
@@ -28,10 +27,8 @@
             background: rgba(0, 0, 0, 0.85);
             z-index: 20;
             pointer-events: none;
-            /* Let touches pass through if needed, though usually we want to block until ready */
         }
 
-        /* Rotate Overlay - Hidden by default */
         #rotate-overlay {
             display: none;
             position: absolute;
@@ -63,7 +60,6 @@
             opacity: 0.8;
         }
 
-        /* Show Rotate Overlay only in Portrait */
         @media (orientation: portrait) {
             #rotate-overlay {
                 display: flex;
@@ -75,13 +71,11 @@
 </head>
 
 <body>
-    <!-- Overlays -->
     <div id="rotate-overlay">
         <div class="icon">📱↻</div>
         <h1>Please Rotate Device</h1>
         <p>This game requires landscape mode.</p>
     </div>
-
     <div id="status-overlay">
         <h1 id="status-text">Connecting...</h1>
     </div>
@@ -89,31 +83,24 @@
         let peer, conn;
         let inputs = { left: false, right: false };
         let myColor = '#ccc';
-
         function setup() {
-            // Force landscape aspect ratio for canvas
             let w = max(windowWidth, windowHeight);
             let h = min(windowWidth, windowHeight);
             createCanvas(w, h);
-
             const urlParams = new URLSearchParams(window.location.search);
             const hostId = urlParams.get('hostId');
-
             if (!hostId) { updateStatus("Error: No Host ID."); return; }
-
             peer = new Peer();
             peer.on('open', (id) => {
                 conn = peer.connect(hostId);
-
                 conn.on('open', () => {
                     updateStatus("Connected!<br>Waiting for Player 2...");
                     conn.send({ type: 'handshake' });
                 });
-
                 conn.on('data', (data) => {
                     if (data.type === 'assignColor') {
                         myColor = data.color;
-                        updateStatus("READY!", true); // Hide after a moment
+                        updateStatus("READY!", true);
                     }
                     if (data.type === 'gameStart') {
                         document.getElementById('status-overlay').style.display = 'none';
@@ -121,72 +108,48 @@
                 });
             });
         }
-
         function updateStatus(msg, hide = false) {
             let el = document.getElementById('status-overlay');
             let text = document.getElementById('status-text');
             el.style.display = 'flex';
             text.innerHTML = msg;
-
             if (hide) {
                 setTimeout(() => {
                     el.style.display = 'none';
                 }, 1500);
             }
         }
-
         function draw() {
             background(30);
-
-            // 1. DETECT TOUCHES
             inputs.left = false;
             inputs.right = false;
-
-
             for (let i = 0; i < touches.length; i++) {
-
                 if (touches[i].x < width / 2) {
                     inputs.left = true;
                 }
-
                 else {
                     inputs.right = true;
                 }
             }
-
-
             if (conn && conn.open) {
-
                 conn.send({ type: 'input', left: inputs.left, right: inputs.right });
             }
-
-
             noStroke();
-
             if (inputs.left) fill(myColor); else fill(100);
             rect(0, 0, width / 2, height);
-
-
             if (inputs.right) fill(myColor); else fill(150);
             rect(width / 2, 0, width / 2, height);
-
-
             stroke(255); strokeWeight(5);
             line(width / 2, 0, width / 2, height);
-
-
             fill(255); noStroke();
             text("L", width / 4, height / 2);
             text("R", width * 3 / 4, height / 2);
         }
-
-
         function windowResized() {
             let w = max(windowWidth, windowHeight);
             let h = min(windowWidth, windowHeight);
             resizeCanvas(w, h);
         }
-
         function touchStarted() { return false; }
         function touchMoved() { return false; }
         function touchEnded() { return false; }

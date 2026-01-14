@@ -11,122 +11,181 @@
             margin: 0;
             overflow: hidden;
             touch-action: none;
+            background: #1a1a1a;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 20;
+            text-align: center;
+            transition: opacity 0.3s;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6ecca5 0%, #45b08c 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(110, 204, 165, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.95);
+        }
+
+        #game-ui {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+
+        #status-bar {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #222;
+            border-bottom: 1px solid #333;
+            font-size: 14px;
+            color: #888;
+        }
+
+        #shoot-area {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        #shoot-btn {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(238, 82, 83, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            user-select: none;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        #shoot-btn:active {
+            transform: scale(0.9);
+            box-shadow: 0 5px 15px rgba(238, 82, 83, 0.6);
+            background: linear-gradient(135deg, #ee5253 0%, #ff6b6b 100%);
         }
     </style>
 </head>
 
 <body>
+    <div id="enable-overlay" class="overlay">
+        <h2 id="status-text">Connecting...</h2>
+        <button id="enable-btn" class="btn btn-primary" style="display:none;" onclick="enableTilt()">ENABLE
+            SENSORS</button>
+    </div>
+    <div id="game-ui">
+        <div id="status-bar">CONNECTED • TILT TO AIM</div>
+        <div id="shoot-area">
+            <div id="shoot-btn" ontouchstart="shoot(event)" onmousedown="shoot(event)">FIRE</div>
+        </div>
+    </div>
     <script>
         let peer, conn;
-        let enableBtn;
-        let statusLabel = 'Tap Enable to Start';
-        let classifier;
         let lastSendTime = 0;
-
+        let isEnabled = false;
         function setup() {
-            createCanvas(windowWidth, windowHeight);
-            textAlign(CENTER, CENTER);
-            textSize(20);
-
+            noCanvas();
             const urlParams = new URLSearchParams(window.location.search);
             const hostId = urlParams.get('hostId');
-
             if (!hostId) {
-                statusLabel = "Error: No Host ID found.";
+                document.getElementById('status-text').innerText = "Error: No Host ID.";
                 return;
             }
-
             peer = new Peer();
             peer.on('open', (id) => {
                 conn = peer.connect(hostId);
                 conn.on('open', () => {
-                    statusLabel = "Connected! Tap Enable.";
+                    document.getElementById('status-text').innerText = "Ready!";
+                    document.getElementById('enable-btn').style.display = 'block';
                 });
             });
-
-            enableBtn = createButton('Enable Sensors');
-            enableBtn.center();
-            enableBtn.mousePressed(enableTilt);
-
-            classifier = ml5.soundClassifier(
-                'https://teachablemachine.withgoogle.com/models/3fT44CmY8/model.json',
-                modelReady
-            );
         }
-
-        function modelReady() {
-            classifier.classify(gotResult);
-        }
-
         function enableTilt() {
             if (typeof DeviceOrientationEvent.requestPermission === 'function') {
                 DeviceOrientationEvent.requestPermission()
                     .then(response => {
                         if (response === 'granted') {
-                            window.addEventListener('deviceorientation', handleOrientation);
-                            enableBtn.hide();
-                            statusLabel = "Sending Data...";
+                            startSensors();
+                        } else {
+                            alert("Permission denied. Game requires tilt sensors.");
                         }
                     })
                     .catch(console.error);
             } else {
-                window.addEventListener('deviceorientation', handleOrientation);
-                enableBtn.hide();
-                statusLabel = "Sending Data...";
+                startSensors();
             }
         }
-
+        function startSensors() {
+            window.addEventListener('deviceorientation', handleOrientation);
+            document.getElementById('enable-overlay').style.display = 'none';
+            document.getElementById('game-ui').style.display = 'flex';
+            isEnabled = true;
+        }
         function handleOrientation(e) {
             if (!conn || !conn.open) return;
-
-            if (millis() - lastSendTime > 50) {
+            if (Date.now() - lastSendTime > 50) {
                 let tiltX = e.gamma || 0;
                 let tiltY = e.beta || 0;
-
-
                 conn.send({
                     tiltX: tiltX,
                     tiltY: -tiltY
                 });
-
-                lastSendTime = millis();
+                lastSendTime = Date.now();
             }
         }
-
-        function gotResult(error, results) {
-            if (error) return;
-
-            let label = results[0].label;
-            let conf = results[0].confidence;
-
-            if (conn && conn.open && conf > 0.8) {
-                if (['Red', 'Blue', 'Green'].includes(label)) {
-                    conn.send({ color: label });
-                }
-            }
-        }
-
-        function draw() {
-            background(200);
-            text(statusLabel, width / 2, height / 2);
-        }
-
-        function windowResized() {
-            resizeCanvas(windowWidth, windowHeight);
-            if (enableBtn) enableBtn.center();
-        }
-
-        function mousePressed() {
+        function shoot(e) {
+            e.preventDefault();
             if (conn && conn.open) {
-                conn.send({
-                    action: 'shoot'
-                });
-
-                // Visual feedback (flash)
-                // Note: Since draw() runs every frame and clears background, 
-                // this might be subtle, but we'll include it as requested.
-                background(255);
-                setTimeout(() => background(200), 50);
+                conn.send({ action: 'shoot' });
+                if (navigator.vibrate) navigator.vibrate(50);
             }
         }
     </script>

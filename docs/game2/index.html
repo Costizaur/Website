@@ -13,7 +13,6 @@
             font-family: 'Courier New', sans-serif;
         }
 
-
         #ui-layer {
             position: absolute;
             top: 0;
@@ -23,13 +22,12 @@
             z-index: 10;
         }
 
-
         #menu-screen {
             position: absolute;
             top: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -43,6 +41,7 @@
             margin-bottom: 20px;
             text-transform: uppercase;
             letter-spacing: 5px;
+            text-align: center;
         }
 
         .btn {
@@ -55,6 +54,8 @@
             margin: 10px;
             transition: 0.2s;
             min-width: 200px;
+            font-family: inherit;
+            font-weight: bold;
         }
 
         .btn:hover {
@@ -71,7 +72,6 @@
             color: #0074D9;
         }
 
-
         #qrcode-container {
             display: none;
             position: absolute;
@@ -87,8 +87,8 @@
             border: 5px solid white;
             margin-top: 20px;
             display: inline-block;
+            background: white;
         }
-
 
         #hud {
             display: none;
@@ -99,13 +99,23 @@
             font-size: 20px;
             font-weight: bold;
         }
+
+        .p1-score {
+            color: #FF4136;
+            text-shadow: 2px 2px 0px #000;
+        }
+
+        .p2-score {
+            color: #0074D9;
+            text-shadow: 2px 2px 0px #000;
+        }
     </style>
 </head>
 
 <body>
 
     <div id="menu-screen">
-        <h1>River Racer</h1>
+        <h1>RIVER RACER</h1>
         <button class="btn" onclick="setMode(1)">1 PLAYER</button>
         <button class="btn btn-blue" onclick="setMode(2)">2 PLAYERS</button>
     </div>
@@ -113,11 +123,12 @@
     <div id="qrcode-container">
         <h2 id="lobby-status">Scan to Join</h2>
         <div id="qrcode"></div>
+        <p style="margin-top:10px; font-size: 14px; opacity: 0.7;">Make sure phones are on same Wi-Fi</p>
     </div>
 
     <div id="hud">
-        <span style="position: absolute; left: 20px;" id="p1-score"></span>
-        <span style="position: absolute; right: 20px;" id="p2-score"></span>
+        <span style="position: absolute; left: 20px;" id="p1-score" class="p1-score"></span>
+        <span style="position: absolute; right: 20px;" id="p2-score" class="p2-score"></span>
     </div>
 
     <script>
@@ -127,48 +138,54 @@
         let gameState = "MENU";
         let requiredPlayers = 2;
 
-
-        const FINISH_LINE_Y = -4000;
-        const TRACK_WIDTH = 800;
+        const FINISH_LINE_Y = -5000;
+        const TRACK_WIDTH = 700;
         let cameraY = 0;
 
         function setup() {
             createCanvas(windowWidth, windowHeight);
             rectMode(CENTER); textAlign(CENTER, CENTER);
 
+            for (let y = -400; y > FINISH_LINE_Y; y -= 300) {
 
-            for (let y = -500; y > FINISH_LINE_Y; y -= 150) {
-                let count = random(1, 3);
+                let count = random() > 0.5 ? 2 : 1;
+
                 for (let i = 0; i < count; i++) {
                     obstacles.push({
-                        x: random(width / 2 - TRACK_WIDTH / 2, width / 2 + TRACK_WIDTH / 2),
+                        x: random(width / 2 - TRACK_WIDTH / 2 + 50, width / 2 + TRACK_WIDTH / 2 - 50),
                         y: y + random(-50, 50),
-                        size: random(40, 70),
-                        type: 'rock'
+                        size: random(50, 90),
+                        shape: random() > 0.5 ? 'box' : 'triangle'
                     });
                 }
             }
 
-
             setupNetworking();
         }
-
 
         function setMode(players) {
             requiredPlayers = players;
             gameState = "LOBBY";
-
-
             document.getElementById('menu-screen').style.display = 'none';
             document.getElementById('qrcode-container').style.display = 'block';
             updateLobbyText();
         }
 
         function setupNetworking() {
-            peer = new Peer();
+            peer = new Peer(null, {
+                debug: 2,
+                config: {
+                    'iceServers': [
+                        { url: 'stun:stun.l.google.com:19302' },
+                        { url: 'stun:stun1.l.google.com:19302' }
+                    ]
+                }
+            });
+
             peer.on('open', (id) => {
-                const baseUrl = 'https://www.costinsarghiuta.com/game2/';
-                let controllerURL = baseUrl + 'controller.html?hostId=' + id;
+                let controllerURL = 'https://www.costinsarghiuta.com/game2/controller.html?hostId=' + id;
+
+                document.getElementById("qrcode").innerHTML = "";
                 new QRCode(document.getElementById("qrcode"), { text: controllerURL, width: 200, height: 200 });
             });
 
@@ -186,30 +203,17 @@
         function handlePlayerJoin(conn) {
             if (gameState !== "LOBBY") return;
 
-
             let slot = playerSlots.findIndex(s => s === null);
-
-
             if (requiredPlayers === 1 && slot > 0) return;
 
             if (slot !== -1) {
                 let color = slot === 0 ? '#FF4136' : '#0074D9';
-
-
-                let startX = width / 2;
-                if (requiredPlayers === 2) {
-                    startX = width / 2 + (slot === 0 ? -150 : 150);
-                }
+                let startX = requiredPlayers === 2 ? width / 2 + (slot === 0 ? -120 : 120) : width / 2;
 
                 playerSlots[slot] = {
-                    conn: conn,
-                    id: conn.peer,
-                    color: color,
-                    x: startX,
-                    y: height - 100,
-                    speedY: 0,
-                    stunned: 0,
-                    inputs: { left: false, right: false },
+                    conn: conn, id: conn.peer, color: color,
+                    x: startX, y: height - 150,
+                    speedY: 0, stunned: 0, inputs: { left: false, right: false },
                     finished: false
                 };
                 conn.send({ type: 'assignColor', color: color });
@@ -218,11 +222,10 @@
         }
 
         function checkLobby() {
-            let count = playerSlots.filter(p => p).length;
             updateLobbyText();
-
+            let count = playerSlots.filter(p => p).length;
             if (count === requiredPlayers) {
-                document.getElementById('lobby-status').innerText = "RACE STARTING...";
+                document.getElementById('lobby-status').innerText = "STARTING...";
                 setTimeout(startRace, 2000);
             }
         }
@@ -240,10 +243,8 @@
         }
 
         function draw() {
-
             if (gameState === "MENU") {
                 background(20);
-
                 translate(0, (millis() * 0.1) % 100);
                 drawEnvironment();
                 return;
@@ -251,11 +252,8 @@
 
             background(30, 100, 150);
 
-
             let leaderY = height;
             playerSlots.forEach(p => { if (p) leaderY = min(leaderY, p.y); });
-
-
             if (playerSlots.every(p => p === null)) leaderY = height - 100;
 
             let targetCamY = -leaderY + height * 0.7;
@@ -266,57 +264,59 @@
 
             drawEnvironment();
 
-
             playerSlots.forEach((p, index) => {
                 if (!p) return;
                 if (gameState === "RACING" && !p.finished) {
 
-
                     if (p.stunned > 0) {
                         p.stunned--;
-                        p.speedY = lerp(p.speedY, 2, 0.1);
+                        p.speedY = lerp(p.speedY, 3, 0.1);
                         fill(255, 0, 0);
                     } else {
-                        if (p.inputs.left && p.inputs.right) p.speedY = lerp(p.speedY, -12, 0.05);
+                        if (p.inputs.left && p.inputs.right) p.speedY = lerp(p.speedY, -14, 0.05);
                         else p.speedY = lerp(p.speedY, 2, 0.05);
 
-                        if (p.inputs.left && !p.inputs.right) p.x -= 7;
-                        if (p.inputs.right && !p.inputs.left) p.x += 7;
+                        if (p.inputs.left && !p.inputs.right) p.x -= 8;
+                        if (p.inputs.right && !p.inputs.left) p.x += 8;
 
                         fill(p.color);
                     }
                     p.y += p.speedY;
 
-
                     obstacles.forEach(obs => {
-                        if (dist(p.x, p.y, obs.x, obs.y) < (obs.size / 2 + 20)) {
+                        if (dist(p.x, p.y, obs.x, obs.y) < (obs.size / 2 + 25)) {
                             if (p.stunned <= 0) {
-                                p.stunned = 40;
-                                p.speedY = 5;
+                                p.stunned = 60;
+                                p.speedY = 8;
                                 p.conn.send({ type: 'assignColor', color: '#fff' });
                                 setTimeout(() => p.conn.send({ type: 'assignColor', color: p.color }), 200);
                             }
                         }
                     });
 
-
                     if (p.y < FINISH_LINE_Y) {
                         p.finished = true;
                         handleWin(index);
                     }
                 }
-                p.x = constrain(p.x, width / 2 - TRACK_WIDTH / 2 + 30, width / 2 + TRACK_WIDTH / 2 - 30);
 
+                let leftLimit = width / 2 - TRACK_WIDTH / 2 + 30;
+                let rightLimit = width / 2 + TRACK_WIDTH / 2 - 30;
+
+                p.x = constrain(p.x, leftLimit, rightLimit);
 
                 push();
                 translate(p.x, p.y);
-                let turnAngle = 0;
-                if (p.inputs.left && !p.inputs.right) turnAngle = -0.3;
-                if (p.inputs.right && !p.inputs.left) turnAngle = 0.3;
-                rotate(turnAngle);
+                let turn = 0;
+                if (p.inputs.left && !p.inputs.right) turn = -0.2;
+                if (p.inputs.right && !p.inputs.left) turn = 0.2;
+                rotate(turn);
+
                 stroke(255); strokeWeight(3);
                 if (p.stunned > 0) stroke(255, 0, 0);
+
                 triangle(0, -35, -20, 25, 20, 25);
+
                 fill(255); noStroke(); textAlign(CENTER); textSize(14);
                 text("P" + (index + 1), 0, 10);
                 pop();
@@ -327,51 +327,69 @@
         }
 
         function drawEnvironment() {
-
-            fill(34, 139, 34);
-            rect(width / 2 - TRACK_WIDTH / 2 - 200, FINISH_LINE_Y / 2, 400, -FINISH_LINE_Y + 4000);
-            rect(width / 2 + TRACK_WIDTH / 2 + 200, FINISH_LINE_Y / 2, 400, -FINISH_LINE_Y + 4000);
-
-
             noStroke();
+            fill(34, 139, 34);
+            rect(width / 2 - TRACK_WIDTH / 2 - 400, FINISH_LINE_Y / 2, 800, -FINISH_LINE_Y + 4000);
+            rect(width / 2 + TRACK_WIDTH / 2 + 400, FINISH_LINE_Y / 2, 800, -FINISH_LINE_Y + 4000);
+
+            stroke(255, 255, 255, 50); strokeWeight(5);
+            line(width / 2 - TRACK_WIDTH / 2, 1000, width / 2 - TRACK_WIDTH / 2, FINISH_LINE_Y);
+            line(width / 2 + TRACK_WIDTH / 2, 1000, width / 2 + TRACK_WIDTH / 2, FINISH_LINE_Y);
+            noStroke();
+
             for (let i = 0; i < 10; i++) {
                 fill(i % 2 == 0 ? 0 : 255);
-                rect(width / 2 - TRACK_WIDTH / 2 + i * (TRACK_WIDTH / 10) + 40, FINISH_LINE_Y, TRACK_WIDTH / 10, 40);
+                rect(width / 2 - TRACK_WIDTH / 2 + i * (TRACK_WIDTH / 10) + (TRACK_WIDTH / 20), FINISH_LINE_Y, TRACK_WIDTH / 10, 40);
             }
 
-
-            fill(100);
             obstacles.forEach(obs => {
-                ellipse(obs.x, obs.y, obs.size);
-                fill(150); ellipse(obs.x - 5, obs.y - 5, obs.size / 3); fill(100);
+                fill(120);
+                if (obs.shape === 'box') {
+                    rect(obs.x, obs.y, obs.size, obs.size, 5);
+                    fill(160); rect(obs.x - 5, obs.y - 5, obs.size - 10, obs.size - 10, 5);
+                } else {
+                    push();
+                    translate(obs.x, obs.y);
+                    triangle(0, -obs.size / 2, -obs.size / 2, obs.size / 2, obs.size / 2, obs.size / 2);
+                    fill(160);
+                    scale(0.7);
+                    triangle(0, -obs.size / 2, -obs.size / 2, obs.size / 2, obs.size / 2, obs.size / 2);
+                    pop();
+                }
             });
         }
 
         function updateHUD() {
             if (gameState !== "RACING") return;
-            if (playerSlots[0]) document.getElementById('p1-score').innerText = "P1: " + Math.abs(Math.round(playerSlots[0].y));
-            if (playerSlots[1]) document.getElementById('p2-score').innerText = "P2: " + Math.abs(Math.round(playerSlots[1].y));
+            if (playerSlots[0]) document.getElementById('p1-score').innerText = "P1 DIST: " + Math.abs(Math.round(playerSlots[0].y / 10)) + "m";
+            if (playerSlots[1]) document.getElementById('p2-score').innerText = "P2 DIST: " + Math.abs(Math.round(playerSlots[1].y / 10)) + "m";
         }
 
         function handleWin(playerIndex) {
             if (gameState === "FINISHED") return;
             gameState = "FINISHED";
 
-            let winnerName = playerIndex === 0 ? "RED PLAYER" : "BLUE PLAYER";
-
+            let winnerName = playerIndex === 0 ? "RED" : "BLUE";
+            let color = playerIndex === 0 ? "#FF4136" : "#0074D9";
 
             let winDiv = createDiv(winnerName + " WINS!");
             winDiv.style('position', 'absolute');
             winDiv.style('top', '50%'); winDiv.style('left', '50%');
             winDiv.style('transform', 'translate(-50%, -50%)');
-            winDiv.style('color', 'white'); winDiv.style('font-size', '60px');
+            winDiv.style('color', color);
+            winDiv.style('font-size', '60px');
             winDiv.style('font-family', 'sans-serif');
-            winDiv.style('background', 'rgba(0,0,0,0.8)');
-            winDiv.style('padding', '20px');
+            winDiv.style('background', 'rgba(255,255,255,0.9)');
+            winDiv.style('padding', '40px');
+            winDiv.style('border', '5px solid ' + color);
+            winDiv.style('border-radius', '20px');
+            winDiv.style('box-shadow', '0 10px 30px rgba(0,0,0,0.5)');
 
-            let subText = createDiv("Refresh to restart");
+            let subText = createDiv("Refresh page to restart");
             subText.parent(winDiv);
             subText.style('font-size', '20px');
+            subText.style('color', '#333');
+            subText.style('margin-top', '10px');
         }
 
         function windowResized() { resizeCanvas(windowWidth, windowHeight); }

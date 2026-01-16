@@ -4,15 +4,18 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
+        /* Setup full screen black background */
         body {
             margin: 0;
             overflow: hidden;
             touch-action: none;
+            /* Prevent scrolling */
             background: #222;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             color: white;
         }
 
+        /* Overlay for status messages (Connecting, etc) */
         #status-overlay {
             position: absolute;
             top: 0;
@@ -29,8 +32,10 @@
             pointer-events: none;
         }
 
+        /* Rotate phone prompt */
         #rotate-overlay {
             display: none;
+            /* Hidden by default */
             position: absolute;
             top: 0;
             left: 0;
@@ -60,47 +65,63 @@
             opacity: 0.8;
         }
 
+        /* Show rotate overlay ONLY in portrait mode */
         @media (orientation: portrait) {
             #rotate-overlay {
                 display: flex;
             }
         }
     </style>
+    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
 </head>
 
 <body>
+    <!-- Rotate Screen Warning -->
     <div id="rotate-overlay">
         <div class="icon">📱↻</div>
         <h1>Please Rotate Device</h1>
         <p>This game requires landscape mode.</p>
     </div>
+
+    <!-- Connection Status -->
     <div id="status-overlay">
         <h1 id="status-text">Connecting...</h1>
     </div>
+
     <script>
         let peer, conn;
-        let inputs = { left: false, right: false };
-        let myColor = '#ccc';
+        let inputs = { left: false, right: false }; // Track button presses
+        let myColor = '#ccc'; // Color assigned by host
+
         function setup() {
+            // Create full screen canvas
             let w = max(windowWidth, windowHeight);
             let h = min(windowWidth, windowHeight);
             createCanvas(w, h);
+
+            // Get Host ID from URL
             const urlParams = new URLSearchParams(window.location.search);
             const hostId = urlParams.get('hostId');
+
             if (!hostId) { updateStatus("Error: No Host ID."); return; }
+
+            // Connect to PeerJS
             peer = new Peer();
             peer.on('open', (id) => {
                 conn = peer.connect(hostId);
+
                 conn.on('open', () => {
                     updateStatus("Connected!<br>Waiting for Player 2...");
                     conn.send({ type: 'handshake' });
                 });
+
+                // Listen for messages from host
                 conn.on('data', (data) => {
                     if (data.type === 'assignColor') {
-                        myColor = data.color;
-                        updateStatus("READY!", true);
+                        myColor = data.color; // Set our color
+                        updateStatus("READY!", true); // Hide loading screen
                     }
                     if (data.type === 'gameStart') {
                         document.getElementById('status-overlay').style.display = 'none';
@@ -108,48 +129,72 @@
                 });
             });
         }
+
+        // --- UI HELPER ---
         function updateStatus(msg, hide = false) {
             let el = document.getElementById('status-overlay');
             let text = document.getElementById('status-text');
             el.style.display = 'flex';
             text.innerHTML = msg;
+
             if (hide) {
                 setTimeout(() => {
                     el.style.display = 'none';
                 }, 1500);
             }
         }
+
+        // --- DRAW LOOP ---
         function draw() {
             background(30);
+
+            // Detect touch zones
             inputs.left = false;
             inputs.right = false;
+
             for (let i = 0; i < touches.length; i++) {
                 if (touches[i].x < width / 2) {
-                    inputs.left = true;
+                    inputs.left = true; // Left side touched
                 }
                 else {
-                    inputs.right = true;
+                    inputs.right = true; // Right side touched
                 }
             }
+
+            // Send input to host
             if (conn && conn.open) {
                 conn.send({ type: 'input', left: inputs.left, right: inputs.right });
             }
+
+            // Draw Controls UI
             noStroke();
+
+            // Left Button
             if (inputs.left) fill(myColor); else fill(100);
             rect(0, 0, width / 2, height);
+
+            // Right Button
             if (inputs.right) fill(myColor); else fill(150);
             rect(width / 2, 0, width / 2, height);
+
+            // Divider Line
             stroke(255); strokeWeight(5);
             line(width / 2, 0, width / 2, height);
+
+            // Labels
             fill(255); noStroke();
             text("L", width / 4, height / 2);
             text("R", width * 3 / 4, height / 2);
         }
+
+        // Handle resizing
         function windowResized() {
             let w = max(windowWidth, windowHeight);
             let h = min(windowWidth, windowHeight);
             resizeCanvas(w, h);
         }
+
+        // Prevent default browser touch actions
         function touchStarted() { return false; }
         function touchMoved() { return false; }
         function touchEnded() { return false; }

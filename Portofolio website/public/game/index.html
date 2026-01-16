@@ -13,6 +13,7 @@
             font-family: 'Courier New', Courier, monospace;
         }
 
+        /* Top HUD Bar */
         #ui-layer {
             position: absolute;
             bottom: 0;
@@ -29,6 +30,7 @@
             z-index: 10;
         }
 
+        /* QR Code Box */
         #qrcode {
             position: absolute;
             top: 50%;
@@ -47,21 +49,26 @@
         <span id="status-el">WAVE 1</span>
     </div>
     <div id="qrcode"></div>
+
     <script>
         let peer;
         let crosshairX, crosshairY;
-        let tiltX = 0, tiltY = 0;
+        let tiltX = 0, tiltY = 0; // Phone tilt values
         let ducks = [];
         let score = 0;
         let wave = 1;
-        let gameActive = false;
+        let gameActive = false; // Is a player connected?
+
         function setup() {
             createCanvas(windowWidth, windowHeight);
             crosshairX = width / 2;
             crosshairY = height / 2;
             textAlign(CENTER, CENTER);
+
+            // --- NETWORKING ---
             peer = new Peer();
             peer.on('open', (id) => {
+                // Generate QR code for controller
                 const baseUrl = 'https://www.costinsarghiuta.com/game/';
                 let controllerURL = baseUrl + 'controller.html?hostId=' + id;
                 new QRCode(document.getElementById("qrcode"), {
@@ -70,62 +77,92 @@
                     height: 100
                 });
             });
+
+            // Handle connection
             peer.on('connection', (conn) => {
                 gameActive = true;
                 document.getElementById('status-el').innerText = "GO!";
-                document.getElementById('qrcode').style.display = 'none';
+                document.getElementById('qrcode').style.display = 'none'; // Hide QR
+
                 conn.on('data', (data) => {
+                    // Update Aim
                     if (data.tiltX !== undefined) tiltX = data.tiltX;
                     if (data.tiltY !== undefined) tiltY = data.tiltY;
+
+                    // Fire Shot
                     if (data.action === 'shoot') {
                         fireGun();
                     }
                 });
             });
+
+            // Spawn ducks every 2 seconds
             setInterval(spawnDuck, 2000);
         }
+
+        // --- GAME LOOP ---
         function draw() {
-            background(60, 188, 252);
+            background(60, 188, 252); // Sky Blue
+
+            // Draw Ground
             noStroke();
             fill(118, 174, 59);
             rect(0, height - 100, width, 100);
+
             if (gameActive) {
+                // Draw and move ducks
                 for (let i = ducks.length - 1; i >= 0; i--) {
                     let d = ducks[i];
                     d.x += d.speed;
+
+                    // Duck Body
                     fill(255, 255, 0);
                     ellipse(d.x, d.y, 60, 40);
-                    fill(200, 200, 0);
+                    fill(200, 200, 0); // Wing
                     ellipse(d.x - 10, d.y - 5, 20, 20);
+
+                    // Remove if off screen
                     if (d.x > width + 50) {
                         ducks.splice(i, 1);
                     }
                 }
             } else {
+                // Waiting message
                 fill(0);
                 textSize(30);
                 text("Waiting for Player...", width / 2, height / 2);
             }
+
+            // Move Crosshair based on phone tilt
             crosshairX += tiltX * 0.8;
             crosshairY += tiltY * 0.8;
+
+            // Keep on screen
             crosshairX = constrain(crosshairX, 0, width);
             crosshairY = constrain(crosshairY, 0, height - 100);
+
             drawCrosshair(crosshairX, crosshairY);
         }
+
         function spawnDuck() {
             if (!gameActive) return;
             let duck = {
                 x: -50,
                 y: random(50, height - 150),
-                speed: random(3, 8) + (wave * 0.5)
+                speed: random(3, 8) + (wave * 0.5) // Faster every wave
             };
             ducks.push(duck);
         }
+
         function fireGun() {
-            background(255);
+            background(255); // Flash screen
+
+            // Check collision
             for (let i = ducks.length - 1; i >= 0; i--) {
                 let d = ducks[i];
                 let distance = dist(crosshairX, crosshairY, d.x, d.y);
+
+                // Hit!
                 if (distance < 40) {
                     ducks.splice(i, 1);
                     score += 100;
@@ -134,13 +171,16 @@
                 }
             }
         }
+
         function updateUI() {
             document.getElementById('score-el').innerText = "SCORE: " + score;
+            // Next Wave every 500 points
             if (score > 0 && score % 500 === 0) {
                 wave++;
                 document.getElementById('status-el').innerText = "WAVE " + wave;
             }
         }
+
         function drawCrosshair(x, y) {
             noFill();
             stroke(255, 0, 0);
@@ -149,6 +189,7 @@
             line(x - 25, y, x + 25, y);
             line(x, y - 25, x, y + 25);
         }
+
         function windowResized() {
             resizeCanvas(windowWidth, windowHeight);
         }

@@ -3,10 +3,12 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
     <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <style>
+        /* Dark Theme */
         body {
             margin: 0;
             overflow: hidden;
@@ -19,6 +21,7 @@
             height: 100vh;
         }
 
+        /* Overlay for permissions/loading */
         .overlay {
             position: absolute;
             top: 0;
@@ -41,6 +44,7 @@
             letter-spacing: 1px;
         }
 
+        /* Standard Button */
         .btn {
             padding: 15px 30px;
             font-size: 18px;
@@ -63,6 +67,7 @@
             transform: scale(0.95);
         }
 
+        /* Main Game Interface */
         #game-ui {
             display: none;
             flex-direction: column;
@@ -89,6 +94,7 @@
             position: relative;
         }
 
+        /* Big Red Fire Button */
         #shoot-btn {
             width: 200px;
             height: 200px;
@@ -116,38 +122,51 @@
 </head>
 
 <body>
+    <!-- Permission / Connection Screen -->
     <div id="enable-overlay" class="overlay">
         <h2 id="status-text">Connecting...</h2>
         <button id="enable-btn" class="btn btn-primary" style="display:none;" onclick="enableTilt()">ENABLE
             SENSORS</button>
     </div>
+
+    <!-- Active Controller UI -->
     <div id="game-ui">
         <div id="status-bar">CONNECTED • TILT TO AIM</div>
         <div id="shoot-area">
             <div id="shoot-btn" ontouchstart="shoot(event)" onmousedown="shoot(event)">FIRE</div>
         </div>
     </div>
+
     <script>
         let peer, conn;
         let lastSendTime = 0;
         let isEnabled = false;
+
         function setup() {
-            noCanvas();
+            noCanvas(); // No drawing on controller
+
+            // Get Host ID
             const urlParams = new URLSearchParams(window.location.search);
             const hostId = urlParams.get('hostId');
+
             if (!hostId) {
                 document.getElementById('status-text').innerText = "Error: No Host ID.";
                 return;
             }
+
+            // Connect
             peer = new Peer();
             peer.on('open', (id) => {
                 conn = peer.connect(hostId);
                 conn.on('open', () => {
+                    // Show "Enable Sensors" button (iOS requires user click)
                     document.getElementById('status-text').innerText = "Ready!";
                     document.getElementById('enable-btn').style.display = 'block';
                 });
             });
         }
+
+        // Request DeviceOrientation Permission (iOS 13+)
         function enableTilt() {
             if (typeof DeviceOrientationEvent.requestPermission === 'function') {
                 DeviceOrientationEvent.requestPermission()
@@ -160,20 +179,26 @@
                     })
                     .catch(console.error);
             } else {
-                startSensors();
+                startSensors(); // Android/Desktop
             }
         }
+
         function startSensors() {
             window.addEventListener('deviceorientation', handleOrientation);
             document.getElementById('enable-overlay').style.display = 'none';
             document.getElementById('game-ui').style.display = 'flex';
             isEnabled = true;
         }
+
+        // Send Tilt Data to Host
         function handleOrientation(e) {
             if (!conn || !conn.open) return;
+
+            // Limit send rate to save bandwidth (every 50ms)
             if (Date.now() - lastSendTime > 50) {
-                let tiltX = e.gamma || 0;
-                let tiltY = e.beta || 0;
+                let tiltX = e.gamma || 0; // Left/Right
+                let tiltY = e.beta || 0;  // Up/Down
+
                 conn.send({
                     tiltX: tiltX,
                     tiltY: -tiltY
@@ -181,10 +206,13 @@
                 lastSendTime = Date.now();
             }
         }
+
+        // Send Shoot Command
         function shoot(e) {
             e.preventDefault();
             if (conn && conn.open) {
                 conn.send({ action: 'shoot' });
+                // Haptic Feedback
                 if (navigator.vibrate) navigator.vibrate(50);
             }
         }

@@ -5,10 +5,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>River Racer</title>
+    <!-- Load required libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
+        /* Basic page setup */
         body {
             margin: 0;
             overflow: hidden;
@@ -16,6 +18,7 @@
             font-family: 'Courier New', sans-serif;
         }
 
+        /* Menu screen styling */
         #menu-screen {
             position: absolute;
             top: 0;
@@ -41,6 +44,7 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
+        /* Button styling */
         .btn {
             background: #FF4136;
             color: white;
@@ -70,6 +74,7 @@
             color: #0074D9;
         }
 
+        /* QR Code container styling */
         #qrcode-container {
             display: none;
             position: absolute;
@@ -93,6 +98,7 @@
             background: white;
         }
 
+        /* Heads Up Display (Score) styling */
         #hud {
             display: none;
             position: absolute;
@@ -114,6 +120,7 @@
             text-shadow: 2px 2px 0px #000;
         }
 
+        /* Instructions overlay */
         #tutorial-overlay {
             position: absolute;
             bottom: 50px;
@@ -153,6 +160,7 @@
 
 <body>
 
+    <!-- Menu Screen -->
     <div id="menu-screen">
         <h1>RIVER RACER</h1>
         <button class="btn" onclick="setMode(1)">1 PLAYER</button>
@@ -165,6 +173,7 @@
         </div>
     </div>
 
+    <!-- QR Code / Lobby Screen -->
     <div id="qrcode-container">
         <h2 id="lobby-status">Scan to Join</h2>
         <div id="qrcode"></div>
@@ -172,42 +181,49 @@
         <p id="kb-start-msg" class="keyboard-hint">PRESS [ENTER] TO JOIN LOCAL PLAYER</p>
     </div>
 
+    <!-- In-Game Score Display -->
     <div id="hud">
         <span style="position: absolute; left: 20px;" id="p1-score" class="p1-score"></span>
         <span style="position: absolute; right: 20px;" id="p2-score" class="p2-score"></span>
     </div>
 
     <script>
+        // --- VARIABLES ---
         let peer;
-        let playerSlots = [null, null];
+        let playerSlots = [null, null]; // Stores player data (null = empty)
         let obstacles = [];
         let ripples = [];
-        let gameState = "MENU";
-        let requiredPlayers = 2;
+        let gameState = "MENU"; // Current game state
+        let requiredPlayers = 2; // How many people playing?
 
+        // Track local keyboard inputs
         let keysPressed = {
             p1: { left: false, right: false },
             p2: { a: false, d: false }
         };
 
-        const FINISH_LINE_Y = -5000;
+        const FINISH_LINE_Y = -5000; // How long is the track?
         const TRACK_WIDTH = 700;
-        let cameraY = 0;
+        let cameraY = 0; // Moves the view up
 
+        // Textures
         let waterImg;
         let waterPattern;
         let grassImg;
         let grassPattern;
 
+        // --- PRELOAD ASSETS ---
         function preload() {
             waterImg = loadImage('water.png');
             grassImg = loadImage('grass.png');
         }
 
+        // --- SETUP GAME ---
         function setup() {
             createCanvas(windowWidth, windowHeight);
             rectMode(CENTER); textAlign(CENTER, CENTER);
 
+            // Generate fallback textures if images fail
             if (!grassImg) {
                 let g = createGraphics(250, 250);
                 g.background(34, 139, 34);
@@ -224,15 +240,15 @@
                 w.remove();
             }
 
+            // Create smooth tiling for backgrounds
             grassImg.resize(250, 250);
-
             let g = createGraphics(750, 750);
             for (let i = 0; i < 3; i++) {
                 for (let j = 0; j < 3; j++) {
                     g.image(grassImg, i * 250, j * 250);
                 }
             }
-            g.filter(BLUR, 3);
+            g.filter(BLUR, 3); // Blur to hide seams
             grassImg = g.get(250, 250, 250, 250);
             g.remove();
 
@@ -243,19 +259,23 @@
             setupNetworking();
         }
 
+        // --- LEVEL GENERATION ---
         function generateObstacles() {
             obstacles = [];
+            // Spawn obstacles from bottom to top
             for (let y = height - 600; y > FINISH_LINE_Y; y -= 250) {
                 let count = random() > 0.5 ? 2 : 1;
                 for (let i = 0; i < count; i++) {
                     let attempts = 0;
                     let placed = false;
+                    // Try to find a safe spot not overlapping others
                     while (!placed && attempts < 50) {
                         let potentialX = random(width / 2 - TRACK_WIDTH / 2 + 50, width / 2 + TRACK_WIDTH / 2 - 50);
                         let potentialY = y + random(-100, 100);
                         let potentialSize = random(60, 100);
                         let valid = true;
 
+                        // Check distance to other obstacles
                         for (let other of obstacles) {
                             let d = dist(potentialX, potentialY, other.x, other.y);
                             let requiredDistance = (potentialSize / 2) + (other.size / 2) + 40;
@@ -280,6 +300,7 @@
             }
         }
 
+        // --- MENU LOGIC ---
         function setMode(players) {
             requiredPlayers = players;
             gameState = "LOBBY";
@@ -288,13 +309,16 @@
             updateLobbyText();
         }
 
+        // --- INPUT HANDLING ---
         function keyPressed() {
             if (gameState === "LOBBY" && keyCode === ENTER) {
                 spawnLocalPlayer();
                 return;
             }
+            // Player 1 controls
             if (keyCode === LEFT_ARROW) keysPressed.p1.left = true;
             if (keyCode === RIGHT_ARROW) keysPressed.p1.right = true;
+            // Player 2 controls
             if (keyCode === 65) keysPressed.p2.a = true;
             if (keyCode === 68) keysPressed.p2.d = true;
             updateLocalInputs();
@@ -308,6 +332,7 @@
             updateLocalInputs();
         }
 
+        // Send local inputs to player objects
         function updateLocalInputs() {
             if (playerSlots[0] && playerSlots[0].id.startsWith('local')) {
                 playerSlots[0].inputs.left = keysPressed.p1.left;
@@ -319,13 +344,15 @@
             }
         }
 
+        // Create a keyboard player
         function spawnLocalPlayer() {
             let slot = playerSlots.findIndex(s => s === null);
-            if (slot === -1) return;
+            if (slot === -1) return; // Full
             let color = slot === 0 ? '#FF4136' : '#0074D9';
             let startX = requiredPlayers === 2 ? width / 2 + (slot === 0 ? -120 : 120) : width / 2;
+
             playerSlots[slot] = {
-                conn: { send: () => { } },
+                conn: { send: () => { } }, // Dummy connection
                 id: 'local-' + slot,
                 color: color,
                 x: startX,
@@ -339,6 +366,7 @@
             checkLobby();
         }
 
+        // --- NETWORKING (PeerJS) ---
         function setupNetworking() {
             peer = new Peer(null, {
                 debug: 2,
@@ -352,10 +380,12 @@
                 new QRCode(document.getElementById("qrcode"), { text: controllerURL, width: 200, height: 200 });
             });
 
+            // Handle new connections
             peer.on('connection', (conn) => {
                 conn.on('data', (data) => {
                     if (data.type === 'handshake') handlePlayerJoin(conn);
                     if (data.type === 'input') {
+                        // Apply phone inputs to player
                         let p = playerSlots.find(pl => pl && pl.conn.peer === conn.peer);
                         if (p) p.inputs = { left: data.left, right: data.right };
                     }
@@ -363,13 +393,16 @@
             });
         }
 
+        // Add phone player to slot
         function handlePlayerJoin(conn) {
             if (gameState !== "LOBBY") return;
             let slot = playerSlots.findIndex(s => s === null);
-            if (requiredPlayers === 1 && slot > 0) return;
+            if (requiredPlayers === 1 && slot > 0) return; // Only 1 player needed
+
             if (slot !== -1) {
                 let color = slot === 0 ? '#FF4136' : '#0074D9';
                 let startX = requiredPlayers === 2 ? width / 2 + (slot === 0 ? -120 : 120) : width / 2;
+
                 playerSlots[slot] = {
                     conn: conn, id: conn.peer, color: color,
                     x: startX, y: height - 150,
@@ -404,84 +437,100 @@
             playerSlots.forEach(p => { if (p) p.conn.send({ type: 'gameStart' }) });
         }
 
+        // --- GAME LOOP ---
         function draw() {
+            // Menu background animation
             if (gameState === "MENU") {
                 background(34, 139, 34);
-                translate(0, (millis() * 0.1) % 250);
+                translate(0, (millis() * 0.1) % 250); // Seamless loop
                 drawEnvironment();
                 return;
             }
 
             background(34, 139, 34);
 
+            // Camera follow logic (follow leader)
             let leaderY = height;
             playerSlots.forEach(p => { if (p) leaderY = min(leaderY, p.y); });
-            if (playerSlots.every(p => p === null)) leaderY = height - 100;
+            if (playerSlots.every(p => p === null)) leaderY = height - 100; // Default
+
             let targetCamY = -leaderY + height * 0.7;
-            cameraY = lerp(cameraY, targetCamY, 0.1);
+            cameraY = lerp(cameraY, targetCamY, 0.1); // Smooth camera
 
             push();
-            translate(0, cameraY);
+            translate(0, cameraY); // Move world
 
             drawEnvironment();
             drawRipples();
 
+            // Loop through players
             playerSlots.forEach((p, index) => {
                 if (!p) return;
 
                 let screenY = p.y + cameraY;
 
                 if (gameState === "RACING" && !p.finished) {
+                    // Off-screen elimination logic
                     if (screenY > height) {
                         p.offScreenTimer -= 1 / 60;
                         if (p.offScreenTimer <= 0) {
                             p.finished = true;
+                            // Win goes to the OTHER player
                             let winnerIndex = (index === 0) ? 1 : 0;
                             if (playerSlots[winnerIndex]) {
                                 handleWin(winnerIndex);
                             } else {
-                                handleWin(-1);
+                                handleWin(-1); // Game Over
                             }
                         }
                     } else {
-                        p.offScreenTimer = 5.0;
+                        p.offScreenTimer = 5.0; // Reset timer
                     }
 
+                    // Movement physics
                     if (p.stunned > 0) {
                         p.stunned--;
-                        p.speedY = lerp(p.speedY, 3, 0.1);
-                        fill(255, 0, 0);
+                        p.speedY = lerp(p.speedY, 3, 0.1); // Slow down
+                        fill(255, 0, 0); // Flash red
                     } else {
+                        // Accelerate if holding both buttons
                         if (p.inputs.left && p.inputs.right) {
                             p.speedY = lerp(p.speedY, -14, 0.05);
                             if (frameCount % 5 === 0) spawnRipple(p.x, p.y + 20);
                         } else {
-                            p.speedY = lerp(p.speedY, 2, 0.05);
+                            p.speedY = lerp(p.speedY, 2, 0.05); // Drift back
                         }
+                        // Steer
                         if (p.inputs.left && !p.inputs.right) p.x -= 8;
                         if (p.inputs.right && !p.inputs.left) p.x += 8;
                         fill(p.color);
                     }
-                    p.y += p.speedY;
 
+                    p.y += p.speedY; // Apply movement
+
+                    // Bounds checking
                     if (p.y > height - 100) { p.y = height - 100; p.speedY = 0; }
                     let leftLimit = width / 2 - TRACK_WIDTH / 2 + 30;
                     let rightLimit = width / 2 + TRACK_WIDTH / 2 - 30;
                     p.x = constrain(p.x, leftLimit, rightLimit);
 
+                    // Obstacle Collision
                     obstacles.forEach(obs => {
                         if (dist(p.x, p.y, obs.x, obs.y) < (obs.size / 2 + 25)) {
                             if (p.stunned <= 0) {
-                                p.stunned = 60; p.speedY = 8;
+                                p.stunned = 60; p.speedY = 8; // Bounce back
+                                // Flash phone screen
                                 p.conn.send({ type: 'assignColor', color: '#fff' });
                                 setTimeout(() => p.conn.send({ type: 'assignColor', color: p.color }), 200);
                             }
                         }
                     });
 
+                    // Check finish line
                     if (p.y < FINISH_LINE_Y) { p.finished = true; handleWin(index); }
                 }
 
+                // Draw Player Boat
                 push();
                 translate(p.x, p.y);
                 let turn = 0;
@@ -495,8 +544,9 @@
                 text("P" + (index + 1), 0, 10);
                 pop();
             });
-            pop();
+            pop(); // End world translation
 
+            // Draw Off-screen Indicators
             playerSlots.forEach((p, index) => {
                 if (!p) return;
                 if (gameState === "RACING" && p.offScreenTimer < 5.0 && p.offScreenTimer > 0) {
@@ -507,6 +557,7 @@
             updateHUD();
         }
 
+        // --- DRAWING HELPERS ---
         function drawOffScreenArrow(x, timer, color) {
             push();
             translate(x, height - 60);
@@ -537,6 +588,7 @@
         }
 
         function drawEnvironment() {
+            // Cull obstacles behind camera to save performance
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let obs = obstacles[i];
                 if (obs.y + cameraY > height + 200) {
@@ -544,6 +596,7 @@
                 }
             }
 
+            // Draw Grass Banks
             push();
             rectMode(CORNER);
             drawingContext.fillStyle = grassPattern;
@@ -551,22 +604,26 @@
             rect(width / 2 + TRACK_WIDTH / 2, FINISH_LINE_Y - 2000, 5000, -FINISH_LINE_Y + 7000);
             pop();
 
+            // Draw Water
             push();
             rectMode(CORNER);
             drawingContext.fillStyle = waterPattern;
             rect(width / 2 - TRACK_WIDTH / 2, FINISH_LINE_Y - 2000, TRACK_WIDTH, -FINISH_LINE_Y + 5000);
             pop();
 
+            // Draw Track Lines
             stroke(255, 255, 255, 50); strokeWeight(5);
             line(width / 2 - TRACK_WIDTH / 2, 1000, width / 2 - TRACK_WIDTH / 2, FINISH_LINE_Y);
             line(width / 2 + TRACK_WIDTH / 2, 1000, width / 2 + TRACK_WIDTH / 2, FINISH_LINE_Y);
             noStroke();
 
+            // Draw Finish Line
             for (let i = 0; i < 10; i++) {
                 fill(i % 2 == 0 ? 0 : 255);
                 rect(width / 2 - TRACK_WIDTH / 2 + i * (TRACK_WIDTH / 10) + (TRACK_WIDTH / 20), FINISH_LINE_Y, TRACK_WIDTH / 10, 40);
             }
 
+            // Draw Obstacles
             obstacles.forEach(obs => {
                 fill(120);
                 if (obs.shape === 'box') {
@@ -584,10 +641,12 @@
 
         function updateHUD() {
             if (gameState !== "RACING") return;
+            // Show distance to finish or progress
             if (playerSlots[0]) document.getElementById('p1-score').innerText = "P1: " + Math.abs(Math.round(playerSlots[0].y / 10)) + "m";
             if (playerSlots[1]) document.getElementById('p2-score').innerText = "P2: " + Math.abs(Math.round(playerSlots[1].y / 10)) + "m";
         }
 
+        // --- GAME OVER ---
         function handleWin(playerIndex) {
             if (gameState === "FINISHED") return;
             gameState = "FINISHED";
@@ -596,6 +655,8 @@
             if (playerIndex === 0) { winnerName = "RED"; color = "#FF4136"; }
             else if (playerIndex === 1) { winnerName = "BLUE"; color = "#0074D9"; }
             else { winnerName = "NO ONE"; color = "#000"; }
+
+            // Create Result Popup
             let winDiv = createDiv(winnerName + " WINS!");
             winDiv.style('position', 'absolute');
             winDiv.style('top', '50%'); winDiv.style('left', '50%');

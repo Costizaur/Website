@@ -3,11 +3,18 @@ import Carousel from './Carousel';
 import './Modal.css';
 
 const Modal = ({ project, onClose, onBack }) => {
+    // --- STATE MANAGEMENT ---
     const [currentDescription, setCurrentDescription] = React.useState('');
-    const [unfoldState, setUnfoldState] = React.useState('idle'); // idle, playing-1, showing-image, playing-2
-    const [currentIndex, setCurrentIndex] = React.useState(project.initialIndex || 0); // Use initialIndex if provided
+    // Track "Unfold" animation state: 'idle' -> 'playing-1' (open) -> 'showing-image' (text) -> 'playing-2' (close) -> 'idle'
+    const [unfoldState, setUnfoldState] = React.useState('idle');
+
+    // Track currently visible slide
+    const [currentIndex, setCurrentIndex] = React.useState(project.initialIndex || 0);
+
+    // Check if on mobile to swap video assets
     const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
 
+    // --- EFFECT HOOKS ---
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth <= 768);
         window.addEventListener('resize', handleResize);
@@ -15,18 +22,20 @@ const Modal = ({ project, onClose, onBack }) => {
     }, []);
 
     useEffect(() => {
-        // Prevent scrolling when modal is open
+        // Lock body scroll when modal is open
         document.body.style.overflow = 'hidden';
-        // Initialize description
+
+        // Initialize state from props
         if (project) {
             setCurrentDescription(project.description);
-            setCurrentIndex(project.initialIndex || 0); // Reset to initialIndex on open
+            setCurrentIndex(project.initialIndex || 0);
         }
         return () => {
-            document.body.style.overflow = 'unset';
+            document.body.style.overflow = 'unset'; // Unlock scroll on close
         };
     }, [project]);
 
+    // Update description when slide changes
     const handleSlideChange = (index) => {
         setCurrentIndex(index);
         if (!project || !project.images) return;
@@ -39,8 +48,11 @@ const Modal = ({ project, onClose, onBack }) => {
         }
     };
 
-    // Use the FIRST image (primary item) for unfold logic to keep it persistent
+    // --- UNFOLD LOGIC ---
+    // The "Unfold" animation is tied to the first item
     const primaryItem = project.images[0];
+
+    // Select appropriate video based on device (Mobile/Desktop)
     const activeUnfoldVideoStart = (isMobile && primaryItem?.unfoldVideoStartMobile)
         ? primaryItem.unfoldVideoStartMobile
         : primaryItem?.unfoldVideoStart;
@@ -51,28 +63,25 @@ const Modal = ({ project, onClose, onBack }) => {
 
     const activeUnfoldText = primaryItem?.unfoldText;
 
-
-
-    const canUnfold = !!activeUnfoldVideoStart;
+    const canUnfold = !!activeUnfoldVideoStart; // Only show button if video exists
 
     const handleUnfoldClick = () => {
         if (canUnfold) {
-            setUnfoldState('playing-1');
+            setUnfoldState('playing-1'); // Start opening animation
         }
     };
 
     const handleVideoEnd = () => {
         if (unfoldState === 'playing-1') {
-            setUnfoldState('showing-image');
+            setUnfoldState('showing-image'); // Show static content after open
         } else if (unfoldState === 'playing-2') {
-            setUnfoldState('idle');
+            setUnfoldState('idle'); // Reset after closing
         }
     };
 
     const handleReverseStart = (e) => {
         e.stopPropagation();
-        // e.target.play(); // Removed: causing error if target is not video. State change triggers autoPlay video.
-        setUnfoldState('playing-2');
+        setUnfoldState('playing-2'); // Start closing animation
     };
 
     if (!project) return null;
@@ -80,21 +89,22 @@ const Modal = ({ project, onClose, onBack }) => {
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" onClick={e => e.stopPropagation()}>
+
+                {/* --- CONTROLS --- */}
                 {unfoldState === 'idle' && canUnfold && (
                     <button className="unfold-btn" onClick={handleUnfoldClick}>Unfold</button>
                 )}
                 <button className="modal-close" onClick={onClose}>&times;</button>
+
                 {onBack && (
-                    <button
-                        className="modal-back"
-                        onClick={onBack}
-                    >
-                        &larr;
-                    </button>
+                    <button className="modal-back" onClick={onBack}>&larr;</button>
                 )}
 
+                {/* --- CONTENT RENDERER --- */}
                 {unfoldState !== 'idle' ? (
+                    // 1. UNFOLD ANIMATION MODE
                     <div className="unfold-overlay">
+                        {/* Phase 1: Opening Video */}
                         {unfoldState === 'playing-1' && (
                             <video
                                 src={activeUnfoldVideoStart}
@@ -104,6 +114,7 @@ const Modal = ({ project, onClose, onBack }) => {
                                 onClick={handleVideoEnd}
                             />
                         )}
+                        {/* Phase 3: Closing Video */}
                         {unfoldState === 'playing-2' && (
                             <video
                                 src={activeUnfoldVideoEnd}
@@ -113,12 +124,14 @@ const Modal = ({ project, onClose, onBack }) => {
                                 onClick={handleVideoEnd}
                             />
                         )}
+                        {/* Phase 2: Static Content (Text overlay on last frame) */}
                         {unfoldState === 'showing-image' && (
                             <div className="unfold-paused-container" onClick={handleReverseStart}>
                                 <video
-                                    src={activeUnfoldVideoEnd}
+                                    src={activeUnfoldVideoEnd} // Use end video (first frame matches start video last frame)
                                     className="unfold-media"
                                 />
+                                {/* Overlay Text Grid */}
                                 {Array.isArray(activeUnfoldText) ? (
                                     <div className="unfold-grid-overlay">
                                         {activeUnfoldText.map((section, index) => (
@@ -141,11 +154,13 @@ const Modal = ({ project, onClose, onBack }) => {
                         )}
                     </div>
                 ) : (
+                    // 2. STANDARD CAROUSEL MODE
                     <div className="modal-body">
                         <div className="modal-carousel-container">
                             <Carousel images={project.images || [project.color]} onSlideChange={handleSlideChange} initialIndex={project.initialIndex || 0} />
                         </div>
 
+                        {/* Project Details */}
                         <div className="modal-info">
                             <h2 className="modal-title">{project.title}</h2>
                             <div className="modal-tags">
@@ -154,11 +169,13 @@ const Modal = ({ project, onClose, onBack }) => {
                                 ))}
                             </div>
                             <p className="modal-description">{currentDescription}</p>
-                            {/* Add more detailed description here if available in project object */}
+
                             <div className="modal-long-description">
                                 <p>{project.longDescription}</p>
                                 <p>Tools used: {project.tags.join(', ')}</p>
                             </div>
+
+                            {/* External Links */}
                             {project.designLink && (
                                 <a
                                     href={project.designLink}
@@ -190,4 +207,3 @@ const Modal = ({ project, onClose, onBack }) => {
 };
 
 export default Modal;
-

@@ -1,3 +1,4 @@
+/* Navigation Bar Container */
 .navbar {
     position: fixed;
     top: 0;
@@ -7,8 +8,10 @@
     z-index: 1000;
     transition: all 0.3s ease;
     background: transparent;
+    /* Starts transparent */
 }
 
+/* Style when scrolled down (Solid background + blur) */
 .navbar.scrolled {
     padding: 1rem 0;
     background: rgba(5, 5, 5, 0.8);
@@ -16,22 +19,26 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* Content wrapper to center and space items */
 .navbar-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
+/* Logo Styling */
 .logo {
     font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: -0.5px;
 }
 
+/* Accent color dot */
 .dot {
     color: var(--primary-color);
 }
 
+/* Navigation Links */
 .nav-links {
     display: flex;
     gap: 2rem;
@@ -47,6 +54,7 @@
     color: var(--text-primary);
 }
 
+/* "Download CV" Button */
 .nav-btn {
     padding: 0.5rem 1rem;
     background: var(--primary-color);

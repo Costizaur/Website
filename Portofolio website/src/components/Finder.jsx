@@ -3,23 +3,30 @@ import './Finder.css';
 import Folder from './Folder';
 
 const Finder = ({ categories, initialCategory, onClose, onSelectProject }) => {
+    // Current folder being viewed (e.g., "UI/UX Design")
     const [activeCategory, setActiveCategory] = useState(initialCategory || categories[0]);
 
+    // Update active folder if prop changes
     useEffect(() => {
         if (initialCategory) {
             setActiveCategory(initialCategory);
         }
     }, [initialCategory]);
 
+    // Switch folders via sidebar
     const handleCategoryClick = (category) => {
         setActiveCategory(category);
     };
 
+    // Get list of items in current folder
     const currentItems = activeCategory ? activeCategory.images : [];
 
     return (
         <div className="finder-overlay" onClick={onClose}>
+            {/* Main Window */}
             <div className="finder-window" onClick={e => e.stopPropagation()}>
+
+                {/* --- HEADER (Traffic Lights + Title) --- */}
                 <div className="finder-header">
                     <div className="window-controls">
                         <div className="control-dot close" onClick={onClose}></div>
@@ -29,7 +36,9 @@ const Finder = ({ categories, initialCategory, onClose, onSelectProject }) => {
                     <div className="finder-title">Projects — {activeCategory ? activeCategory.title : 'All'}</div>
                     <div className="finder-toolbar"></div>
                 </div>
+
                 <div className="finder-body">
+                    {/* --- SIDEBAR (Category List) --- */}
                     <div className="finder-sidebar">
                         <div className="sidebar-group">
                             <div className="sidebar-title">Categories</div>
@@ -45,6 +54,8 @@ const Finder = ({ categories, initialCategory, onClose, onSelectProject }) => {
                             ))}
                         </div>
                     </div>
+
+                    {/* --- MAIN CONTENT (Grid of Files) --- */}
                     <div className="finder-content">
                         <div className="projects-grid-view">
                             {currentItems.map((item, index) => (
@@ -54,7 +65,7 @@ const Finder = ({ categories, initialCategory, onClose, onSelectProject }) => {
                                     onClick={() => onSelectProject(activeCategory, index)}
                                 >
                                     <div className="finder-item-icon">
-                                        {/* If it's a string starting with # or empty, show generic folder/file, else show image thumbnail */}
+                                        {/* Show Image Thumbnail or Generic Folder Icon */}
                                         {typeof item === 'string' || !item.src ? (
                                             <div className="folder-shape"></div>
                                         ) : (

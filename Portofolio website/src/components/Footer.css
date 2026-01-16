@@ -1,9 +1,11 @@
+/* Footer Container */
 .footer {
     padding: 2rem 0;
     border-top: 1px solid var(--border-color);
     background-color: var(--bg-color);
 }
 
+/* Flex layout for Copyright and Links */
 .footer-content {
     display: flex;
     justify-content: space-between;
@@ -12,6 +14,7 @@
     font-size: 0.9rem;
 }
 
+/* Links Wrapper */
 .footer-links {
     display: flex;
     gap: 2rem;
@@ -21,6 +24,7 @@
     color: var(--text-primary);
 }
 
+/* Mobile Stack Layout */
 @media (max-width: 768px) {
     .footer-content {
         flex-direction: column;

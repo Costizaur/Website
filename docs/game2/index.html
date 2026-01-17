@@ -737,6 +737,21 @@
 
             // Regenerate level
             generateObstacles();
+
+
+            if (peer && peer.id) {
+                const STATIC_HOST = "https://costinsarghiuta.com/game2";
+                let controllerURL = STATIC_HOST + '/controller.html?hostId=' + peer.id;
+                document.getElementById("qrcode").innerHTML = "";
+                new QRCode(document.getElementById("qrcode"), {
+                    text: controllerURL,
+                    width: 200,
+                    height: 200
+                });
+            } else {
+                // If peer is dead, show loading message
+                document.getElementById("qrcode").innerHTML = "<span style='font-size: 14px; font-weight: bold;'>Generating QR...</span>";
+            }
         }
 
         function windowResized() { resizeCanvas(windowWidth, windowHeight); }

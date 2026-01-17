@@ -16,6 +16,8 @@ import unfoldStart from '../assets/unfold-g.webm';
 import unfoldEnd from '../assets/unfold-g-reverse.webm';
 import unfoldStartMobile from '../assets/unfold-g-90.webm';
 import unfoldEndMobile from '../assets/unfold-g-90-reverse.webm';
+import riverRacerTitle from '../assets/river-racer-title.png';
+import riverRacerGameplay from '../assets/river-racer-gameplay.png';
 
 
 // --- PROJECT DATA ---
@@ -90,9 +92,15 @@ const projects = [
     color: '#10b981',
     images: [
       { title: 'PeerJS Game', description: 'Coming Soon', gameLink: '/game/index.html' },
-      { title: 'Boat Race', description: 'Coming Soon', gameLink: '/game2/index.html' }
+      {
+        title: 'River Racer',
+        description: 'A retro-style local multiplayer racing game. Use your smartphone as a controller to navigate dangerous waters, avoid obstacles, and outlast your friends.',
+        gameLink: '/game2/index.html',
+        src: riverRacerTitle,
+        extraImages: [riverRacerTitle, riverRacerGameplay]
+      }
     ],
-    folderImages: ['#10b981', '#34d399', '#6ee7b7'],
+    folderImages: ['#10b981', riverRacerTitle],
     longDescription: 'Experiments with code and interactivity.'
   }
 ];

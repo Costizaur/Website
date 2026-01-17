@@ -5,7 +5,6 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>River Racer</title>
-    <!-- Load required libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -95,7 +94,13 @@
             border: 5px solid white;
             margin-top: 20px;
             display: inline-block;
-            background: white;
+            /* background: white; */
+            min-width: 100px;
+            min-height: 200px;
+            color: #333;
+            /* display: flex; */
+            align-items: center;
+            justify-content: center;
         }
 
         /* Heads Up Display (Score) styling */
@@ -160,7 +165,6 @@
 
 <body>
 
-    <!-- Menu Screen -->
     <div id="menu-screen">
         <h1>RIVER RACER</h1>
         <button class="btn" onclick="setMode(1)">1 PLAYER</button>
@@ -173,28 +177,37 @@
         </div>
     </div>
 
-    <!-- QR Code / Lobby Screen -->
     <div id="qrcode-container">
         <h2 id="lobby-status">Scan to Join</h2>
-        <div id="qrcode"></div>
+        <div id="qrcode"><span style="font-size: 14px; font-weight: bold;">Generating QR...</span></div>
         <p class="wifi-text">Scan with Phone</p>
         <p id="kb-start-msg" class="keyboard-hint">PRESS [ENTER] TO JOIN LOCAL PLAYER</p>
     </div>
 
-    <!-- In-Game Score Display -->
     <div id="hud">
         <span style="position: absolute; left: 20px;" id="p1-score" class="p1-score"></span>
         <span style="position: absolute; right: 20px;" id="p2-score" class="p2-score"></span>
     </div>
 
     <script>
-        // --- VARIABLES ---
+        // ====== GAME CONSTANTS ======
+        const ACCELERATION_RATE = 0.05;
+        const MAX_SPEED_FORWARD = -14;
+        const STEER_SPEED = 8;
+        const STUN_DURATION = 60;
+        const STUN_KNOCKBACK = 8;
+        const PLAYER_COLLISION_RADIUS = 25;
+        const FINISH_LINE_Y = -5000;
+        const TRACK_WIDTH = 700;
+
+        // ====== VARIABLES ======
         let peer;
-        let playerSlots = [null, null]; // Stores player data (null = empty)
+        let playerSlots = [null, null];
         let obstacles = [];
         let ripples = [];
-        let gameState = "MENU"; // Current game state
-        let requiredPlayers = 2; // How many people playing?
+        let gameState = "MENU";
+        let requiredPlayers = 2;
+        let cameraY = 0;
 
         // Track local keyboard inputs
         let keysPressed = {
@@ -202,23 +215,24 @@
             p2: { a: false, d: false }
         };
 
-        const FINISH_LINE_Y = -5000; // How long is the track?
-        const TRACK_WIDTH = 700;
-        let cameraY = 0; // Moves the view up
-
         // Textures
         let waterImg;
         let waterPattern;
         let grassImg;
         let grassPattern;
 
-        // --- PRELOAD ASSETS ---
+        // ====== PRELOAD & SETUP ======
         function preload() {
-            waterImg = loadImage('water.png');
-            grassImg = loadImage('grass.png');
+            waterImg = loadImage('water.png',
+                () => console.log('Water texture loaded'),
+                () => console.warn('Water texture failed - using fallback')
+            );
+            grassImg = loadImage('grass.png',
+                () => console.log('Grass texture loaded'),
+                () => console.warn('Grass texture failed - using fallback')
+            );
         }
 
-        // --- SETUP GAME ---
         function setup() {
             createCanvas(windowWidth, windowHeight);
             rectMode(CENTER); textAlign(CENTER, CENTER);
@@ -248,7 +262,7 @@
                     g.image(grassImg, i * 250, j * 250);
                 }
             }
-            g.filter(BLUR, 3); // Blur to hide seams
+            g.filter(BLUR, 3);
             grassImg = g.get(250, 250, 250, 250);
             g.remove();
 
@@ -259,23 +273,20 @@
             setupNetworking();
         }
 
-        // --- LEVEL GENERATION ---
+        // ====== LEVEL GENERATION ======
         function generateObstacles() {
             obstacles = [];
-            // Spawn obstacles from bottom to top
             for (let y = height - 600; y > FINISH_LINE_Y; y -= 250) {
                 let count = random() > 0.5 ? 2 : 1;
                 for (let i = 0; i < count; i++) {
                     let attempts = 0;
                     let placed = false;
-                    // Try to find a safe spot not overlapping others
                     while (!placed && attempts < 50) {
                         let potentialX = random(width / 2 - TRACK_WIDTH / 2 + 50, width / 2 + TRACK_WIDTH / 2 - 50);
                         let potentialY = y + random(-100, 100);
                         let potentialSize = random(60, 100);
                         let valid = true;
 
-                        // Check distance to other obstacles
                         for (let other of obstacles) {
                             let d = dist(potentialX, potentialY, other.x, other.y);
                             let requiredDistance = (potentialSize / 2) + (other.size / 2) + 40;
@@ -300,7 +311,33 @@
             }
         }
 
-        // --- MENU LOGIC ---
+        // ====== PLAYER MANAGEMENT ======
+        function createPlayer(id, color, startX, conn) {
+            return {
+                conn: conn,
+                id: id,
+                color: color,
+                x: startX,
+                y: height - 150,
+                speedY: 0,
+                stunned: 0,
+                inputs: { left: false, right: false },
+                finished: false,
+                offScreenTimer: 5.0
+            };
+        }
+
+        function spawnLocalPlayer() {
+            let slot = playerSlots.findIndex(s => s === null);
+            if (slot === -1) return;
+            let color = slot === 0 ? '#FF4136' : '#0074D9';
+            let startX = requiredPlayers === 2 ? width / 2 + (slot === 0 ? -120 : 120) : width / 2;
+
+            playerSlots[slot] = createPlayer('local-' + slot, color, startX, { send: () => { } });
+            checkLobby();
+        }
+
+        // ====== MENU LOGIC ======
         function setMode(players) {
             requiredPlayers = players;
             gameState = "LOBBY";
@@ -309,16 +346,14 @@
             updateLobbyText();
         }
 
-        // --- INPUT HANDLING ---
+        // ====== INPUT HANDLING ======
         function keyPressed() {
             if (gameState === "LOBBY" && keyCode === ENTER) {
                 spawnLocalPlayer();
                 return;
             }
-            // Player 1 controls
             if (keyCode === LEFT_ARROW) keysPressed.p1.left = true;
             if (keyCode === RIGHT_ARROW) keysPressed.p1.right = true;
-            // Player 2 controls
             if (keyCode === 65) keysPressed.p2.a = true;
             if (keyCode === 68) keysPressed.p2.d = true;
             updateLocalInputs();
@@ -332,7 +367,6 @@
             updateLocalInputs();
         }
 
-        // Send local inputs to player objects
         function updateLocalInputs() {
             if (playerSlots[0] && playerSlots[0].id.startsWith('local')) {
                 playerSlots[0].inputs.left = keysPressed.p1.left;
@@ -344,29 +378,7 @@
             }
         }
 
-        // Create a keyboard player
-        function spawnLocalPlayer() {
-            let slot = playerSlots.findIndex(s => s === null);
-            if (slot === -1) return; // Full
-            let color = slot === 0 ? '#FF4136' : '#0074D9';
-            let startX = requiredPlayers === 2 ? width / 2 + (slot === 0 ? -120 : 120) : width / 2;
-
-            playerSlots[slot] = {
-                conn: { send: () => { } }, // Dummy connection
-                id: 'local-' + slot,
-                color: color,
-                x: startX,
-                y: height - 150,
-                speedY: 0,
-                stunned: 0,
-                inputs: { left: false, right: false },
-                finished: false,
-                offScreenTimer: 5.0
-            };
-            checkLobby();
-        }
-
-        // --- NETWORKING (PeerJS) ---
+        // ====== NETWORKING ======
         function setupNetworking() {
             peer = new Peer(null, {
                 debug: 2,
@@ -376,16 +388,16 @@
             peer.on('open', (id) => {
                 const STATIC_HOST = "https://costinsarghiuta.com/game2";
                 let controllerURL = STATIC_HOST + '/controller.html?hostId=' + id;
+
+                // Clear the loading text
                 document.getElementById("qrcode").innerHTML = "";
                 new QRCode(document.getElementById("qrcode"), { text: controllerURL, width: 200, height: 200 });
             });
 
-            // Handle new connections
             peer.on('connection', (conn) => {
                 conn.on('data', (data) => {
                     if (data.type === 'handshake') handlePlayerJoin(conn);
                     if (data.type === 'input') {
-                        // Apply phone inputs to player
                         let p = playerSlots.find(pl => pl && pl.conn.peer === conn.peer);
                         if (p) p.inputs = { left: data.left, right: data.right };
                     }
@@ -393,23 +405,28 @@
             });
         }
 
-        // Add phone player to slot
         function handlePlayerJoin(conn) {
-            if (gameState !== "LOBBY") return;
+            // Prevent joining if game started
+            if (gameState !== "LOBBY") {
+                conn.send({ type: 'error', message: 'Game already started' });
+                setTimeout(() => conn.close(), 100);
+                return;
+            }
+
+            // Prevent duplicate connections
+            if (playerSlots.some(p => p && p.id === conn.peer)) {
+                console.warn('Player already connected');
+                return;
+            }
+
             let slot = playerSlots.findIndex(s => s === null);
-            if (requiredPlayers === 1 && slot > 0) return; // Only 1 player needed
+            if (requiredPlayers === 1 && slot > 0) return;
 
             if (slot !== -1) {
                 let color = slot === 0 ? '#FF4136' : '#0074D9';
                 let startX = requiredPlayers === 2 ? width / 2 + (slot === 0 ? -120 : 120) : width / 2;
 
-                playerSlots[slot] = {
-                    conn: conn, id: conn.peer, color: color,
-                    x: startX, y: height - 150,
-                    speedY: 0, stunned: 0, inputs: { left: false, right: false },
-                    finished: false,
-                    offScreenTimer: 5.0
-                };
+                playerSlots[slot] = createPlayer(conn.peer, color, startX, conn);
                 conn.send({ type: 'assignColor', color: color });
                 checkLobby();
             }
@@ -431,84 +448,86 @@
         }
 
         function startRace() {
+            // Reset state
+            obstacles = [];
+            generateObstacles();
+            ripples = [];
+            cameraY = 0;
+
             gameState = "RACING";
             document.getElementById('qrcode-container').style.display = 'none';
             document.getElementById('hud').style.display = 'block';
             playerSlots.forEach(p => { if (p) p.conn.send({ type: 'gameStart' }) });
         }
 
-        // --- GAME LOOP ---
+        // ====== GAME LOOP ======
         function draw() {
-            // Menu background animation
             if (gameState === "MENU") {
                 background(34, 139, 34);
-                translate(0, (millis() * 0.1) % 250); // Seamless loop
+                translate(0, (millis() * 0.1) % 250);
                 drawEnvironment();
                 return;
             }
 
             background(34, 139, 34);
 
-            // Camera follow logic (follow leader)
+            let activePlayers = playerSlots.filter(p => p !== null);
+
             let leaderY = height;
-            playerSlots.forEach(p => { if (p) leaderY = min(leaderY, p.y); });
-            if (playerSlots.every(p => p === null)) leaderY = height - 100; // Default
+            activePlayers.forEach(p => { leaderY = min(leaderY, p.y); });
+            if (activePlayers.length === 0) leaderY = height - 100;
 
             let targetCamY = -leaderY + height * 0.7;
-            cameraY = lerp(cameraY, targetCamY, 0.1); // Smooth camera
+            cameraY = lerp(cameraY, targetCamY, 0.1);
 
             push();
-            translate(0, cameraY); // Move world
+            translate(0, cameraY);
 
             drawEnvironment();
             drawRipples();
 
-            // Loop through players
-            playerSlots.forEach((p, index) => {
-                if (!p) return;
-
+            activePlayers.forEach((p, index) => {
                 let screenY = p.y + cameraY;
 
                 if (gameState === "RACING" && !p.finished) {
-                    // Off-screen elimination logic
+                    // Off-screen elimination
                     if (screenY > height) {
                         p.offScreenTimer -= 1 / 60;
                         if (p.offScreenTimer <= 0) {
                             p.finished = true;
-                            // Win goes to the OTHER player
-                            let winnerIndex = (index === 0) ? 1 : 0;
-                            if (playerSlots[winnerIndex]) {
-                                handleWin(winnerIndex);
-                            } else {
-                                handleWin(-1); // Game Over
+                            // Win logic
+                            let winnerIndex = -1;
+                            if (requiredPlayers === 2) {
+                                // If 2 players, the other one wins
+                                let otherPlayer = activePlayers.find(pl => pl !== p);
+                                if (otherPlayer) winnerIndex = playerSlots.indexOf(otherPlayer);
                             }
+                            handleWin(winnerIndex);
                         }
                     } else {
-                        p.offScreenTimer = 5.0; // Reset timer
+                        p.offScreenTimer = 5.0;
                     }
 
-                    // Movement physics
+                    // Physics
                     if (p.stunned > 0) {
                         p.stunned--;
-                        p.speedY = lerp(p.speedY, 3, 0.1); // Slow down
-                        fill(255, 0, 0); // Flash red
+                        p.speedY = lerp(p.speedY, 3, 0.1);
+                        fill(255, 0, 0);
                     } else {
-                        // Accelerate if holding both buttons
                         if (p.inputs.left && p.inputs.right) {
-                            p.speedY = lerp(p.speedY, -14, 0.05);
+                            p.speedY = lerp(p.speedY, MAX_SPEED_FORWARD, ACCELERATION_RATE);
                             if (frameCount % 5 === 0) spawnRipple(p.x, p.y + 20);
                         } else {
-                            p.speedY = lerp(p.speedY, 2, 0.05); // Drift back
+                            p.speedY = lerp(p.speedY, 2, 0.05);
                         }
-                        // Steer
-                        if (p.inputs.left && !p.inputs.right) p.x -= 8;
-                        if (p.inputs.right && !p.inputs.left) p.x += 8;
+
+                        if (p.inputs.left && !p.inputs.right) p.x -= STEER_SPEED;
+                        if (p.inputs.right && !p.inputs.left) p.x += STEER_SPEED;
                         fill(p.color);
                     }
 
-                    p.y += p.speedY; // Apply movement
+                    p.y += p.speedY;
 
-                    // Bounds checking
                     if (p.y > height - 100) { p.y = height - 100; p.speedY = 0; }
                     let leftLimit = width / 2 - TRACK_WIDTH / 2 + 30;
                     let rightLimit = width / 2 + TRACK_WIDTH / 2 - 30;
@@ -516,21 +535,23 @@
 
                     // Obstacle Collision
                     obstacles.forEach(obs => {
-                        if (dist(p.x, p.y, obs.x, obs.y) < (obs.size / 2 + 25)) {
+                        if (dist(p.x, p.y, obs.x, obs.y) < (obs.size / 2 + PLAYER_COLLISION_RADIUS)) {
                             if (p.stunned <= 0) {
-                                p.stunned = 60; p.speedY = 8; // Bounce back
-                                // Flash phone screen
+                                p.stunned = STUN_DURATION;
+                                p.speedY = STUN_KNOCKBACK;
+                                // Haptic Feedback Signal
+                                p.conn.send({ type: 'collision' });
+
                                 p.conn.send({ type: 'assignColor', color: '#fff' });
                                 setTimeout(() => p.conn.send({ type: 'assignColor', color: p.color }), 200);
                             }
                         }
                     });
 
-                    // Check finish line
-                    if (p.y < FINISH_LINE_Y) { p.finished = true; handleWin(index); }
+                    if (p.y < FINISH_LINE_Y) { p.finished = true; handleWin(playerSlots.indexOf(p)); }
                 }
 
-                // Draw Player Boat
+                // Draw Player
                 push();
                 translate(p.x, p.y);
                 let turn = 0;
@@ -541,14 +562,13 @@
                 if (p.stunned > 0) stroke(255, 0, 0);
                 triangle(0, -35, -20, 25, 20, 25);
                 fill(255); noStroke(); textAlign(CENTER); textSize(14);
-                text("P" + (index + 1), 0, 10);
+                let originalIndex = playerSlots.indexOf(p);
+                text("P" + (originalIndex + 1), 0, 10);
                 pop();
             });
-            pop(); // End world translation
+            pop();
 
-            // Draw Off-screen Indicators
-            playerSlots.forEach((p, index) => {
-                if (!p) return;
+            activePlayers.forEach((p) => {
                 if (gameState === "RACING" && p.offScreenTimer < 5.0 && p.offScreenTimer > 0) {
                     drawOffScreenArrow(p.x, p.offScreenTimer, p.color);
                 }
@@ -557,7 +577,7 @@
             updateHUD();
         }
 
-        // --- DRAWING HELPERS ---
+        // ====== DRAWING HELPERS ======
         function drawOffScreenArrow(x, timer, color) {
             push();
             translate(x, height - 60);
@@ -588,7 +608,6 @@
         }
 
         function drawEnvironment() {
-            // Cull obstacles behind camera to save performance
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let obs = obstacles[i];
                 if (obs.y + cameraY > height + 200) {
@@ -596,7 +615,6 @@
                 }
             }
 
-            // Draw Grass Banks
             push();
             rectMode(CORNER);
             drawingContext.fillStyle = grassPattern;
@@ -604,26 +622,22 @@
             rect(width / 2 + TRACK_WIDTH / 2, FINISH_LINE_Y - 2000, 5000, -FINISH_LINE_Y + 7000);
             pop();
 
-            // Draw Water
             push();
             rectMode(CORNER);
             drawingContext.fillStyle = waterPattern;
             rect(width / 2 - TRACK_WIDTH / 2, FINISH_LINE_Y - 2000, TRACK_WIDTH, -FINISH_LINE_Y + 5000);
             pop();
 
-            // Draw Track Lines
             stroke(255, 255, 255, 50); strokeWeight(5);
             line(width / 2 - TRACK_WIDTH / 2, 1000, width / 2 - TRACK_WIDTH / 2, FINISH_LINE_Y);
             line(width / 2 + TRACK_WIDTH / 2, 1000, width / 2 + TRACK_WIDTH / 2, FINISH_LINE_Y);
             noStroke();
 
-            // Draw Finish Line
             for (let i = 0; i < 10; i++) {
                 fill(i % 2 == 0 ? 0 : 255);
                 rect(width / 2 - TRACK_WIDTH / 2 + i * (TRACK_WIDTH / 10) + (TRACK_WIDTH / 20), FINISH_LINE_Y, TRACK_WIDTH / 10, 40);
             }
 
-            // Draw Obstacles
             obstacles.forEach(obs => {
                 fill(120);
                 if (obs.shape === 'box') {
@@ -641,14 +655,21 @@
 
         function updateHUD() {
             if (gameState !== "RACING") return;
-            // Show distance to finish or progress
             if (playerSlots[0]) document.getElementById('p1-score').innerText = "P1: " + Math.abs(Math.round(playerSlots[0].y / 10)) + "m";
             if (playerSlots[1]) document.getElementById('p2-score').innerText = "P2: " + Math.abs(Math.round(playerSlots[1].y / 10)) + "m";
         }
 
-        // --- GAME OVER ---
+        // ====== GAME OVER & RESTART ======
         function handleWin(playerIndex) {
             if (gameState === "FINISHED") return;
+
+            // Connection Cleanup
+            playerSlots.forEach(p => {
+                if (p && p.conn && p.conn.close && !p.id.startsWith('local')) {
+                    setTimeout(() => p.conn.close(), 1000);
+                }
+            });
+
             gameState = "FINISHED";
             let winnerName = "";
             let color = "#333";
@@ -656,8 +677,8 @@
             else if (playerIndex === 1) { winnerName = "BLUE"; color = "#0074D9"; }
             else { winnerName = "NO ONE"; color = "#000"; }
 
-            // Create Result Popup
             let winDiv = createDiv(winnerName + " WINS!");
+            winDiv.class('win-screen'); // Add class for easy removal
             winDiv.style('position', 'absolute');
             winDiv.style('top', '50%'); winDiv.style('left', '50%');
             winDiv.style('transform', 'translate(-50%, -50%)');
@@ -670,11 +691,52 @@
             winDiv.style('border-radius', '20px');
             winDiv.style('box-shadow', '0 10px 30px rgba(0,0,0,0.5)');
             winDiv.style('text-align', 'center');
-            let subText = createDiv("Refresh page to restart");
-            subText.parent(winDiv);
-            subText.style('font-size', '20px');
-            subText.style('color', '#333');
-            subText.style('margin-top', '10px');
+
+            let restartBtn = createButton('PLAY AGAIN');
+            restartBtn.style('background', '#2ECC40');
+            restartBtn.style('color', 'white');
+            restartBtn.style('border', '2px solid white');
+            restartBtn.style('padding', '15px 30px');
+            restartBtn.style('font-size', '20px');
+            restartBtn.style('cursor', 'pointer');
+            restartBtn.style('margin-top', '20px');
+            restartBtn.style('display', 'block');
+            restartBtn.style('margin-left', 'auto');
+            restartBtn.style('margin-right', 'auto');
+            restartBtn.parent(winDiv);
+            restartBtn.mousePressed(resetGame);
+        }
+
+        function resetGame() {
+            // Clean up connections
+            playerSlots.forEach(p => {
+                if (p && p.conn && p.conn.close && !p.id.startsWith('local')) {
+                    p.conn.close();
+                }
+            });
+
+            // Reset state
+            playerSlots = [null, null];
+            obstacles = [];
+            ripples = [];
+            gameState = "MENU";
+            cameraY = 0;
+
+            // Reset UI
+            document.getElementById('menu-screen').style.display = 'flex';
+            document.getElementById('hud').style.display = 'none';
+            document.getElementById('qrcode-container').style.display = 'none';
+
+            // Restore instructions and lobby text
+            document.getElementById('kb-start-msg').style.display = 'block';
+            document.getElementById('lobby-status').innerText = "Scan to Join";
+
+            // Remove win screen
+            let screens = selectAll('.win-screen');
+            screens.forEach(s => s.remove());
+
+            // Regenerate level
+            generateObstacles();
         }
 
         function windowResized() { resizeCanvas(windowWidth, windowHeight); }

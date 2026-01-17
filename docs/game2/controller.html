@@ -3,6 +3,7 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>River Racer Controller</title>
     <style>
         /* Setup full screen black background */
         body {
@@ -13,6 +14,8 @@
             background: #222;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             color: white;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         /* Overlay for status messages (Connecting, etc) */
@@ -72,59 +75,89 @@
             }
         }
     </style>
-    <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
 </head>
 
 <body>
-    <!-- Rotate Screen Warning -->
     <div id="rotate-overlay">
         <div class="icon">📱↻</div>
         <h1>Please Rotate Device</h1>
         <p>This game requires landscape mode.</p>
     </div>
 
-    <!-- Connection Status -->
     <div id="status-overlay">
         <h1 id="status-text">Connecting...</h1>
     </div>
 
     <script>
         let peer, conn;
-        let inputs = { left: false, right: false }; // Track button presses
-        let myColor = '#ccc'; // Color assigned by host
+        let inputs = { left: false, right: false };
+        let myColor = '#ccc';
+
+        // Throttling variables
+        let lastSendTime = 0;
+        const SEND_RATE = 16; // Limit to ~60fps updates
 
         function setup() {
             // Create full screen canvas
             let w = max(windowWidth, windowHeight);
             let h = min(windowWidth, windowHeight);
             createCanvas(w, h);
+            textAlign(CENTER, CENTER);
+            textSize(32);
 
             // Get Host ID from URL
             const urlParams = new URLSearchParams(window.location.search);
             const hostId = urlParams.get('hostId');
 
-            if (!hostId) { updateStatus("Error: No Host ID."); return; }
+            if (!hostId) { updateStatus("Error: No Host ID found.<br>Scan QR code again."); return; }
 
-            // Connect to PeerJS
+            setupNetworking(hostId);
+        }
+
+        function setupNetworking(hostId) {
             peer = new Peer();
+
+            // Handle Peer errors
+            peer.on('error', (err) => {
+                console.error('Peer error:', err);
+                updateStatus("Connection Error:<br>" + err.type, false);
+            });
+
             peer.on('open', (id) => {
                 conn = peer.connect(hostId);
 
+                // Handle connection events
                 conn.on('open', () => {
                     updateStatus("Connected!<br>Waiting for Player 2...");
                     conn.send({ type: 'handshake' });
                 });
 
+                conn.on('close', () => {
+                    console.log('Connection closed');
+                    updateStatus("Disconnected from game.<br>Refresh to reconnect.");
+                });
+
+                conn.on('error', (err) => {
+                    console.error('Connection error:', err);
+                    updateStatus("Connection lost", false);
+                });
+
                 // Listen for messages from host
                 conn.on('data', (data) => {
                     if (data.type === 'assignColor') {
-                        myColor = data.color; // Set our color
-                        updateStatus("READY!", true); // Hide loading screen
+                        myColor = data.color;
+                        updateStatus("READY!", true);
                     }
                     if (data.type === 'gameStart') {
                         document.getElementById('status-overlay').style.display = 'none';
+                    }
+                    // Haptic Feedback
+                    if (data.type === 'collision') {
+                        if (navigator.vibrate) {
+                            navigator.vibrate(200);
+                        }
                     }
                 });
             });
@@ -148,43 +181,47 @@
         function draw() {
             background(30);
 
-            // Detect touch zones
-            inputs.left = false;
-            inputs.right = false;
-
-            for (let i = 0; i < touches.length; i++) {
-                if (touches[i].x < width / 2) {
-                    inputs.left = true; // Left side touched
-                }
-                else {
-                    inputs.right = true; // Right side touched
+            // Handle touch inputs explicitly
+            if (touches.length === 0) {
+                inputs.left = false;
+                inputs.right = false;
+            } else {
+                inputs.left = false;
+                inputs.right = false;
+                for (let i = 0; i < touches.length; i++) {
+                    if (touches[i].x < width / 2) {
+                        inputs.left = true;
+                    } else {
+                        inputs.right = true;
+                    }
                 }
             }
 
-            // Send input to host
-            if (conn && conn.open) {
+            // Network Throttling
+            if (conn && conn.open && millis() - lastSendTime > SEND_RATE) {
                 conn.send({ type: 'input', left: inputs.left, right: inputs.right });
+                lastSendTime = millis();
             }
 
             // Draw Controls UI
             noStroke();
 
-            // Left Button
-            if (inputs.left) fill(myColor); else fill(100);
+            // Left Button Visuals
+            if (inputs.left) fill(myColor); else fill(60);
             rect(0, 0, width / 2, height);
 
-            // Right Button
-            if (inputs.right) fill(myColor); else fill(150);
+            // Right Button Visuals
+            if (inputs.right) fill(myColor); else fill(90);
             rect(width / 2, 0, width / 2, height);
 
             // Divider Line
-            stroke(255); strokeWeight(5);
+            stroke(255); strokeWeight(4);
             line(width / 2, 0, width / 2, height);
 
             // Labels
-            fill(255); noStroke();
-            text("L", width / 4, height / 2);
-            text("R", width * 3 / 4, height / 2);
+            fill(255); noStroke(); textStyle(BOLD);
+            text("LEFT", width / 4, height / 2);
+            text("RIGHT", width * 3 / 4, height / 2);
         }
 
         // Handle resizing
@@ -194,7 +231,7 @@
             resizeCanvas(w, h);
         }
 
-        // Prevent default browser touch actions
+        // Prevent default browser touch actions to stop scrolling/zooming
         function touchStarted() { return false; }
         function touchMoved() { return false; }
         function touchEnded() { return false; }

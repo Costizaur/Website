@@ -1,20 +1,30 @@
 let peer, conn;
 let inputs = { left: false, right: false };
 let myColor = '#ccc';
+let flashTimer = 0;
+
+// Audio Context for iOS Rumble
+let audioCtx;
 
 // Throttling variables
 let lastSendTime = 0;
-const SEND_RATE = 16; // Limit to ~60fps updates
+const SEND_RATE = 16;
 
 function setup() {
-    // Create full screen canvas
     let w = max(windowWidth, windowHeight);
     let h = min(windowWidth, windowHeight);
     createCanvas(w, h);
     textAlign(CENTER, CENTER);
     textSize(32);
 
-    // Get Host ID from URL
+    // Initialize Audio Context for the rumble
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+    } catch (e) {
+        console.warn('Web Audio API not supported');
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const hostId = urlParams.get('hostId');
 
@@ -23,35 +33,48 @@ function setup() {
     setupNetworking(hostId);
 }
 
+function triggerRumble() {
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+
+    if (!audioCtx) return;
+
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(60, audioCtx.currentTime);
+
+    gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.3);
+}
+
 function setupNetworking(hostId) {
     peer = new Peer();
 
-    // Handle Peer errors
     peer.on('error', (err) => {
-        console.error('Peer error:', err);
         updateStatus("Connection Error:<br>" + err.type, false);
     });
 
     peer.on('open', (id) => {
         conn = peer.connect(hostId);
 
-        // Handle connection events
         conn.on('open', () => {
             updateStatus("Connected!<br>Waiting for Player 2...");
             conn.send({ type: 'handshake' });
         });
 
         conn.on('close', () => {
-            console.log('Connection closed');
-            updateStatus("Disconnected from game.<br>Refresh to reconnect.");
+            updateStatus("Disconnected.<br>Refresh to reconnect.");
         });
 
-        conn.on('error', (err) => {
-            console.error('Connection error:', err);
-            updateStatus("Connection lost", false);
-        });
-
-        // Listen for messages from host
         conn.on('data', (data) => {
             if (data.type === 'assignColor') {
                 myColor = data.color;
@@ -60,35 +83,39 @@ function setupNetworking(hostId) {
             if (data.type === 'gameStart') {
                 document.getElementById('status-overlay').style.display = 'none';
             }
-            // Haptic Feedback
+
             if (data.type === 'collision') {
                 if (navigator.vibrate) {
-                    navigator.vibrate(200);
+                    navigator.vibrate(400);
                 }
+
+                triggerRumble();
+
+                flashTimer = 10;
             }
         });
     });
 }
 
-// --- UI HELPER ---
 function updateStatus(msg, hide = false) {
     let el = document.getElementById('status-overlay');
     let text = document.getElementById('status-text');
-    el.style.display = 'flex';
-    text.innerHTML = msg;
-
-    if (hide) {
-        setTimeout(() => {
-            el.style.display = 'none';
-        }, 1500);
+    if (el && text) {
+        el.style.display = 'flex';
+        text.innerHTML = msg;
+        if (hide) setTimeout(() => { el.style.display = 'none'; }, 1500);
     }
 }
 
-// --- DRAW LOOP ---
 function draw() {
-    background(30);
+    if (flashTimer > 0) {
+        background(255);
+        flashTimer--;
+    } else {
+        background(30);
+    }
 
-    // Handle touch inputs explicitly
+    // Input Handling
     if (touches.length === 0) {
         inputs.left = false;
         inputs.right = false;
@@ -96,6 +123,8 @@ function draw() {
         inputs.left = false;
         inputs.right = false;
         for (let i = 0; i < touches.length; i++) {
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+
             if (touches[i].x < width / 2) {
                 inputs.left = true;
             } else {
@@ -104,41 +133,36 @@ function draw() {
         }
     }
 
-    // Network Throttling
     if (conn && conn.open && millis() - lastSendTime > SEND_RATE) {
         conn.send({ type: 'input', left: inputs.left, right: inputs.right });
         lastSendTime = millis();
     }
 
-    // Draw Controls UI
+    // UI Drawing
     noStroke();
-
-    // Left Button Visuals
     if (inputs.left) fill(myColor); else fill(60);
     rect(0, 0, width / 2, height);
 
-    // Right Button Visuals
     if (inputs.right) fill(myColor); else fill(90);
     rect(width / 2, 0, width / 2, height);
 
-    // Divider Line
     stroke(255); strokeWeight(4);
     line(width / 2, 0, width / 2, height);
 
-    // Labels
     fill(255); noStroke(); textStyle(BOLD);
     text("LEFT", width / 4, height / 2);
     text("RIGHT", width * 3 / 4, height / 2);
 }
 
-// Handle resizing
 function windowResized() {
-    let w = max(windowWidth, windowHeight);
-    let h = min(windowWidth, windowHeight);
-    resizeCanvas(w, h);
+    resizeCanvas(max(windowWidth, windowHeight), min(windowWidth, windowHeight));
 }
 
-// Prevent default browser touch actions to stop scrolling/zooming
-function touchStarted() { return false; }
+function touchStarted() {
+    if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+    return false;
+}
 function touchMoved() { return false; }
 function touchEnded() { return false; }

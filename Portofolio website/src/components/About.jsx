@@ -6,7 +6,9 @@ const About = () => {
         <section id="about" className="section about-section">
             <div className="container">
                 <h2 className="section-title">About Me</h2>
+
                 <div className="about-content">
+                    {/* Intro Text */}
                     <div className="about-text">
                         <p>
                             Hello! I am a student focused on transforming well-designed interfaces into responsive, working websites. I develop websites and applications using modern HTML, CSS, and JavaScript.
@@ -14,6 +16,8 @@ const About = () => {
                         <p>
                             I am actively looking for job and internship opportunities in the field.
                         </p>
+
+                        {/* Skills List */}
                         <div className="skills-grid">
                             <div className="skill-item">Figma</div>
                             <div className="skill-item">React</div>
@@ -23,6 +27,8 @@ const About = () => {
                             <div className="skill-item">JS</div>
                         </div>
                     </div>
+
+                    {/* Profile Image Area */}
                     <div className="about-image">
                         {/* Placeholder for user image */}
                         <div className="image-placeholder"></div>

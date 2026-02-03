@@ -3,69 +3,8 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            touch-action: none;
-            background: #222;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: white;
-        }
-
-        #status-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 20;
-            pointer-events: none;
-        }
-
-        #rotate-overlay {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #111;
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .icon {
-            font-size: 48px;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            margin: 0 0 10px 0;
-            font-size: 24px;
-        }
-
-        p {
-            margin: 0;
-            opacity: 0.8;
-        }
-
-        @media (orientation: portrait) {
-            #rotate-overlay {
-                display: flex;
-            }
-        }
-    </style>
+    <title>River Racer Controller</title>
+    <link rel="stylesheet" href="controller.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
 </head>
@@ -76,84 +15,12 @@
         <h1>Please Rotate Device</h1>
         <p>This game requires landscape mode.</p>
     </div>
+
     <div id="status-overlay">
         <h1 id="status-text">Connecting...</h1>
     </div>
-    <script>
-        let peer, conn;
-        let inputs = { left: false, right: false };
-        let myColor = '#ccc';
-        function setup() {
-            let w = max(windowWidth, windowHeight);
-            let h = min(windowWidth, windowHeight);
-            createCanvas(w, h);
-            const urlParams = new URLSearchParams(window.location.search);
-            const hostId = urlParams.get('hostId');
-            if (!hostId) { updateStatus("Error: No Host ID."); return; }
-            peer = new Peer();
-            peer.on('open', (id) => {
-                conn = peer.connect(hostId);
-                conn.on('open', () => {
-                    updateStatus("Connected!<br>Waiting for Player 2...");
-                    conn.send({ type: 'handshake' });
-                });
-                conn.on('data', (data) => {
-                    if (data.type === 'assignColor') {
-                        myColor = data.color;
-                        updateStatus("READY!", true);
-                    }
-                    if (data.type === 'gameStart') {
-                        document.getElementById('status-overlay').style.display = 'none';
-                    }
-                });
-            });
-        }
-        function updateStatus(msg, hide = false) {
-            let el = document.getElementById('status-overlay');
-            let text = document.getElementById('status-text');
-            el.style.display = 'flex';
-            text.innerHTML = msg;
-            if (hide) {
-                setTimeout(() => {
-                    el.style.display = 'none';
-                }, 1500);
-            }
-        }
-        function draw() {
-            background(30);
-            inputs.left = false;
-            inputs.right = false;
-            for (let i = 0; i < touches.length; i++) {
-                if (touches[i].x < width / 2) {
-                    inputs.left = true;
-                }
-                else {
-                    inputs.right = true;
-                }
-            }
-            if (conn && conn.open) {
-                conn.send({ type: 'input', left: inputs.left, right: inputs.right });
-            }
-            noStroke();
-            if (inputs.left) fill(myColor); else fill(100);
-            rect(0, 0, width / 2, height);
-            if (inputs.right) fill(myColor); else fill(150);
-            rect(width / 2, 0, width / 2, height);
-            stroke(255); strokeWeight(5);
-            line(width / 2, 0, width / 2, height);
-            fill(255); noStroke();
-            text("L", width / 4, height / 2);
-            text("R", width * 3 / 4, height / 2);
-        }
-        function windowResized() {
-            let w = max(windowWidth, windowHeight);
-            let h = min(windowWidth, windowHeight);
-            resizeCanvas(w, h);
-        }
-        function touchStarted() { return false; }
-        function touchMoved() { return false; }
-        function touchEnded() { return false; }
-    </script>
+
+    <script src="controller.js"></script>
 </body>
 
 </html>

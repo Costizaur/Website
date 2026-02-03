@@ -1,3 +1,4 @@
+/* Hero Section Container (Full Height) */
 .hero {
     position: relative;
     height: 100vh;
@@ -5,15 +6,17 @@
     align-items: center;
     overflow: hidden;
     padding-top: 60px;
-    /* Navbar height */
+    /* Offset for Navbar */
 }
 
+/* Text Content Area */
 .hero-content {
     position: relative;
     z-index: 10;
     max-width: 800px;
 }
 
+/* Headline Styling */
 .hero-title {
     font-size: 4rem;
     line-height: 1.1;
@@ -22,6 +25,7 @@
     letter-spacing: -1px;
 }
 
+/* Subtitle Styling */
 .hero-subtitle {
     font-size: 1.25rem;
     color: var(--text-secondary);
@@ -29,11 +33,13 @@
     margin-bottom: 2.5rem;
 }
 
+/* Action Buttons Wrapper */
 .hero-actions {
     display: flex;
     gap: 1rem;
 }
 
+/* General Button Styles */
 .btn {
     padding: 0.8rem 2rem;
     border-radius: 50px;
@@ -42,6 +48,7 @@
     transition: all 0.3s ease;
 }
 
+/* Primary Button (Filled) */
 .btn-primary {
     background: var(--primary-color);
     color: white;
@@ -53,6 +60,7 @@
     box-shadow: 0 8px 30px var(--primary-glow);
 }
 
+/* Secondary Button (Outline) */
 .btn-outline {
     border: 1px solid var(--border-color);
     color: var(--text-primary);
@@ -63,7 +71,8 @@
     background: rgba(255, 255, 255, 0.05);
 }
 
-/* Background Glow Effects */
+/* --- Animated Background Effects --- */
+
 .hero-background {
     position: absolute;
     top: 0;
@@ -72,8 +81,10 @@
     height: 100%;
     z-index: 1;
     pointer-events: none;
+    /* Mouse ignores this layer */
 }
 
+/* Generic Glow Circle */
 .glow {
     position: absolute;
     border-radius: 50%;
@@ -81,6 +92,7 @@
     opacity: 0.4;
 }
 
+/* Purple Glow (Top Right) */
 .glow-1 {
     top: -10%;
     right: -5%;
@@ -90,6 +102,7 @@
     animation: float 10s infinite alternate;
 }
 
+/* Blue Glow (Bottom Left) */
 .glow-2 {
     bottom: -10%;
     left: -10%;
@@ -99,6 +112,7 @@
     animation: float 15s infinite alternate-reverse;
 }
 
+/* Floating Animation Keyframes */
 @keyframes float {
     0% {
         transform: translate(0, 0);
@@ -109,6 +123,7 @@
     }
 }
 
+/* Mobile Adjustments */
 @media (max-width: 768px) {
     .hero-title {
         font-size: 2.5rem;

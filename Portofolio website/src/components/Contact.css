@@ -1,14 +1,17 @@
+/* Section Background */
 .contact-section {
     background-color: var(--surface-color);
     padding-bottom: var(--spacing-xl);
 }
 
+/* 2-Column Grid Layout */
 .contact-wrapper {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 4rem;
 }
 
+/* Left Column Styling */
 .contact-info .section-title {
     text-align: left;
     margin-bottom: 1.5rem;
@@ -21,6 +24,7 @@
     max-width: 500px;
 }
 
+/* Contact Details Info Block */
 .contact-details {
     display: flex;
     flex-direction: column;
@@ -42,6 +46,7 @@
     font-weight: 500;
 }
 
+/* Social Icon Links */
 .social-links {
     display: flex;
     gap: 1.5rem;
@@ -56,7 +61,8 @@
     color: var(--primary-color);
 }
 
-/* Form Styles */
+/* --- Form Styles --- */
+
 .contact-form {
     background: var(--bg-color);
     padding: 2.5rem;
@@ -75,6 +81,7 @@
     color: var(--text-secondary);
 }
 
+/* Inputs and Textareas */
 .form-group input,
 .form-group textarea {
     width: 100%;
@@ -88,6 +95,7 @@
     transition: border-color 0.3s ease;
 }
 
+/* Highlight border on focus */
 .form-group input:focus,
 .form-group textarea:focus {
     outline: none;
@@ -96,8 +104,10 @@
 
 .contact-form button {
     width: 100%;
+    /* Full width button */
 }
 
+/* Mobile Stack Layout */
 @media (max-width: 768px) {
     .contact-wrapper {
         grid-template-columns: 1fr;

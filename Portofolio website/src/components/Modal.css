@@ -1,3 +1,4 @@
+/* Full Screen Overlay */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -14,11 +15,13 @@
     animation: fadeIn 0.3s ease;
 }
 
+/* Modal Window */
 .modal-content {
     background: var(--surface-color);
     width: 100%;
     max-width: 900px;
     max-height: 90vh;
+    /* Limits height to viewport */
     border-radius: 20px;
     border: 1px solid var(--border-color);
     position: relative;
@@ -29,6 +32,7 @@
     animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Close Button (Top Right) */
 .modal-close {
     position: absolute;
     top: 15px;
@@ -47,22 +51,27 @@
     color: var(--text-primary);
 }
 
+/* Inner Scrollable Area */
 .modal-body {
     padding: 0;
     overflow-y: auto;
+    /* Allow scrolling for long text */
     flex: 1;
     display: flex;
     flex-direction: column;
 }
 
+/* Carousel Section */
 .modal-carousel-container {
     width: 100%;
     background: #000;
 }
 
+/* Text Content Section */
 .modal-info {
     padding: 2rem;
     padding-bottom: 5rem;
+    /* Space for buttons */
 }
 
 .modal-title {
@@ -89,6 +98,7 @@
     color: var(--text-secondary);
 }
 
+/* --- Animations --- */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -111,15 +121,7 @@
     }
 }
 
-@media (max-width: 768px) {
-    .modal-overlay {
-        padding: 1rem;
-    }
-
-    .modal-title {
-        font-size: 1.5rem;
-    }
-}
+/* --- Unfold Animation Styles --- */
 
 .unfold-btn {
     position: absolute;
@@ -142,6 +144,7 @@
     transform: translateY(-2px);
 }
 
+/* Full Container for Unfold Video */
 .unfold-overlay {
     position: relative;
     width: 100%;
@@ -162,34 +165,7 @@
     object-fit: contain;
 }
 
-.unfold-media.clickable {
-    cursor: pointer;
-}
-
-.unfold-paused-container {
-    position: relative;
-    width: 100%;
-    cursor: pointer;
-}
-
-.unfold-text-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 1.5rem;
-    font-weight: 500;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    background: rgba(0, 0, 0, 0.3);
-    padding: 1rem 2rem;
-    border-radius: 50px;
-    backdrop-filter: blur(4px);
-    pointer-events: none;
-    /* Let clicks pass through to container */
-    animation: fadeIn 0.3s ease;
-}
-
+/* Text Grid overlaid on video */
 .unfold-grid-overlay {
     position: absolute;
     top: 0;
@@ -202,11 +178,13 @@
     gap: 1.5rem;
     padding: 4rem;
     pointer-events: none;
+    /* Clicks pass through */
     animation: fadeIn 0.3s ease;
     max-width: 900px;
     margin: 0 auto;
 }
 
+/* Glass-morphism Card for Text */
 .unfold-grid-item {
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(8px);
@@ -239,33 +217,38 @@
     opacity: 0.9;
 }
 
+/* Mobile Responsiveness */
 @media (max-width: 768px) {
+    .modal-overlay {
+        padding: 1rem;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+    }
+
     .unfold-grid-overlay {
         grid-template-columns: 1fr;
         grid-template-rows: auto;
         overflow-y: auto;
         pointer-events: auto;
-        /* Allow scrolling on mobile */
+        /* Allow scrolling */
     }
 }
 
-/* Back Button Styles */
+/* Back Button (Bottom Left) */
 .modal-back {
     position: absolute;
     bottom: 20px;
-    /* Same as unfold-btn */
     left: 20px;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: white;
-    /* Same as unfold-btn */
     font-size: 1.2rem;
     width: auto;
     height: auto;
     padding: 8px 16px;
-    /* Same padding as unfold-btn */
     border-radius: 20px;
-    /* Same radius */
     cursor: pointer;
     z-index: 101;
     display: flex;
@@ -281,7 +264,7 @@
     transform: scale(1.1);
 }
 
-/* Hide scrollbars in modal info */
+/* Hide scrollbars but keep functionality */
 .modal-info,
 .modal-body {
     scrollbar-width: none;

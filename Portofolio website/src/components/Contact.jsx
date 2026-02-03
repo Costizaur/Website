@@ -6,6 +6,8 @@ const Contact = () => {
         <section id="contact" className="section contact-section">
             <div className="container">
                 <div className="contact-wrapper">
+
+                    {/* Left Column: Contact Details */}
                     <div className="contact-info">
                         <h2 className="section-title">Let's Work Together</h2>
                         <p className="contact-text">
@@ -25,8 +27,13 @@ const Contact = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Right Column: Contact Form */}
+                    {/* Uses Web3Forms API to send emails without server code */}
                     <form className="contact-form" action="https://api.web3forms.com/submit" method="POST">
+                        {/* Hidden key for the API service */}
                         <input type="hidden" name="access_key" value="6bcd15d9-36a9-42dd-bfc1-b7bb9f107117" />
+
                         <div className="form-group">
                             <label htmlFor="name">Name</label>
                             <input type="text" id="name" name="name" placeholder="Your Name" required />
@@ -39,6 +46,7 @@ const Contact = () => {
                             <label htmlFor="message">Message</label>
                             <textarea id="message" name="message" rows="5" placeholder="Tell me about your project" required></textarea>
                         </div>
+
                         <button type="submit" className="btn btn-primary">Send Message</button>
                     </form>
                 </div>

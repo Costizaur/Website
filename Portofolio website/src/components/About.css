@@ -1,7 +1,9 @@
+/* About Section Background */
 .about-section {
     background-color: var(--surface-color);
 }
 
+/* Section Header */
 .section-title {
     font-size: 2.5rem;
     margin-bottom: 3rem;
@@ -9,6 +11,7 @@
     font-weight: 700;
 }
 
+/* 2-Column Layout for Text + Image */
 .about-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -16,12 +19,14 @@
     align-items: center;
 }
 
+/* Paragraph styling */
 .about-text p {
     margin-bottom: 1.5rem;
     font-size: 1.1rem;
     color: var(--text-secondary);
 }
 
+/* Skills Tags Wrapper */
 .skills-grid {
     display: flex;
     flex-wrap: wrap;
@@ -29,6 +34,7 @@
     margin-top: 2rem;
 }
 
+/* Individual Skill Tag */
 .skill-item {
     background: var(--surface-hover);
     padding: 0.5rem 1rem;
@@ -38,10 +44,12 @@
     border: 1px solid var(--border-color);
 }
 
+/* Image Container */
 .about-image {
     position: relative;
 }
 
+/* Placeholder box for missing image */
 .image-placeholder {
     width: 100%;
     aspect-ratio: 1;
@@ -51,6 +59,7 @@
     overflow: hidden;
 }
 
+/* Dark overlay on image */
 .image-placeholder::after {
     content: '';
     position: absolute;
@@ -58,6 +67,7 @@
     background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.5));
 }
 
+/* Mobile Stack Layout */
 @media (max-width: 768px) {
     .about-content {
         grid-template-columns: 1fr;

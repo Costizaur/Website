@@ -1,3 +1,4 @@
+/* Full Screen Overlay */
 .finder-overlay {
     position: fixed;
     top: 0;
@@ -13,11 +14,12 @@
     animation: fadeIn 0.2s ease-out;
 }
 
+/* Mac-style Window */
 .finder-window {
     width: 900px;
     height: 600px;
     background: rgba(30, 30, 30, 0.70);
-    /* Dark translucent background */
+    /* Dark translucent glass */
     backdrop-filter: blur(40px);
     -webkit-backdrop-filter: blur(40px);
     border-radius: 12px;
@@ -30,6 +32,7 @@
     color: #dfdfdf;
 }
 
+/* Window Title Bar */
 .finder-header {
     height: 52px;
     display: flex;
@@ -40,6 +43,7 @@
     justify-content: space-between;
 }
 
+/* Traffic Light Buttons */
 .window-controls {
     display: flex;
     gap: 8px;
@@ -78,12 +82,16 @@
     width: 60px;
 }
 
+/* Spacer */
+
+/* Layout: Sidebar + Main Content */
 .finder-body {
     display: flex;
     flex: 1;
     overflow: hidden;
 }
 
+/* Sidebar Styling */
 .finder-sidebar {
     width: 200px;
     background: rgba(40, 40, 40, 0.3);
@@ -131,14 +139,15 @@
     font-size: 16px;
 }
 
+/* Main Content Area */
 .finder-content {
     flex: 1;
     background: transparent;
-    /* Transparent so window bg shows through */
     padding: 20px;
     overflow-y: auto;
 }
 
+/* File Grid */
 .projects-grid-view {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -146,6 +155,7 @@
     align-items: start;
 }
 
+/* Individual File/Folder Item */
 .finder-item {
     display: flex;
     flex-direction: column;
@@ -161,17 +171,7 @@
     background: rgba(255, 255, 255, 0.05);
 }
 
-.finder-item.selected {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-.finder-item.selected .finder-item-name {
-    background: #0060FA;
-    border-radius: 3px;
-    padding: 2px 4px;
-    color: white;
-}
-
+/* Icon Styling */
 .finder-item-icon {
     width: 64px;
     height: 64px;
@@ -179,7 +179,6 @@
     justify-content: center;
     align-items: center;
     position: relative;
-    /* Icon usually has shadow in dark mode too */
 }
 
 .finder-item-icon img {
@@ -187,8 +186,7 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-
-/* Custom CSS folder icon to look like macOS */
+/* Custom CSS Folder Icon */
 .folder-shape {
     width: 56px;
     height: 40px;
@@ -199,6 +197,7 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
+/* Folder Top Tab */
 .folder-shape::before {
     content: '';
     position: absolute;
@@ -210,27 +209,6 @@
     border-radius: 4px 4px 0 0;
 }
 
-.folder-content-preview {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 30px;
-    height: 30px;
-    border-radius: 4px;
-    background: #fff;
-    z-index: 2;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-}
-
-.folder-content-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-
 .finder-item-name {
     font-size: 12px;
     text-align: center;
@@ -241,7 +219,7 @@
     padding: 2px;
 }
 
-
+/* Animations */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -264,6 +242,7 @@
     }
 }
 
+/* Mobile Adjustments */
 @media (max-width: 768px) {
     .finder-window {
         width: 100%;
@@ -280,19 +259,19 @@
         display: none;
     }
 
+    /* Show only icons */
     .sidebar-item {
         justify-content: center;
         padding: 10px;
     }
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
+/* Hide scrollbars */
 .finder-content::-webkit-scrollbar {
-  display: none;
+    display: none;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
 .finder-content {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }

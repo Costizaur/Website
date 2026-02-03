@@ -5,7 +5,7 @@ const STEER_SPEED = 8;
 const STUN_DURATION = 60;
 const STUN_KNOCKBACK = 8;
 const PLAYER_COLLISION_RADIUS = 25;
-const FINISH_LINE_Y = -20000; // Longer track
+const FINISH_LINE_Y = -5000;
 const TRACK_WIDTH = 700;
 
 // ====== VARIABLES ======
@@ -81,40 +81,16 @@ function setup() {
     setupNetworking();
 }
 
-function getTrackCenter(y) {
-    let rawCurve = Math.sin(y * 0.001) * 180 + Math.cos(y * 0.002) * 80;
-
-    let startZoneEnd = height - 3000;
-    let finishZoneStart = FINISH_LINE_Y + 3000;
-
-    let intensity = 1;
-
-    if (y > startZoneEnd) {
-        intensity = 0;
-    } else if (y > startZoneEnd - 1000) {
-        intensity = map(y, startZoneEnd, startZoneEnd - 1000, 0, 1);
-    } else if (y < finishZoneStart) {
-        intensity = 0;
-    } else if (y < finishZoneStart + 1000) {
-        intensity = map(y, finishZoneStart + 1000, finishZoneStart, 1, 0);
-    }
-
-    return width / 2 + (rawCurve * intensity);
-}
-
+// ====== LEVEL GENERATION ======
 function generateObstacles() {
     obstacles = [];
-    let startSpawnY = height - 1500;
-
-    for (let y = startSpawnY; y > FINISH_LINE_Y; y -= 250) {
+    for (let y = height - 600; y > FINISH_LINE_Y; y -= 250) {
         let count = random() > 0.5 ? 2 : 1;
         for (let i = 0; i < count; i++) {
             let attempts = 0;
             let placed = false;
             while (!placed && attempts < 50) {
-                let trackCenterX = getTrackCenter(y);
-
-                let potentialX = random(trackCenterX - TRACK_WIDTH / 2 + 50, trackCenterX + TRACK_WIDTH / 2 - 50);
+                let potentialX = random(width / 2 - TRACK_WIDTH / 2 + 50, width / 2 + TRACK_WIDTH / 2 - 50);
                 let potentialY = y + random(-100, 100);
                 let potentialSize = random(60, 100);
                 let valid = true;
@@ -163,10 +139,7 @@ function spawnLocalPlayer() {
     let slot = playerSlots.findIndex(s => s === null);
     if (slot === -1) return;
     let color = slot === 0 ? '#FF4136' : '#0074D9';
-
-    // Spawn based on track center
-    let cx = getTrackCenter(height - 150);
-    let startX = requiredPlayers === 2 ? cx + (slot === 0 ? -120 : 120) : cx;
+    let startX = requiredPlayers === 2 ? width / 2 + (slot === 0 ? -120 : 120) : width / 2;
 
     playerSlots[slot] = createPlayer('local-' + slot, color, startX, { send: () => { } });
     checkLobby();
@@ -241,12 +214,14 @@ function setupNetworking() {
 }
 
 function handlePlayerJoin(conn) {
+    // Prevent joining if game started
     if (gameState !== "LOBBY") {
         conn.send({ type: 'error', message: 'Game already started' });
         setTimeout(() => conn.close(), 100);
         return;
     }
 
+    // Prevent duplicate connections
     if (playerSlots.some(p => p && p.id === conn.peer)) {
         console.warn('Player already connected');
         return;
@@ -257,10 +232,7 @@ function handlePlayerJoin(conn) {
 
     if (slot !== -1) {
         let color = slot === 0 ? '#FF4136' : '#0074D9';
-
-        // Spawn based on track center
-        let cx = getTrackCenter(height - 150);
-        let startX = requiredPlayers === 2 ? cx + (slot === 0 ? -120 : 120) : cx;
+        let startX = requiredPlayers === 2 ? width / 2 + (slot === 0 ? -120 : 120) : width / 2;
 
         playerSlots[slot] = createPlayer(conn.peer, color, startX, conn);
         conn.send({ type: 'assignColor', color: color });
@@ -284,6 +256,7 @@ function updateLobbyText() {
 }
 
 function startRace() {
+    // Reset state
     obstacles = [];
     generateObstacles();
     ripples = [];
@@ -299,13 +272,8 @@ function startRace() {
 function draw() {
     if (gameState === "MENU") {
         background(34, 139, 34);
-
-        push();
-        let scrollOffset = (millis() * 0.1) % 250;
-        translate(0, scrollOffset);
-        drawMenuBackground();
-        pop();
-
+        translate(0, (millis() * 0.1) % 250);
+        drawEnvironment();
         return;
     }
 
@@ -335,8 +303,10 @@ function draw() {
                 p.offScreenTimer -= 1 / 60;
                 if (p.offScreenTimer <= 0) {
                     p.finished = true;
+                    // Win logic
                     let winnerIndex = -1;
                     if (requiredPlayers === 2) {
+                        // If 2 players, the other one wins
                         let otherPlayer = activePlayers.find(pl => pl !== p);
                         if (otherPlayer) winnerIndex = playerSlots.indexOf(otherPlayer);
                     }
@@ -367,11 +337,8 @@ function draw() {
             p.y += p.speedY;
 
             if (p.y > height - 100) { p.y = height - 100; p.speedY = 0; }
-
-            // DYNAMIC LIMITS (Curved Track)
-            let currentCenter = getTrackCenter(p.y);
-            let leftLimit = currentCenter - TRACK_WIDTH / 2 + 30;
-            let rightLimit = currentCenter + TRACK_WIDTH / 2 - 30;
+            let leftLimit = width / 2 - TRACK_WIDTH / 2 + 30;
+            let rightLimit = width / 2 + TRACK_WIDTH / 2 - 30;
             p.x = constrain(p.x, leftLimit, rightLimit);
 
             // Obstacle Collision
@@ -380,6 +347,7 @@ function draw() {
                     if (p.stunned <= 0) {
                         p.stunned = STUN_DURATION;
                         p.speedY = STUN_KNOCKBACK;
+                        // Haptic Feedback Signal
                         p.conn.send({ type: 'collision' });
 
                         p.conn.send({ type: 'assignColor', color: '#fff' });
@@ -447,24 +415,6 @@ function drawRipples() {
     }
 }
 
-function drawMenuBackground() {
-    push();
-    rectMode(CORNER);
-
-    drawingContext.fillStyle = grassPattern;
-    rect(-50, -height, width + 100, height * 3);
-
-    drawingContext.fillStyle = waterPattern;
-    rect(width / 2 - TRACK_WIDTH / 2, -height, TRACK_WIDTH, height * 3);
-
-    stroke(255, 255, 255, 50);
-    strokeWeight(5);
-    line(width / 2 - TRACK_WIDTH / 2, -height, width / 2 - TRACK_WIDTH / 2, height * 2);
-    line(width / 2 + TRACK_WIDTH / 2, -height, width / 2 + TRACK_WIDTH / 2, height * 2);
-
-    pop();
-}
-
 function drawEnvironment() {
     for (let i = obstacles.length - 1; i >= 0; i--) {
         let obs = obstacles[i];
@@ -476,65 +426,27 @@ function drawEnvironment() {
     push();
     rectMode(CORNER);
     drawingContext.fillStyle = grassPattern;
-    rect(-2000, -cameraY - 100, width + 4000, height + 200);
+    rect(-5000, FINISH_LINE_Y - 2000, 5000 + (width / 2 - TRACK_WIDTH / 2), -FINISH_LINE_Y + 7000);
+    rect(width / 2 + TRACK_WIDTH / 2, FINISH_LINE_Y - 2000, 5000, -FINISH_LINE_Y + 7000);
     pop();
 
     push();
-    noStroke();
+    rectMode(CORNER);
     drawingContext.fillStyle = waterPattern;
-
-    beginShape();
-    let step = 50;
-
-    let startDrawY = -cameraY - 100;
-    let endDrawY = -cameraY + height + 200;
-
-    if (startDrawY < FINISH_LINE_Y - 500) startDrawY = FINISH_LINE_Y - 500;
-
-    for (let y = startDrawY; y <= endDrawY; y += step) {
-        let cx = getTrackCenter(y);
-        vertex(cx - TRACK_WIDTH / 2, y);
-    }
-    vertex(getTrackCenter(endDrawY) - TRACK_WIDTH / 2, endDrawY);
-
-    for (let y = endDrawY; y >= startDrawY; y -= step) {
-        let cx = getTrackCenter(y);
-        vertex(cx + TRACK_WIDTH / 2, y);
-    }
-    vertex(getTrackCenter(startDrawY) + TRACK_WIDTH / 2, startDrawY);
-
-    endShape(CLOSE);
+    rect(width / 2 - TRACK_WIDTH / 2, FINISH_LINE_Y - 2000, TRACK_WIDTH, -FINISH_LINE_Y + 5000);
     pop();
 
-    stroke(255, 255, 255, 50);
-    strokeWeight(5);
-    noFill();
-
-    beginShape();
-    for (let y = startDrawY; y <= endDrawY; y += step) {
-        let cx = getTrackCenter(y);
-        vertex(cx - TRACK_WIDTH / 2, y);
-    }
-    endShape();
-
-    beginShape();
-    for (let y = startDrawY; y <= endDrawY; y += step) {
-        let cx = getTrackCenter(y);
-        vertex(cx + TRACK_WIDTH / 2, y);
-    }
-    endShape();
-
+    stroke(255, 255, 255, 50); strokeWeight(5);
+    line(width / 2 - TRACK_WIDTH / 2, 1000, width / 2 - TRACK_WIDTH / 2, FINISH_LINE_Y);
+    line(width / 2 + TRACK_WIDTH / 2, 1000, width / 2 + TRACK_WIDTH / 2, FINISH_LINE_Y);
     noStroke();
-    let finishCx = getTrackCenter(FINISH_LINE_Y);
+
     for (let i = 0; i < 10; i++) {
         fill(i % 2 == 0 ? 0 : 255);
-        let segmentWidth = TRACK_WIDTH / 10;
-        rect(finishCx - TRACK_WIDTH / 2 + i * segmentWidth + (segmentWidth / 2), FINISH_LINE_Y, segmentWidth, 40);
+        rect(width / 2 - TRACK_WIDTH / 2 + i * (TRACK_WIDTH / 10) + (TRACK_WIDTH / 20), FINISH_LINE_Y, TRACK_WIDTH / 10, 40);
     }
 
     obstacles.forEach(obs => {
-        if (obs.y + cameraY < -200 || obs.y + cameraY > height + 200) return;
-
         fill(120);
         if (obs.shape === 'box') {
             rect(obs.x, obs.y, obs.size, obs.size, 5);
@@ -574,7 +486,7 @@ function handleWin(playerIndex) {
     else { winnerName = "NO ONE"; color = "#000"; }
 
     let winDiv = createDiv(winnerName + " WINS!");
-    winDiv.class('win-screen');
+    winDiv.class('win-screen'); // Add class for easy removal
     winDiv.style('position', 'absolute');
     winDiv.style('top', '50%'); winDiv.style('left', '50%');
     winDiv.style('transform', 'translate(-50%, -50%)');
@@ -604,28 +516,36 @@ function handleWin(playerIndex) {
 }
 
 function resetGame() {
+    // Clean up connections
     playerSlots.forEach(p => {
         if (p && p.conn && p.conn.close && !p.id.startsWith('local')) {
             p.conn.close();
         }
     });
 
+    // Reset state
     playerSlots = [null, null];
     obstacles = [];
     ripples = [];
     gameState = "MENU";
     cameraY = 0;
 
+    // Reset UI
     document.getElementById('menu-screen').style.display = 'flex';
     document.getElementById('hud').style.display = 'none';
     document.getElementById('qrcode-container').style.display = 'none';
+
+    // Restore instructions and lobby text
     document.getElementById('kb-start-msg').style.display = 'block';
     document.getElementById('lobby-status').innerText = "Scan to Join";
 
+    // Remove win screen
     let screens = selectAll('.win-screen');
     screens.forEach(s => s.remove());
 
+    // Regenerate level
     generateObstacles();
+
 
     if (peer && peer.id) {
         const STATIC_HOST = "https://costinsarghiuta.com/game2";
@@ -637,6 +557,7 @@ function resetGame() {
             height: 200
         });
     } else {
+        // If peer is dead, show loading message
         document.getElementById("qrcode").innerHTML = "<span style='font-size: 14px; font-weight: bold;'>Generating QR...</span>";
     }
 }

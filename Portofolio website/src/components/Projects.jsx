@@ -92,7 +92,8 @@ const projects = [
         src: '#2563eb',
         description: 'A live financial dashboard built with Python and Streamlit, connecting to a Google Sheets database to pull, process, and display live investment metrics and signals.',
         longDescription: 'Leverages the GSheetsConnection API to read real-time scorecards, automatically evaluates indicator strengths, and renders dynamic, color-coded Plotly gauge widgets representing strong buy/buy/hold/sell signals.',
-        tags: ['Python', 'Streamlit', 'Plotly', 'Google Sheets API']
+        tags: ['Python', 'Streamlit', 'Plotly', 'Google Sheets API'],
+        liveLink: 'https://share.streamlit.io'
       }
     ],
     folderImages: ['#ec4899', '#fbcfe8', '#fce7f3'],
@@ -199,6 +200,7 @@ const Projects = () => {
       images: scopedImages,
       designLink: selectedItem.designLink,
       gameLink: selectedItem.gameLink,
+      liveLink: selectedItem.liveLink,
       initialIndex: 0
     };
 

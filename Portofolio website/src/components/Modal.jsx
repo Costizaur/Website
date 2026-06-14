@@ -198,6 +198,17 @@ const Modal = ({ project, onClose, onBack }) => {
                                     Play Game &rarr;
                                 </a>
                             )}
+                            {project.liveLink && (
+                                <a
+                                    href={project.liveLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="project-link"
+                                    style={{ marginTop: '20px', marginLeft: '10px', display: 'inline-block' }}
+                                >
+                                    View Live App &rarr;
+                                </a>
+                            )}
                         </div>
                     </div>
                 )}

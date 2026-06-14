@@ -66,8 +66,16 @@ const Finder = ({ categories, initialCategory, onClose, onSelectProject }) => {
                                 >
                                     <div className="finder-item-icon">
                                         {/* Show Image Thumbnail or Generic Folder Icon */}
-                                        {typeof item === 'string' || !item.src ? (
-                                            <div className="folder-shape"></div>
+                                        {typeof item === 'string' || !item.src || (typeof item.src === 'string' && item.src.startsWith('#')) ? (
+                                            <div 
+                                                className="folder-shape" 
+                                                style={{ 
+                                                    backgroundColor: (typeof item === 'object' && typeof item.src === 'string' && item.src.startsWith('#')) ? item.src : '#2563eb',
+                                                    borderRadius: '4px',
+                                                    width: '100%',
+                                                    height: '100%'
+                                                }}
+                                            ></div>
                                         ) : (
                                             <img src={item.src} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} />
                                         )}

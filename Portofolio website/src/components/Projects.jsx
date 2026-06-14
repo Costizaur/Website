@@ -18,7 +18,6 @@ import unfoldStartMobile from '../assets/unfold-g-90.webm';
 import unfoldEndMobile from '../assets/unfold-g-90-reverse.webm';
 import riverRacerTitle from '../assets/river-racer-title.png';
 import riverRacerGameplay from '../assets/river-racer-gameplay.png';
-import financeDashboard from '../assets/finance-dashboard.png';
 
 // --- PROJECT DATA ---
 const projects = [
@@ -65,7 +64,7 @@ const projects = [
       },
       {
         title: 'Finance Dashboard (Design)',
-        src: financeDashboard,
+        src: '#4f46e5',
         description: 'A premium, modern dark-mode financial dashboard prototype designed in Figma. Features detailed holdings charts, asset allocation graphs, and custom UI components.',
         designLink: 'https://www.figma.com/',
         longDescription: 'This UI/UX project showcases high-fidelity mockups of a comprehensive financial tracking application, using polished glassmorphism effects, consistent layout grids, and visual hierarchy optimized for readability.'
@@ -89,10 +88,11 @@ const projects = [
         longDescription: 'This site is coded with reusable React components, custom responsive CSS animations, and macOS desktop mimicking file navigations.'
       },
       {
-        title: 'Finance Dashboard (Coded)',
-        src: financeDashboard,
-        description: 'A fully interactive frontend implementation of the finance dashboard, responsive on all devices.',
-        longDescription: 'Coded with clean HTML/CSS components and responsive layouts, demonstrating front-end development capabilities for handling complex layouts.'
+        title: 'Streamlit Finance Dashboard',
+        src: '#2563eb',
+        description: 'A live financial dashboard built with Python and Streamlit, connecting to a Google Sheets database to pull, process, and display live investment metrics and signals.',
+        longDescription: 'Leverages the GSheetsConnection API to read real-time scorecards, automatically evaluates indicator strengths, and renders dynamic, color-coded Plotly gauge widgets representing strong buy/buy/hold/sell signals.',
+        tags: ['Python', 'Streamlit', 'Plotly', 'Google Sheets API']
       }
     ],
     folderImages: ['#ec4899', '#fbcfe8', '#fce7f3'],
@@ -132,20 +132,20 @@ const projects = [
     images: [
       {
         title: 'Car Advertisement Ad',
-        src: '/car-ad-thumbnail.png',
-        extraImages: ['/car-ad-thumbnail.png', '/car-ad-video.mp4'],
+        src: '#f59e0b',
+        extraImages: ['#f59e0b', '/car-ad-video.mp4'],
         description: 'A high-impact promotional ad for a luxury car, designed and edited in CapCut. Focuses on music synchronization, dynamic sound design, transitions, and speed ramping.',
         longDescription: 'A complete car commercial edit from scratch, demonstrating timing, visual pacing, audio engineering, and color grading techniques in CapCut.'
       },
       {
         title: 'Promotional Video',
-        src: '/promotional-video-thumbnail.png',
-        extraImages: ['/promotional-video-thumbnail.png', '/promotional-video.mp4'],
+        src: '#fbbf24',
+        extraImages: ['#fbbf24', '/promotional-video.mp4'],
         description: 'A promotional branding and marketing video utilizing motion graphics and professional post-production workflows.',
         longDescription: 'Video showcase exhibiting brand values, product highlights, and cinematic cuts.'
       }
     ],
-    folderImages: ['#f59e0b', '/car-ad-thumbnail.png'],
+    folderImages: ['#f59e0b', '#fbbf24'],
     longDescription: 'Video editing, storytelling, and digital marketing materials.'
   }
 ];

@@ -46,11 +46,11 @@ const Carousel = ({ images, onSlideChange, initialIndex = 0 }) => {
                                     className="carousel-video" 
                                     style={{ width: '100%', height: '100%', objectFit: 'contain', maxHeight: '500px', background: '#000' }}
                                 />
-                            ) : typeof img === 'object' && img.src ? (
+                            ) : typeof img === 'object' && img.src && !img.src.startsWith('#') ? (
                                 <img src={img.src} alt={`Slide ${index + 1}`} />
-                            ) : typeof img === 'string' && img.startsWith('#') ? (
-                                <div className="carousel-placeholder" style={{ backgroundColor: img }}>
-                                    <span>Image {index + 1}</span>
+                            ) : typeof src === 'string' && src.startsWith('#') ? (
+                                <div className="carousel-placeholder" style={{ backgroundColor: src }}>
+                                    <span>{typeof img === 'object' && img.title ? img.title : `Image ${index + 1}`}</span>
                                 </div>
                             ) : (
                                 <img src={img} alt={`Slide ${index + 1}`} />

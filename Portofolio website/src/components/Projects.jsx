@@ -18,6 +18,7 @@ import unfoldStartMobile from '../assets/unfold-g-90.webm';
 import unfoldEndMobile from '../assets/unfold-g-90-reverse.webm';
 import riverRacerTitle from '../assets/river-racer-title.png';
 import riverRacerGameplay from '../assets/river-racer-gameplay.png';
+import financeDashboard from '../assets/finance-dashboard.png';
 
 // --- PROJECT DATA ---
 const projects = [
@@ -64,7 +65,7 @@ const projects = [
       },
       {
         title: 'Finance Dashboard (Design)',
-        src: '#4f46e5',
+        src: financeDashboard,
         description: 'A premium, modern dark-mode financial dashboard prototype designed in Figma. Features detailed holdings charts, asset allocation graphs, and custom UI components.',
         designLink: 'https://www.figma.com/',
         longDescription: 'This UI/UX project showcases high-fidelity mockups of a comprehensive financial tracking application, using polished glassmorphism effects, consistent layout grids, and visual hierarchy optimized for readability.'
@@ -89,7 +90,7 @@ const projects = [
       },
       {
         title: 'Live Finance Dashboard',
-        src: '#2563eb',
+        src: financeDashboard,
         description: 'This project bridges the gap between raw data and actionable insights. Built with Python, Streamlit, and Plotly, this web application connects securely to a live Google Sheet to track multi-month financial momentum.',
         longDescription: 'By applying UX research from professional analytics platforms, I designed a top-down visual hierarchy that automatically cleans complex data and presents immediate, readable strategy signals to the user.',
         tags: ['Python', 'Streamlit', 'Plotly', 'Google Sheets API'],

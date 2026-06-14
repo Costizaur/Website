@@ -32,20 +32,32 @@ const Carousel = ({ images, onSlideChange, initialIndex = 0 }) => {
     return (
         <div className="carousel">
             <div className="carousel-inner" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
-                {images.map((img, index) => (
-                    <div key={index} className="carousel-item">
-                        {/* Check if it's an object with src and description */}
-                        {typeof img === 'object' && img.src ? (
-                            <img src={img.src} alt={`Slide ${index + 1}`} />
-                        ) : typeof img === 'string' && img.startsWith('#') ? (
-                            <div className="carousel-placeholder" style={{ backgroundColor: img }}>
-                                <span>Image {index + 1}</span>
-                            </div>
-                        ) : (
-                            <img src={img} alt={`Slide ${index + 1}`} />
-                        )}
-                    </div>
-                ))}
+                {images.map((img, index) => {
+                    const src = typeof img === 'object' ? img.src : img;
+                    const isVideo = (typeof img === 'object' && img.isVideo) || 
+                                    (typeof src === 'string' && (src.endsWith('.mp4') || src.endsWith('.webm') || src.endsWith('.ogg')));
+                    
+                    return (
+                        <div key={index} className="carousel-item">
+                            {isVideo ? (
+                                <video 
+                                    src={src} 
+                                    controls 
+                                    className="carousel-video" 
+                                    style={{ width: '100%', height: '100%', objectFit: 'contain', maxHeight: '500px', background: '#000' }}
+                                />
+                            ) : typeof img === 'object' && img.src ? (
+                                <img src={img.src} alt={`Slide ${index + 1}`} />
+                            ) : typeof img === 'string' && img.startsWith('#') ? (
+                                <div className="carousel-placeholder" style={{ backgroundColor: img }}>
+                                    <span>Image {index + 1}</span>
+                                </div>
+                            ) : (
+                                <img src={img} alt={`Slide ${index + 1}`} />
+                            )}
+                        </div>
+                    );
+                })}
             </div>
 
             {images.length > 1 && (

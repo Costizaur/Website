@@ -18,18 +18,17 @@ import unfoldStartMobile from '../assets/unfold-g-90.webm';
 import unfoldEndMobile from '../assets/unfold-g-90-reverse.webm';
 import riverRacerTitle from '../assets/river-racer-title.png';
 import riverRacerGameplay from '../assets/river-racer-gameplay.png';
-
+import financeDashboard from '../assets/finance-dashboard.png';
 
 // --- PROJECT DATA ---
 const projects = [
   {
     id: 1,
-    title: 'UI/UX Design Portfolio',
-    description: 'A showcase of my design projects using industry-standard tools. Explore my work in Figma, Canva, and Sketch.',
-    tags: ['Figma'],
+    title: 'UI/UX Design',
+    description: 'A showcase of my user interface and user experience designs using Figma, Sketch, and other industry tools.',
+    tags: ['Figma', 'UI/UX'],
     link: '#',
     color: '#6366f1', // Indigo
-    // Sub-projects inside this folder
     images: [
       {
         title: 'Roomerr',
@@ -37,12 +36,10 @@ const projects = [
         extraImages: [roomerrScreens1, roomerrScreens2],
         designLink: 'https://www.figma.com/proto/GsGKhpn6RRXChjF1Ux9aot/Untitled?page-id=0%3A1&node-id=136-1722&p=f&viewport=-7268%2C-3208%2C0.66&t=e9NU9ARW2bsyHmj4-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=136%3A1722',
         description: 'I built a high-fidelity app prototype in Figma based on an Instagram-style vertical swipe, translating familiar social media interaction patterns into a student matching experience.',
-        // Video assets for the "Unfold" animation
         unfoldVideoStart: unfoldStart,
         unfoldVideoEnd: unfoldEnd,
         unfoldVideoStartMobile: unfoldStartMobile,
         unfoldVideoEndMobile: unfoldEndMobile,
-        // Detailed text for the modal
         unfoldText: [
           { title: "Process", items: ["Analyzed student housing platforms to identify usability and trust issues", "Studied popular social media apps to understand familiar interaction patterns", "Defined core needs: speed, clarity, and compatibility"] },
           { title: "Concept", items: ["Explored swipe-based matching to reduce decision fatigue", "Defined key matching criteria (budget, location, lifestyle)", "Created simple, fast user flows"] },
@@ -60,50 +57,99 @@ const projects = [
         unfoldVideoStartMobile: unfoldStartMobile,
         unfoldVideoEndMobile: unfoldEndMobile,
         unfoldText: [
-          { title: "Process", items: ["Analyzed standard calorie-tracking apps to identify user churn and engagement drop-offs", "Conducted user research via Google Forms to understand what motivates users to log data consistently", "Defined the core challenge: transforming a monotonous data-entry task into a rewarding habit"] },
+          { title: "Process", items: ["Analyzed standard calorie-tracking apps to identify user churn and engagement drop-offs", "Conducted user research via Google Forms to understand what motivates users to log data consistently", "Defined the core challenge: transforming a monotonous data-entry task into a habit-forming routine"] },
           { title: "Concept", items: ["Explored diverse gamification mechanics, ranging from mini-games to point systems and social leaderboards", "Conceptualized a \"Mission Tab\" to centralize goals and visualize progress", "Focused on extrinsic motivation triggers (badges and rankings) to combat user fatigue"] },
           { title: "Design", items: ["Integrated new features seamlessly by strictly adhering to the app’s existing visual language and UI patterns", "Designed a cohesive system of badges and a competitive ranking interface", "Expanded the ecosystem by creating a watch companion prototype for friction-free, on-the-go logging"] },
           { title: "Test & Decide", items: ["Surveyed potential users to compare the appeal of complex mini-games versus streamlined ranking systems", "Prioritized badges and rankings based on user preference for clear, achievement-based motivation"] }
         ]
+      },
+      {
+        title: 'Finance Dashboard (Design)',
+        src: financeDashboard,
+        description: 'A premium, modern dark-mode financial dashboard prototype designed in Figma. Features detailed holdings charts, asset allocation graphs, and custom UI components.',
+        designLink: 'https://www.figma.com/',
+        longDescription: 'This UI/UX project showcases high-fidelity mockups of a comprehensive financial tracking application, using polished glassmorphism effects, consistent layout grids, and visual hierarchy optimized for readability.'
       }
     ],
     folderImages: [roomerrLogo, calorieApp], // Icons shown on the closed folder
-    longDescription: ''
+    longDescription: 'A collection of my user experience research and user interface design works.'
   },
   {
     id: 2,
-    title: 'Portfolio Website',
-    description: "This portfolio website is a custom project built with React, HTML, and CSS.",
-    tags: ['React', 'HTML', 'CSS'],
+    title: 'Web Development',
+    description: 'Custom-built web applications and front-end implementations with React, JavaScript, HTML, and CSS.',
+    tags: ['React', 'HTML', 'CSS', 'JavaScript'],
     link: '#',
-    color: '#ec4899',
+    color: '#ec4899', // Pink
     images: [
-      { title: 'Coming Soon', description: 'Detailed breakdown of the portfolio development process coming soon.' }
+      {
+        title: 'Portfolio Website',
+        src: figma,
+        description: 'My custom developer portfolio website built using React, CSS, and interactive components like macOS-style windows and animations.',
+        longDescription: 'This site is coded with reusable React components, custom responsive CSS animations, and macOS desktop mimicking file navigations.'
+      },
+      {
+        title: 'Finance Dashboard (Coded)',
+        src: financeDashboard,
+        description: 'A fully interactive frontend implementation of the finance dashboard, responsive on all devices.',
+        longDescription: 'Coded with clean HTML/CSS components and responsive layouts, demonstrating front-end development capabilities for handling complex layouts.'
+      }
     ],
     folderImages: ['#ec4899', '#fbcfe8', '#fce7f3'],
-    longDescription: "This portfolio website is a custom project built with React, HTML, and CSS."
+    longDescription: 'Responsive and dynamic web applications built with modern frontend tools.'
   },
   {
     id: 3,
-    title: 'Creative Coding',
-    description: 'Experiments with code, interactivity, and generative art.',
-    tags: ['p5.js', 'PeerJS'],
+    title: 'Game Development',
+    description: 'Interactivity, multiplayer systems, and game mechanics built using p5.js and PeerJS.',
+    tags: ['p5.js', 'PeerJS', 'Games'],
     link: '#',
-    color: '#10b981',
+    color: '#10b981', // Emerald
     images: [
-      { title: 'PeerJS Game', description: 'Coming Soon', gameLink: '/game/index.html' },
       {
         title: 'River Racer',
         description: 'A retro-style local multiplayer racing game. Use your smartphone as a controller to navigate dangerous waters, avoid obstacles, and outlast your friends.',
         gameLink: '/game2/index.html',
         src: riverRacerTitle,
         extraImages: [riverRacerTitle, riverRacerGameplay]
+      },
+      {
+        title: 'PeerJS Game',
+        description: 'A multiplayer game experiment leveraging PeerJS for direct browser-to-browser connections.',
+        gameLink: '/game/index.html'
       }
     ],
     folderImages: ['#10b981', riverRacerTitle],
-    longDescription: 'Experiments with code and interactivity.'
+    longDescription: 'Engaging interactive mechanics and local multiplayer web games.'
+  },
+  {
+    id: 4,
+    title: 'Video Production',
+    description: 'Cinematic ads, marketing materials, and video edits created using CapCut and professional editing tools.',
+    tags: ['CapCut', 'Video Editing', 'Media'],
+    link: '#',
+    color: '#f59e0b', // Amber
+    images: [
+      {
+        title: 'Car Advertisement Ad',
+        src: '/car-ad-thumbnail.png',
+        extraImages: ['/car-ad-thumbnail.png', '/car-ad-video.mp4'],
+        description: 'A high-impact promotional ad for a luxury car, designed and edited in CapCut. Focuses on music synchronization, dynamic sound design, transitions, and speed ramping.',
+        longDescription: 'A complete car commercial edit from scratch, demonstrating timing, visual pacing, audio engineering, and color grading techniques in CapCut.'
+      },
+      {
+        title: 'Promotional Video',
+        src: '/promotional-video-thumbnail.png',
+        extraImages: ['/promotional-video-thumbnail.png', '/promotional-video.mp4'],
+        description: 'A promotional branding and marketing video utilizing motion graphics and professional post-production workflows.',
+        longDescription: 'Video showcase exhibiting brand values, product highlights, and cinematic cuts.'
+      }
+    ],
+    folderImages: ['#f59e0b', '/car-ad-thumbnail.png'],
+    longDescription: 'Video editing, storytelling, and digital marketing materials.'
   }
 ];
+
 
 const Projects = () => {
   const [selectedProject, setSelectedProject] = useState(null); // For Modal

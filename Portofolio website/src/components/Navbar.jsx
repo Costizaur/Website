@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Navbar.css';
+import cvPdf from '../assets/cv_costin_sarghiuta (2).pdf';
 
 const Navbar = () => {
     // State to track if user has scrolled down
@@ -29,7 +30,7 @@ const Navbar = () => {
                     <li><a href="#about">About</a></li>
                     <li><a href="#projects">Projects</a></li>
                     <li><a href="#contact">Contact</a></li>
-                    <li><a href="/cv.pdf" download className="nav-btn">Download CV</a></li>
+                    <li><a href={cvPdf} target="_blank" rel="noopener noreferrer" className="nav-btn">View CV</a></li>
                 </ul>
             </div>
         </nav>

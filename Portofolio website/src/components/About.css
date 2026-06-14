@@ -49,22 +49,20 @@
     position: relative;
 }
 
-/* Placeholder box for missing image */
-.image-placeholder {
+/* Profile Image Styling */
+.profile-img {
     width: 100%;
     aspect-ratio: 1;
-    background: linear-gradient(45deg, var(--surface-hover), var(--border-color));
+    object-fit: cover;
     border-radius: 20px;
-    position: relative;
-    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease;
 }
 
-/* Dark overlay on image */
-.image-placeholder::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.5));
+.profile-img:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
 }
 
 /* Mobile Stack Layout */

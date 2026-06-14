@@ -1,5 +1,6 @@
 import React from 'react';
 import './About.css';
+import profileImg from '../assets/profile.jpg';
 
 const About = () => {
     return (
@@ -30,8 +31,7 @@ const About = () => {
 
                     {/* Profile Image Area */}
                     <div className="about-image">
-                        {/* Placeholder for user image */}
-                        <div className="image-placeholder"></div>
+                        <img src={profileImg} alt="Profile" className="profile-img" />
                     </div>
                 </div>
             </div>

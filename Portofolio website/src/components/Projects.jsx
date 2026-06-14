@@ -18,7 +18,6 @@ import unfoldStartMobile from '../assets/unfold-g-90.webm';
 import unfoldEndMobile from '../assets/unfold-g-90-reverse.webm';
 import riverRacerTitle from '../assets/river-racer-title.png';
 import riverRacerGameplay from '../assets/river-racer-gameplay.png';
-import promotionalVideo from '../assets/pp video.mp4';
 
 // --- PROJECT DATA ---
 const projects = [
@@ -135,7 +134,7 @@ const projects = [
       {
         title: 'Car Advertisement Ad',
         src: '#f59e0b',
-        extraImages: [promotionalVideo],
+        extraImages: ['https://api.frp2.ovp.kaltura.com/p/10345/embedPlaykitJs/uiconf_id/23456908?iframeembed=true&entry_id=0_jqz24mex&config[provider]={"widgetId":"0_45sdsy6b"}'],
         description: 'This short-form promotional video transforms raw, commercial-grade footage into a cinematic, fast-paced automotive edit. Designed specifically to capture attention on modern social media platforms, the project showcases advanced post-production techniques and a keen eye for visual storytelling. The edit features precise rhythmic pacing, where sudden speed ramps and dynamic cuts are tightly synchronized to a custom audio mix of heavy bass and mechanical exhaust notes.',
         longDescription: 'By utilizing complex environmental tree masks and vibrant color grading, the vehicle is cleanly isolated from distracting backgrounds, maintaining a sharp and professional visual hierarchy. From the initial organization of dozens of fragmented takes to the implementation of dynamic typography and multi-layered sound design, this piece demonstrates a complete, end-to-end video editing pipeline engineered for maximum viewer retention.'
       }

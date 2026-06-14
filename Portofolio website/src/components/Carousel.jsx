@@ -34,12 +34,25 @@ const Carousel = ({ images, onSlideChange, initialIndex = 0 }) => {
             <div className="carousel-inner" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
                 {images.map((img, index) => {
                     const src = typeof img === 'object' ? img.src : img;
-                    const isVideo = (typeof img === 'object' && img.isVideo) || 
-                                    (typeof src === 'string' && (src.endsWith('.mp4') || src.endsWith('.webm') || src.endsWith('.ogg')));
+                    const isIframe = (typeof img === 'object' && img.isIframe) || 
+                                     (typeof src === 'string' && (src.includes('kaltura.com') || src.includes('youtube.com') || src.includes('vimeo.com') || src.includes('iframeplaykit') || src.includes('iframeembed') || src.includes('embed')));
+                    const isVideo = !isIframe && ((typeof img === 'object' && img.isVideo) || 
+                                    (typeof src === 'string' && (src.endsWith('.mp4') || src.endsWith('.webm') || src.endsWith('.ogg'))));
                     
                     return (
                         <div key={index} className="carousel-item">
-                            {isVideo ? (
+                            {isIframe ? (
+                                <iframe 
+                                    src={src} 
+                                    title={typeof img === 'object' && img.title ? img.title : "video"}
+                                    style={{ width: '100%', height: '100%', minHeight: '400px', border: 0, background: '#000' }}
+                                    allowFullScreen
+                                    webkitallowfullscreen="true"
+                                    mozallowfullscreen="true"
+                                    allow="autoplay *; fullscreen *; encrypted-media *"
+                                    sandbox="allow-downloads allow-forms allow-same-origin allow-scripts allow-top-navigation allow-pointer-lock allow-popups allow-modals allow-orientation-lock allow-popups-to-escape-sandbox allow-presentation allow-top-navigation-by-user-activation"
+                                />
+                            ) : isVideo ? (
                                 <video 
                                     src={src} 
                                     controls 

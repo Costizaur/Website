@@ -88,12 +88,12 @@ const projects = [
         longDescription: 'This site is coded with reusable React components, custom responsive CSS animations, and macOS desktop mimicking file navigations.'
       },
       {
-        title: 'Streamlit Finance Dashboard',
+        title: 'Live Finance Dashboard',
         src: '#2563eb',
-        description: 'A live financial dashboard built with Python and Streamlit, connecting to a Google Sheets database to pull, process, and display live investment metrics and signals.',
-        longDescription: 'Leverages the GSheetsConnection API to read real-time scorecards, automatically evaluates indicator strengths, and renders dynamic, color-coded Plotly gauge widgets representing strong buy/buy/hold/sell signals.',
+        description: 'This project bridges the gap between raw data and actionable insights. Built with Python, Streamlit, and Plotly, this web application connects securely to a live Google Sheet to track multi-month financial momentum.',
+        longDescription: 'By applying UX research from professional analytics platforms, I designed a top-down visual hierarchy that automatically cleans complex data and presents immediate, readable strategy signals to the user.',
         tags: ['Python', 'Streamlit', 'Plotly', 'Google Sheets API'],
-        liveLink: 'https://share.streamlit.io'
+        liveLink: 'https://financedashboard-lbekvafqjqn6jsvtrtgn6b.streamlit.app/'
       }
     ],
     folderImages: ['#ec4899', '#fbcfe8', '#fce7f3'],

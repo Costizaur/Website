@@ -135,19 +135,12 @@ const projects = [
       {
         title: 'Car Advertisement Ad',
         src: '#f59e0b',
-        extraImages: ['#f59e0b', promotionalVideo],
+        extraImages: [promotionalVideo],
         description: 'This short-form promotional video transforms raw, commercial-grade footage into a cinematic, fast-paced automotive edit. Designed specifically to capture attention on modern social media platforms, the project showcases advanced post-production techniques and a keen eye for visual storytelling. The edit features precise rhythmic pacing, where sudden speed ramps and dynamic cuts are tightly synchronized to a custom audio mix of heavy bass and mechanical exhaust notes.',
         longDescription: 'By utilizing complex environmental tree masks and vibrant color grading, the vehicle is cleanly isolated from distracting backgrounds, maintaining a sharp and professional visual hierarchy. From the initial organization of dozens of fragmented takes to the implementation of dynamic typography and multi-layered sound design, this piece demonstrates a complete, end-to-end video editing pipeline engineered for maximum viewer retention.'
-      },
-      {
-        title: 'Promotional Video',
-        src: '#fbbf24',
-        extraImages: ['#fbbf24', '/promotional-video.mp4'],
-        description: 'A promotional branding and marketing video utilizing motion graphics and professional post-production workflows.',
-        longDescription: 'Video showcase exhibiting brand values, product highlights, and cinematic cuts.'
       }
     ],
-    folderImages: ['#f59e0b', '#fbbf24'],
+    folderImages: ['#f59e0b'],
     longDescription: 'Video editing, storytelling, and digital marketing materials.'
   }
 ];

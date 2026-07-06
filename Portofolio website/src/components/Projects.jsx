@@ -124,6 +124,7 @@ const projects = [
     folderImages: ['#10b981', riverRacerTitle],
     longDescription: 'Engaging interactive mechanics and local multiplayer web games.'
   },
+  /* Hidden for now — Video Production folder
   {
     id: 4,
     title: 'Video Production',
@@ -143,6 +144,7 @@ const projects = [
     folderImages: ['#f59e0b'],
     longDescription: 'Video editing, storytelling, and digital marketing materials.'
   }
+  */
 ];
 
 

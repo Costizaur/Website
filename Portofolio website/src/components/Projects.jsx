@@ -19,6 +19,8 @@ import unfoldEndMobile from '../assets/unfold-g-90-reverse.webm';
 import riverRacerTitle from '../assets/river-racer-title.png';
 import riverRacerGameplay from '../assets/river-racer-gameplay.png';
 import financeDashboard from '../assets/finance-dashboard.png';
+import streamlit from '../assets/streamlit.png';
+import peerjs from '../assets/peerjs.png';
 
 // --- PROJECT DATA ---
 const projects = [
@@ -97,7 +99,7 @@ const projects = [
         liveLink: 'https://financedashboard-lbekvafqjqn6jsvtrtgn6b.streamlit.app/'
       }
     ],
-    folderImages: ['#ec4899', '#fbcfe8', '#fce7f3'],
+    folderImages: [streamlit, figma],
     longDescription: 'Responsive and dynamic web applications built with modern frontend tools.'
   },
   {
@@ -121,7 +123,7 @@ const projects = [
         gameLink: '/game/index.html'
       }
     ],
-    folderImages: ['#10b981', riverRacerTitle],
+    folderImages: [riverRacerTitle, peerjs],
     longDescription: 'Engaging interactive mechanics and local multiplayer web games.'
   },
   /* Hidden for now — Video Production folder

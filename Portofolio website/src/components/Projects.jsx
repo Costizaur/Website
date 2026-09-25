@@ -20,7 +20,12 @@ import riverRacerTitle from '../assets/river-racer-title.png';
 import riverRacerGameplay from '../assets/river-racer-gameplay.png';
 import financeDashboard from '../assets/finance-dashboard.png';
 import streamlit from '../assets/streamlit.png';
-import peerjs from '../assets/peerjs.png';
+import musterMenu from '../assets/muster-menu.jpg';
+import musterPhase from '../assets/muster-muster-phase.jpg';
+import musterLineup from '../assets/muster-lineup.jpg';
+import musterBattle from '../assets/muster-battle.jpg';
+import musterHowToPlay from '../assets/muster-how-to-play.jpg';
+import musterPhone from '../assets/muster-phone.jpg';
 
 // --- PROJECT DATA ---
 const projects = [
@@ -104,27 +109,53 @@ const projects = [
   },
   {
     id: 3,
-    title: 'Game Development',
-    description: 'Interactivity, multiplayer systems, and game mechanics built using p5.js and PeerJS.',
-    tags: ['p5.js', 'PeerJS', 'Games'],
+    title: 'Game Design',
+    description: 'Games designed around meaningful decisions, clear feedback and fair balance, from a dice-driven strategy duel to phone-controlled party games.',
+    tags: ['Game Design', 'Systems', 'Balancing', 'Playtesting'],
     link: '#',
     color: '#10b981', // Emerald
     images: [
       {
+        title: 'Muster',
+        src: musterMenu,
+        extraImages: [musterMenu, musterPhase, musterLineup, musterBattle, musterHowToPlay, musterPhone],
+        description: 'A 5-minute, two-player strategy duel. Each turn you roll three dice and spend them on six actions to grow your economy and recruit an army, then secretly order your troops for a battle where counters and wounds decide who holds the line.',
+        longDescription: 'My goal was a short match where every die is a real decision and no single strategy wins. Dice work like workers, a four-unit counter cycle keeps every unit useful, hidden armies make scouting and reading your opponent pay off, and I balanced the numbers by simulating thousands of bot matches. Playable in the browser on desktop and phone.',
+        tags: ['Game Design', 'Systems Design', 'Balancing', 'Playtesting'],
+        tools: ['Unity', 'C#', 'Figma', 'Excel'],
+        gameLink: '/muster/index.html',
+        unfoldVideoStart: unfoldStart,
+        unfoldVideoEnd: unfoldEnd,
+        unfoldVideoStartMobile: unfoldStartMobile,
+        unfoldVideoEndMobile: unfoldEndMobile,
+        unfoldText: [
+          { title: "Process", items: ["Set the design goals: a full match in about 5 minutes, every die a meaningful choice, and no dominant strategy", "Defined the core loop: roll, assign dice, build an army, line up in secret, battle", "Kept every tunable number in one config and an Excel balance model, so rules could change without rewriting code"] },
+          { title: "Concept", items: ["Dice as workers: each action needs a certain roll, so even a 1 is useful (Scouting needs a 1 or 2)", "A four-unit counter cycle (Knight → Ranger → Mage → Barbarian) so no unit is simply the best", "Hidden armies: opponents only see your unit count, which makes Scout and Sabotage worth spending a die on"] },
+          { title: "Design", items: ["Two resources with hard caps and use-it-or-lose-it dice, so hoarding never beats spending", "Attrition battles: winners carry their wounds into the next duel, so one strong unit can't carry a whole army", "Designed a chunky tabletop UI in Figma, then adapted it into a landscape phone layout for playtesting"] },
+          { title: "Test & Decide", items: ["Built bots for four strategies and simulated about 24,000 matches to measure win rates", "Balanced (67%), elite (61%) and counter (58%) play all stay viable; the attrition rule and the full counter cycle stop 'go elite' from dominating", "Kept all-Barbarian spam weak (15%) as a deliberate trap, and gave Red +1 starting gold to offset Blue moving first"] }
+        ]
+      },
+      {
         title: 'River Racer',
-        description: 'A retro-style local multiplayer racing game. Use your smartphone as a controller to navigate dangerous waters, avoid obstacles, and outlast your friends.',
+        description: 'A local multiplayer racing game where your phone is the controller. Scan a QR code, steer down the river, dodge obstacles and outlast your friends.',
+        longDescription: 'Designed for instant, social play: joining takes one scan, and steering uses a single left-right axis so anyone can play within seconds. Hitting an obstacle stuns you, knocks you back and buzzes your phone, so every mistake is felt. Fall behind the screen for too long and you are out, which turns every collision into a comeback moment for the other player.',
+        tags: ['Game Design', 'Local Multiplayer', 'Phone Controls'],
+        tools: ['p5.js', 'PeerJS', 'JavaScript'],
         gameLink: '/game2/index.html',
         src: riverRacerTitle,
         extraImages: [riverRacerTitle, riverRacerGameplay]
       },
       {
-        title: 'PeerJS Game',
-        description: 'A multiplayer game experiment leveraging PeerJS for direct browser-to-browser connections.',
+        title: 'Duck Shoot',
+        description: 'A light-gun style shooting game played with your phone: tilt to aim the crosshair, hit the big red Fire button, and keep up as the ducks fly faster every wave.',
+        longDescription: 'An experiment in motion controls. I wanted the phone to feel like a physical toy gun, so aiming follows the tilt of the phone and every shot flashes the screen. A new wave every 500 points speeds the ducks up, so the challenge keeps climbing as your aim improves.',
+        tags: ['Game Design', 'Motion Controls', 'Phone Controls'],
+        tools: ['p5.js', 'PeerJS', 'JavaScript'],
         gameLink: '/game/index.html'
       }
     ],
-    folderImages: [riverRacerTitle, peerjs],
-    longDescription: 'Engaging interactive mechanics and local multiplayer web games.'
+    folderImages: [musterMenu, riverRacerTitle], // Icons shown on the closed folder
+    longDescription: 'Games where I led the design: core loops, rules, player feedback and balancing, prototyped in Unity and p5.js.'
   },
   /* Hidden for now — Video Production folder
   {
@@ -190,11 +221,14 @@ const Projects = () => {
       scopedImages = [selectedItem];
     }
 
-    // Create a temporary object for the Modal to read
+    // Create a temporary object for the Modal to read (item fields override the folder's)
     const scopedProject = {
       ...project,
       title: selectedItem.title || project.title,
       description: selectedItem.description || project.description,
+      longDescription: selectedItem.longDescription || project.longDescription,
+      tags: selectedItem.tags || project.tags,
+      tools: selectedItem.tools || project.tools,
       images: scopedImages,
       designLink: selectedItem.designLink,
       gameLink: selectedItem.gameLink,

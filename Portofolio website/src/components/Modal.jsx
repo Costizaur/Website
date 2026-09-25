@@ -172,7 +172,7 @@ const Modal = ({ project, onClose, onBack }) => {
 
                             <div className="modal-long-description">
                                 <p>{project.longDescription}</p>
-                                <p>Tools used: {project.tags.join(', ')}</p>
+                                <p>Tools used: {(project.tools || project.tags).join(', ')}</p>
                             </div>
 
                             {/* External Links */}

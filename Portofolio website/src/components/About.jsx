@@ -35,7 +35,7 @@ const About = () => {
                             I'm a student working across game design, UI/UX and front-end development. I care most about the first few seconds: can someone figure out what I made, and do they want to keep going?
                         </p>
                         <p>
-                            I like decisions backed by players and data. For Muster I balanced the rules by simulating around 24,000 bot matches. For Roomerr I A/B tested two swipe directions before choosing one.
+                            I like decisions backed by players and data. For Muster I balanced the rules by simulating around 24,000 bot matches. For ShiftPro I tested each prototype with real people and fixed what they struggled with.
                         </p>
                     </div>
 

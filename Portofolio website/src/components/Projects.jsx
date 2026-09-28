@@ -9,9 +9,9 @@ import './Projects.css';
 
 // Import assets (Images/Videos)
 import calorieApp from '../assets/calorie-app.png';
-import roomerrLogo from '../assets/roomerr-logo.png';
-import roomerrScreens1 from '../assets/roomerr-screens-1.png';
-import roomerrScreens2 from '../assets/roomerr-screens-2.png';
+import shiftProLoFi from '../assets/shiftpro-1-lofi.jpg';
+import shiftProHiFi from '../assets/shiftpro-2-hifi.jpg';
+import shiftProFinal from '../assets/shiftpro-3-final.jpg';
 import unfoldStart from '../assets/unfold-g.webm';
 import unfoldEnd from '../assets/unfold-g-reverse.webm';
 import unfoldStartMobile from '../assets/unfold-g-90.webm';
@@ -36,7 +36,7 @@ import musterHowToPlay from '../assets/muster-how-to-play.jpg';
 import musterPhone from '../assets/muster-phone.jpg';
 
 // App icons shown in the Finder and on the folder papers
-import iconRoomerr from '../assets/icons/roomerr.png';
+import iconShiftPro from '../assets/icons/shiftpro.png';
 import iconCalorie from '../assets/icons/calorie-app.png';
 import iconFinanceDesign from '../assets/icons/finance-design.png';
 import iconFinanceLive from '../assets/icons/finance-live.png';
@@ -60,21 +60,24 @@ const projects = [
     color: '#ff7a6b', // Coral
     images: [
       {
-        title: 'Roomerr',
-        icon: iconRoomerr,
-        src: roomerrLogo,
-        extraImages: [roomerrScreens1, roomerrScreens2],
-        designLink: 'https://www.figma.com/proto/GsGKhpn6RRXChjF1Ux9aot/Untitled?page-id=0%3A1&node-id=136-1722&p=f&viewport=-7268%2C-3208%2C0.66&t=e9NU9ARW2bsyHmj4-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=136%3A1722',
-        description: 'I built a high-fidelity app prototype in Figma based on an Instagram-style vertical swipe, translating familiar social media interaction patterns into a student matching experience.',
+        title: 'ShiftPro',
+        icon: iconShiftPro,
+        src: shiftProLoFi,
+        extraImages: [shiftProLoFi, shiftProHiFi, shiftProFinal],
+        designLink: 'https://www.figma.com/proto/iy2G6HL5QwJBaxSke646jH/Design-Thinking?page-id=0%3A1&node-id=120-2&viewport=278%2C-367%2C0.18&t=db2KuUR0KwXbojhS-1&scaling=scale-down&content-scaling=fixed&starting-point-node-id=120%3A2',
+        description: 'At Primark, where I work, the schedule is a printed sheet in a hallway, so swapping a shift comes down to luck. I interviewed a colleague and an HR assistant, then designed ShiftPro: a mobile app where staff can check their shifts anywhere, swap them and read company news.',
+        longDescription: 'A Design Thinking project that went from interviews to three rounds of prototypes: grey lo-fi wireframes, a hi-fi version and a final version. I tested each round (3 people on the lo-fi, 9 on the hi-fi) and let the feedback decide what changed next.',
+        tags: ['Figma', 'UI/UX', 'User Research', 'Usability Testing'],
+        tools: ['Figma', 'Figma Make'],
         unfoldVideoStart: unfoldStart,
         unfoldVideoEnd: unfoldEnd,
         unfoldVideoStartMobile: unfoldStartMobile,
         unfoldVideoEndMobile: unfoldEndMobile,
         unfoldText: [
-          { title: "Process", items: ["Analyzed student housing platforms to identify usability and trust issues", "Studied popular social media apps to understand familiar interaction patterns", "Defined core needs: speed, clarity, and compatibility"] },
-          { title: "Concept", items: ["Explored swipe-based matching to reduce decision fatigue", "Defined key matching criteria (budget, location, lifestyle)", "Created simple, fast user flows"] },
-          { title: "Design", items: ["Designed low- to high-fidelity prototypes", "Built a mobile-first, card-based interface", "Focused on clear, scannable profile information"] },
-          { title: "Test & Decide", items: ["A/B tested: Instagram-like vertical swipe vs Tinder-like horizontal swipe", "Chose vertical swiping for its familiarity and ease of use", "Finalized a matching experience optimized for quick browsing"] }
+          { title: "Process", items: ["Picked a real problem from my job: the Primark schedule only exists as a printed sheet in the hallway", "Interviewed a colleague and an HR assistant to hear both sides of the story", "Both blamed the paper: staff can't check or swap shifts easily, and HR reprints it every week"] },
+          { title: "Concept", items: ["Tried Deputy, Planday and Quinyx to see how other apps handle swaps and time off", "A customer journey map showed that swapping a shift is the worst moment, so it became the priority", "Planned a simple app: log in, then one tap to your schedule, swaps, sick reports and news"] },
+          { title: "Design", items: ["Started with grey lo-fi wireframes for one task: change your shift", "Moved to hi-fi with a logo, Primark-inspired blue and shifts grouped by day on clear cards", "Split the unclear 'swap' button into Request (post your shift) and Pick Up (take someone else's)"] },
+          { title: "Test & Decide", items: ["Lo-fi, 3 tests: the screens were clear, but changing the shift was hard and the layout needed grouping and colour", "Hi-fi, 9 tests: people found it simple and familiar, and 3 of them asked for a way to look ahead by date", "Final version: added a calendar view, moved the profile to the top and made faded text fully readable"] }
         ]
       },
       {
@@ -103,7 +106,7 @@ const projects = [
         longDescription: 'This UI/UX project showcases high-fidelity mockups of a comprehensive financial tracking application, using polished glassmorphism effects, consistent layout grids, and visual hierarchy optimized for readability.'
       }
     ],
-    folderImages: [iconRoomerr, iconCalorie, iconFinanceDesign], // Icons that pop out of the folder
+    folderImages: [iconShiftPro, iconCalorie, iconFinanceDesign], // Icons that pop out of the folder
     longDescription: 'A collection of my user experience research and user interface design works.'
   },
   {

@@ -9,9 +9,10 @@ import './Projects.css';
 
 // Import assets (Images/Videos)
 import calorieApp from '../assets/calorie-app.png';
-import shiftProLoFi from '../assets/shiftpro-1-lofi.jpg';
-import shiftProHiFi from '../assets/shiftpro-2-hifi.jpg';
-import shiftProFinal from '../assets/shiftpro-3-final.jpg';
+import shiftProFinal from '../assets/shiftpro-final.jpg';
+import shiftProResearch from '../assets/shiftpro-1-research.jpg';
+import shiftProLoFi from '../assets/shiftpro-2-lofi.jpg';
+import shiftProHiFi from '../assets/shiftpro-3-hifi.jpg';
 import unfoldStart from '../assets/unfold-g.webm';
 import unfoldEnd from '../assets/unfold-g-reverse.webm';
 import unfoldStartMobile from '../assets/unfold-g-90.webm';
@@ -62,8 +63,8 @@ const projects = [
       {
         title: 'ShiftPro',
         icon: iconShiftPro,
-        src: shiftProLoFi,
-        extraImages: [shiftProLoFi, shiftProHiFi, shiftProFinal],
+        src: shiftProFinal,
+        extraImages: [shiftProFinal, shiftProResearch, shiftProLoFi, shiftProHiFi],
         designLink: 'https://www.figma.com/proto/iy2G6HL5QwJBaxSke646jH/Design-Thinking?page-id=0%3A1&node-id=120-2&viewport=278%2C-367%2C0.18&t=db2KuUR0KwXbojhS-1&scaling=scale-down&content-scaling=fixed&starting-point-node-id=120%3A2',
         description: 'At Primark, where I work, the schedule is a printed sheet in a hallway, so swapping a shift comes down to luck. I interviewed a colleague and an HR assistant, then designed ShiftPro: a mobile app where staff can check their shifts anywhere, swap them and read company news.',
         longDescription: 'A Design Thinking project that went from interviews to three rounds of prototypes: grey lo-fi wireframes, a hi-fi version and a final version. I tested each round (3 people on the lo-fi, 9 on the hi-fi) and let the feedback decide what changed next.',

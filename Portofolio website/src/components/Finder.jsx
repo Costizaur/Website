@@ -72,8 +72,10 @@ const Finder = ({ categories, initialCategory, onClose, onSelectProject }) => {
                                     onClick={() => onSelectProject(activeCategory, index)}
                                 >
                                     <div className="finder-item-icon">
-                                        {/* Show Image Thumbnail or Generic Folder Icon */}
-                                        {typeof item === 'string' || !item.src || (typeof item.src === 'string' && item.src.startsWith('#')) ? (
+                                        {/* App icon if the project has one, else a thumbnail, else a generic folder */}
+                                        {item.icon ? (
+                                            <img src={item.icon} alt="" className="app-icon" />
+                                        ) : typeof item === 'string' || !item.src || (typeof item.src === 'string' && item.src.startsWith('#')) ? (
                                             <div 
                                                 className="folder-shape" 
                                                 style={{ 

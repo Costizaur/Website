@@ -120,9 +120,18 @@
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
     <script src="../shared/link.js"></script>
+    <script src="../shared/mobile.js"></script>
+    <link rel="manifest" href="/play/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/play/icon-180.png">
+    <link rel="icon" href="/play/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Costin's Games">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
 </head>
 
 <body class="controller">
+    <div class="app">
     <div class="ctrl-bar">
         <div class="ctrl-player"><i></i><span id="name">…</span></div>
         <div id="status-line">River Racer</div>
@@ -148,6 +157,7 @@
     </div>
 
     <div class="warn hidden" id="warn"></div>
+    </div>
 
     <!-- Code entry -->
     <div class="ctrl-screen hidden" id="enter">

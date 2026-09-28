@@ -30,9 +30,6 @@
         }
 
         body {
-            height: 100dvh;
-            display: flex;
-            flex-direction: column;
             background: #000;
             color: var(--white);
             font-family: 'Press Start 2P', monospace;
@@ -43,6 +40,21 @@
             -webkit-tap-highlight-color: transparent;
             overscroll-behavior: none;
             overflow: hidden;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        /* UI pinned to the screen; the page behind it may scroll (iPhone fullscreen trick) */
+        .app {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            touch-action: none;
+        }
+
+        button,
+        input {
+            touch-action: manipulation;
         }
 
         button {
@@ -281,9 +293,18 @@
     <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
     <script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
     <script src="../shared/link.js"></script>
+    <script src="../shared/mobile.js"></script>
+    <link rel="manifest" href="/play/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/play/icon-180.png">
+    <link rel="icon" href="/play/icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Costin's Games">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
 </head>
 
 <body>
+    <div class="app">
     <div class="bar">
         <div class="tag"><i></i><span id="name">P?</span></div>
         <div class="score" id="score">000000</div>
@@ -302,6 +323,7 @@
         <button class="pbtn" id="start-btn">START</button>
         <button class="pbtn dark" id="motion-btn">AIM WITH MOTION</button>
         <button class="pbtn dark hidden" id="center-btn">RE-CENTER</button>
+    </div>
     </div>
 
     <!-- Overlays -->
@@ -474,6 +496,9 @@
 
         async function enableMotion() {
             keepAwake();
+            // Phones only share motion sensors with https pages
+            if (!window.isSecureContext) { usePad('MOTION AIMING NEEDS THE HTTPS SITE'); return; }
+            if (typeof DeviceOrientationEvent === 'undefined') { usePad('NO MOTION SENSOR FOUND'); return; }
             try {
                 if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
                     const res = await DeviceOrientationEvent.requestPermission();
@@ -526,7 +551,7 @@
         ['pointerup', 'pointercancel'].forEach(ev => pad.addEventListener(ev, () => { dragging = null; sendAim(true); }));
 
         // Phones without a permission prompt can start motion aiming straight away
-        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission !== 'function') {
+        if (window.isSecureContext && typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission !== 'function') {
             enableMotion();
         }
     </script>

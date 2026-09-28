@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './Contact.css';
 
-const EMAIL = 'costin.sarghiuta@gmail.com';
+const EMAIL = 'sarghiuta.costin@gmail.com';
 
 const Contact = () => {
     const [copied, setCopied] = useState(false);

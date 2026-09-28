@@ -4,3 +4,17 @@ dist/
 Portofolio website/node_modules/
 Portofolio website/dist/
 Portofolio website/.vite/
+
+# macOS folder metadata (can reveal local folder names)
+.DS_Store
+**/.DS_Store
+
+# Local HTTPS certificates for phone testing
+.certs/
+**/.certs/
+
+# Environment files and private keys, in case any are added later
+.env
+.env.*
+*.pem
+*.key

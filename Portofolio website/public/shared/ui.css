@@ -479,15 +479,26 @@ canvas {
    --------------------------------------------------------------- */
 body.controller {
     --pc: var(--gold);
-    height: 100%;
-    height: 100dvh;
-    display: flex;
-    flex-direction: column;
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
     overscroll-behavior: none;
+    -webkit-text-size-adjust: 100%;
+}
+
+/* The controller UI is pinned to the screen; the page behind it may scroll (iPhone fullscreen trick) */
+.app {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    touch-action: none;
+}
+
+body.controller button,
+body.controller input {
+    touch-action: manipulation;
 }
 
 .ctrl-bar {

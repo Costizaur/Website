@@ -8,7 +8,6 @@ import Featured from './Featured';
 import './Projects.css';
 
 // Import assets (Images/Videos)
-import figma from '../assets/figma.png';
 import calorieApp from '../assets/calorie-app.png';
 import roomerrLogo from '../assets/roomerr-logo.png';
 import roomerrScreens1 from '../assets/roomerr-screens-1.png';
@@ -17,16 +16,34 @@ import unfoldStart from '../assets/unfold-g.webm';
 import unfoldEnd from '../assets/unfold-g-reverse.webm';
 import unfoldStartMobile from '../assets/unfold-g-90.webm';
 import unfoldEndMobile from '../assets/unfold-g-90-reverse.webm';
-import riverRacerTitle from '../assets/river-racer-title.png';
-import riverRacerGameplay from '../assets/river-racer-gameplay.png';
+import riverRacerRace from '../assets/river-racer-race.jpg';
+import riverRacerLobby from '../assets/river-racer-lobby.jpg';
+import riverRacerController from '../assets/river-racer-controller.jpg';
+import riverRacerResults from '../assets/river-racer-results.jpg';
+import duckShootPlay from '../assets/duck-shoot-play.jpg';
+import duckShootTitle from '../assets/duck-shoot-title.jpg';
+import duckShootFlyAway from '../assets/duck-shoot-flyaway.jpg';
+import duckShootController from '../assets/duck-shoot-controller.jpg';
+import portfolioHero from '../assets/portfolio-hero.jpg';
+import portfolioAbout from '../assets/portfolio-about.jpg';
+import portfolioWork from '../assets/portfolio-work.jpg';
 import financeDashboard from '../assets/finance-dashboard.png';
-import streamlit from '../assets/streamlit.png';
 import musterMenu from '../assets/muster-menu.jpg';
 import musterPhase from '../assets/muster-muster-phase.jpg';
 import musterLineup from '../assets/muster-lineup.jpg';
 import musterBattle from '../assets/muster-battle.jpg';
 import musterHowToPlay from '../assets/muster-how-to-play.jpg';
 import musterPhone from '../assets/muster-phone.jpg';
+
+// App icons shown in the Finder and on the folder papers
+import iconRoomerr from '../assets/icons/roomerr.png';
+import iconCalorie from '../assets/icons/calorie-app.png';
+import iconFinanceDesign from '../assets/icons/finance-design.png';
+import iconFinanceLive from '../assets/icons/finance-live.png';
+import iconPortfolio from '../assets/icons/portfolio.png';
+import iconMuster from '../assets/icons/muster.png';
+import iconRiverRacer from '../assets/icons/river-racer.png';
+import iconDuckShoot from '../assets/icons/duck-shoot.png';
 
 // --- PROJECT DATA ---
 const projects = [
@@ -40,6 +57,7 @@ const projects = [
     images: [
       {
         title: 'Roomerr',
+        icon: iconRoomerr,
         src: roomerrLogo,
         extraImages: [roomerrScreens1, roomerrScreens2],
         designLink: 'https://www.figma.com/proto/GsGKhpn6RRXChjF1Ux9aot/Untitled?page-id=0%3A1&node-id=136-1722&p=f&viewport=-7268%2C-3208%2C0.66&t=e9NU9ARW2bsyHmj4-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=136%3A1722',
@@ -57,6 +75,7 @@ const projects = [
       },
       {
         title: 'Calorie App',
+        icon: iconCalorie,
         src: calorieApp,
         description: 'This prototype exemplifies how I would gamify a simple calorie-tracking app to motivate people to continue their journey by adding rankings and badges.',
         designLink: 'https://www.figma.com/proto/hQbNFs1uEQt65pwNjoC4nO/Untitled?page-id=0%3A1&node-id=1-2&viewport=-155%2C334%2C0.51&t=tpcoy8Bx0x2wpUVq-1&scaling=scale-down&content-scaling=fixed&starting-point-node-id=1%3A2',
@@ -73,13 +92,14 @@ const projects = [
       },
       {
         title: 'Finance Dashboard (Design)',
+        icon: iconFinanceDesign,
         src: financeDashboard,
         description: 'A premium, modern dark-mode financial dashboard prototype designed in Figma. Features detailed holdings charts, asset allocation graphs, and custom UI components.',
         designLink: 'https://www.figma.com/',
         longDescription: 'This UI/UX project showcases high-fidelity mockups of a comprehensive financial tracking application, using polished glassmorphism effects, consistent layout grids, and visual hierarchy optimized for readability.'
       }
     ],
-    folderImages: [roomerrLogo, calorieApp], // Icons shown on the closed folder
+    folderImages: [iconRoomerr, iconCalorie, iconFinanceDesign], // Icons that pop out of the folder
     longDescription: 'A collection of my user experience research and user interface design works.'
   },
   {
@@ -92,12 +112,15 @@ const projects = [
     images: [
       {
         title: 'Portfolio Website',
-        src: figma,
+        icon: iconPortfolio,
+        src: portfolioHero,
+        extraImages: [portfolioHero, portfolioAbout, portfolioWork],
         description: 'My custom developer portfolio website built using React, CSS, and interactive components like macOS-style windows and animations.',
         longDescription: 'This site is coded with reusable React components, custom responsive CSS animations, and macOS desktop mimicking file navigations.'
       },
       {
         title: 'Live Finance Dashboard',
+        icon: iconFinanceLive,
         src: financeDashboard,
         description: 'This project bridges the gap between raw data and actionable insights. Built with Python, Streamlit, and Plotly, this web application connects securely to a live Google Sheet to track multi-month financial momentum.',
         longDescription: 'By applying UX research from professional analytics platforms, I designed a top-down visual hierarchy that automatically cleans complex data and presents immediate, readable strategy signals to the user.',
@@ -105,7 +128,7 @@ const projects = [
         liveLink: 'https://financedashboard-lbekvafqjqn6jsvtrtgn6b.streamlit.app/'
       }
     ],
-    folderImages: [streamlit, figma],
+    folderImages: [iconPortfolio, iconFinanceLive],
     longDescription: 'Responsive and dynamic web applications built with modern frontend tools.'
   },
   {
@@ -118,6 +141,7 @@ const projects = [
     images: [
       {
         title: 'Muster',
+        icon: iconMuster,
         src: musterMenu,
         extraImages: [musterMenu, musterPhase, musterLineup, musterBattle, musterHowToPlay, musterPhone],
         description: 'A 5-minute, two-player strategy duel. Each turn you roll three dice and spend them on six actions to grow your economy and recruit an army, then secretly order your troops for a battle where counters and wounds decide who holds the line.',
@@ -143,8 +167,9 @@ const projects = [
         tags: ['Game Design', 'Local Multiplayer', 'Phone Controls'],
         tools: ['p5.js', 'WebRTC', 'MQTT', 'JavaScript'],
         gameLink: '/game2/index.html',
-        src: riverRacerTitle,
-        extraImages: [riverRacerTitle, riverRacerGameplay]
+        icon: iconRiverRacer,
+        src: riverRacerRace,
+        extraImages: [riverRacerRace, riverRacerLobby, riverRacerController, riverRacerResults]
       },
       {
         title: 'Duck Shoot',
@@ -152,10 +177,13 @@ const projects = [
         longDescription: 'An experiment in motion controls and nostalgia. I wanted the phone to feel like the plastic light gun I grew up with, so you aim by pointing it like a remote and every shot blacks out the screen for a frame, just like the originals. The classic rules are all there: three shots per duck, a ten-duck hit counter, a quota to clear each round and ducks that fly away when you miss. Up to four phones can play at once, and a mouse works too.',
         tags: ['Game Design', 'Motion Controls', 'Phone Controls', 'Retro'],
         tools: ['p5.js', 'WebRTC', 'MQTT', 'JavaScript'],
-        gameLink: '/game/index.html'
+        gameLink: '/game/index.html',
+        icon: iconDuckShoot,
+        src: duckShootPlay,
+        extraImages: [duckShootPlay, duckShootTitle, duckShootFlyAway, duckShootController]
       }
     ],
-    folderImages: [musterMenu, riverRacerTitle], // Icons shown on the closed folder
+    folderImages: [iconMuster, iconRiverRacer, iconDuckShoot], // Icons that pop out of the folder
     longDescription: 'Games where I led the design: core loops, rules, player feedback and balancing, prototyped in Unity and p5.js.'
   },
   /* Hidden for now — Video Production folder

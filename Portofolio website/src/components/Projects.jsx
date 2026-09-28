@@ -138,20 +138,20 @@ const projects = [
       },
       {
         title: 'River Racer',
-        description: 'A local multiplayer racing game where your phone is the controller. Scan a QR code, steer down the river, dodge obstacles and outlast your friends.',
-        longDescription: 'Designed for instant, social play: joining takes one scan, and steering uses a single left-right axis so anyone can play within seconds. Hitting an obstacle stuns you, knocks you back and buzzes your phone, so every mistake is felt. Fall behind the screen for too long and you are out, which turns every collision into a comeback moment for the other player.',
+        description: 'A local multiplayer racing game where your phone is the paddle. Scan a QR code, hold both sides to paddle, let go of one to turn, and race a friend down the river.',
+        longDescription: 'Designed for instant, social play: joining takes one scan or a four-letter code, and the whole control scheme is two buttons, so anyone can play within seconds. Hitting a rock or log stuns you, knocks you back and buzzes your phone, so every mistake is felt. Fall behind the screen for five seconds and you are out, which turns every collision into a comeback moment for the other player. Phones connect directly when the network allows it and fall back to a relay, so it works on school Wi-Fi and mobile data too.',
         tags: ['Game Design', 'Local Multiplayer', 'Phone Controls'],
-        tools: ['p5.js', 'PeerJS', 'JavaScript'],
+        tools: ['p5.js', 'WebRTC', 'MQTT', 'JavaScript'],
         gameLink: '/game2/index.html',
         src: riverRacerTitle,
         extraImages: [riverRacerTitle, riverRacerGameplay]
       },
       {
         title: 'Duck Shoot',
-        description: 'A light-gun style shooting game played with your phone: tilt to aim the crosshair, hit the big red Fire button, and keep up as the ducks fly faster every wave.',
-        longDescription: 'An experiment in motion controls. I wanted the phone to feel like a physical toy gun, so aiming follows the tilt of the phone and every shot flashes the screen. A new wave every 500 points speeds the ducks up, so the challenge keeps climbing as your aim improves.',
-        tags: ['Game Design', 'Motion Controls', 'Phone Controls'],
-        tools: ['p5.js', 'PeerJS', 'JavaScript'],
+        description: 'A tribute to the light-gun duck games on old home consoles, played with your phone as the gun: point it at the screen, hit the big red Fire button, and hit enough of the 10 ducks to clear each round.',
+        longDescription: 'An experiment in motion controls and nostalgia. I wanted the phone to feel like the plastic light gun I grew up with, so you aim by pointing it like a remote and every shot blacks out the screen for a frame, just like the originals. The classic rules are all there: three shots per duck, a ten-duck hit counter, a quota to clear each round and ducks that fly away when you miss. Up to four phones can play at once, and a mouse works too.',
+        tags: ['Game Design', 'Motion Controls', 'Phone Controls', 'Retro'],
+        tools: ['p5.js', 'WebRTC', 'MQTT', 'JavaScript'],
         gameLink: '/game/index.html'
       }
     ],

@@ -1,220 +1,533 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
-    <script src="https://unpkg.com/ml5@latest/dist/ml5.min.js"></script>
-    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <title>Duck Shoot · Controller</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        /* Dark Theme */
-        body {
+        :root {
+            --pc: #fca044;
+            --white: #fcfcfc;
+            --green: #80d010;
+            --red: #e40058;
+            --blue: #3cbcfc;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            overflow: hidden;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            background: #000;
+            color: var(--white);
+            font-family: 'Press Start 2P', monospace;
             touch-action: none;
-            background: #1a1a1a;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior: none;
+            overflow: hidden;
         }
 
-        /* Overlay for permissions/loading */
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 20;
-            text-align: center;
-            transition: opacity 0.3s;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-            font-weight: 300;
-            letter-spacing: 1px;
-        }
-
-        /* Standard Button */
-        .btn {
-            padding: 15px 30px;
-            font-size: 18px;
-            border: none;
-            border-radius: 50px;
+        button {
+            font: inherit;
+            color: inherit;
+            border: 0;
+            background: none;
             cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: bold;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #6ecca5 0%, #45b08c 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(110, 204, 165, 0.4);
+        .hidden {
+            display: none !important;
         }
 
-        .btn-primary:active {
-            transform: scale(0.95);
+        .pbtn {
+            padding: 14px 18px;
+            font-size: 12px;
+            background: var(--white);
+            color: #000;
+            box-shadow: inset -4px -4px 0 #a8a8a8, 0 0 0 4px #000, 0 0 0 7px var(--white);
+            margin: 7px;
         }
 
-        /* Main Game Interface */
-        #game-ui {
-            display: none;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
+        .pbtn:active {
+            box-shadow: inset 4px 4px 0 #a8a8a8, 0 0 0 4px #000, 0 0 0 7px var(--white);
         }
 
-        #status-bar {
-            height: 60px;
+        .pbtn.dark {
+            background: #000;
+            color: var(--white);
+            box-shadow: inset -4px -4px 0 #333, 0 0 0 4px var(--white);
+            margin: 4px;
+        }
+
+        /* Top bar */
+        .bar {
             display: flex;
             align-items: center;
-            justify-content: center;
-            background: #222;
-            border-bottom: 1px solid #333;
+            justify-content: space-between;
+            gap: 10px;
+            padding: max(14px, env(safe-area-inset-top)) 16px 14px;
+            border-bottom: 4px solid var(--green);
+            font-size: 12px;
+        }
+
+        .tag {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--pc);
             font-size: 14px;
-            color: #888;
         }
 
-        #shoot-area {
-            flex-grow: 1;
+        .tag i {
+            width: 14px;
+            height: 14px;
+            background: var(--pc);
+        }
+
+        .score {
+            color: var(--white);
+        }
+
+        .link {
+            font-size: 8px;
+            color: #777;
+        }
+
+        .link::before {
+            content: '■ ';
+            color: var(--green);
+        }
+
+        .link.lost::before {
+            color: var(--red);
+        }
+
+        /* Middle area: shells, messages, fire */
+        main {
+            flex: 1;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: space-evenly;
+            padding: 12px 16px;
+            gap: 12px;
             position: relative;
         }
 
-        /* Big Red Fire Button */
-        #shoot-btn {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%);
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(238, 82, 83, 0.4);
+        .shells {
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-size: 32px;
-            font-weight: bold;
-            color: white;
-            user-select: none;
-            cursor: pointer;
-            transition: all 0.1s;
+            gap: 10px;
+            font-size: 10px;
+            color: var(--blue);
         }
 
-        #shoot-btn:active {
-            transform: scale(0.9);
-            box-shadow: 0 5px 15px rgba(238, 82, 83, 0.6);
-            background: linear-gradient(135deg, #ee5253 0%, #ff6b6b 100%);
+        .shells i {
+            width: 12px;
+            height: 26px;
+            background: var(--pc);
+            box-shadow: inset 0 -8px 0 #a83800;
+        }
+
+        .shells i.used {
+            background: #222;
+            box-shadow: none;
+        }
+
+        .msg {
+            min-height: 34px;
+            font-size: 14px;
+            text-align: center;
+            line-height: 1.6;
+            color: var(--white);
+        }
+
+        .msg.hit {
+            color: var(--green);
+        }
+
+        .msg.bad {
+            color: var(--red);
+        }
+
+        #fire {
+            width: min(62vw, 42dvh, 280px);
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: var(--red);
+            color: var(--white);
+            font-size: 22px;
+            box-shadow: inset -10px -12px 0 #8a0030, 0 0 0 8px #000, 0 0 0 14px #333, 0 14px 0 14px #111;
+            transition: transform 0.05s;
+        }
+
+        #fire.pressed {
+            transform: scale(0.94);
+            box-shadow: inset 8px 10px 0 #8a0030, 0 0 0 8px #000, 0 0 0 14px #333, 0 8px 0 14px #111;
+        }
+
+        #fire:disabled {
+            filter: grayscale(0.8) brightness(0.5);
+        }
+
+        /* Drag-to-aim pad, used when the phone has no motion sensors */
+        #pad {
+            width: 100%;
+            flex: 1;
+            max-height: 34dvh;
+            border: 4px dashed #444;
+            display: grid;
+            place-items: center;
+            font-size: 10px;
+            color: #777;
+            text-align: center;
+            line-height: 1.8;
+        }
+
+        .bottom {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px max(14px, env(safe-area-inset-bottom));
+        }
+
+        .aim-note {
+            width: 100%;
+            text-align: center;
+            font-size: 8px;
+            color: #777;
+            line-height: 1.8;
+            margin-bottom: 4px;
+        }
+
+        /* Full-screen states: connecting, code entry, errors */
+        .screen {
+            position: fixed;
+            inset: 0;
+            z-index: 30;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 24px;
+            text-align: center;
+            background: #000;
+        }
+
+        .screen h1 {
+            font-size: 20px;
+            line-height: 1.5;
+            color: var(--pc);
+            font-weight: normal;
+        }
+
+        .screen p {
+            font-size: 10px;
+            line-height: 2;
+            color: #bbb;
+            max-width: 320px;
+        }
+
+        .dots::after {
+            content: '...';
+            animation: dots 1.2s steps(4) infinite;
+            display: inline-block;
+            width: 3ch;
+            text-align: left;
+            overflow: hidden;
+            vertical-align: bottom;
+        }
+
+        @keyframes dots {
+            0% { width: 0; }
+            100% { width: 4ch; }
+        }
+
+        .code-input {
+            width: 100%;
+            max-width: 280px;
+            padding: 16px;
+            background: #000;
+            border: 4px solid var(--white);
+            color: var(--pc);
+            font: inherit;
+            font-size: 30px;
+            letter-spacing: 10px;
+            text-align: center;
+            text-transform: uppercase;
+            outline: none;
         }
     </style>
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
+    <script src="../shared/link.js"></script>
 </head>
 
 <body>
-    <!-- Permission / Connection Screen -->
-    <div id="enable-overlay" class="overlay">
-        <h2 id="status-text">Connecting...</h2>
-        <button id="enable-btn" class="btn btn-primary" style="display:none;" onclick="enableTilt()">ENABLE
-            SENSORS</button>
+    <div class="bar">
+        <div class="tag"><i></i><span id="name">P?</span></div>
+        <div class="score" id="score">000000</div>
+        <div class="link" id="link">LINK</div>
     </div>
 
-    <!-- Active Controller UI -->
-    <div id="game-ui">
-        <div id="status-bar">CONNECTED • TILT TO AIM</div>
-        <div id="shoot-area">
-            <div id="shoot-btn" ontouchstart="shoot(event)" onmousedown="shoot(event)">FIRE</div>
-        </div>
+    <main>
+        <div class="shells" id="shells"><i></i><i></i><i></i><span>SHOT</span></div>
+        <div class="msg" id="msg">GET READY</div>
+        <div id="pad">DRAG HERE<br>TO AIM</div>
+        <button id="fire">FIRE</button>
+    </main>
+
+    <div class="bottom">
+        <div class="aim-note" id="aim-note">TAP AIM WITH MOTION TO POINT YOUR PHONE, OR DRAG ON THE PAD</div>
+        <button class="pbtn" id="start-btn">START</button>
+        <button class="pbtn dark" id="motion-btn">AIM WITH MOTION</button>
+        <button class="pbtn dark hidden" id="center-btn">RE-CENTER</button>
+    </div>
+
+    <!-- Overlays -->
+    <div class="screen hidden" id="enter">
+        <h1>DUCK SHOOT</h1>
+        <p>ENTER THE CODE ON THE BIG SCREEN</p>
+        <input class="code-input" id="code-input" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false">
+        <button class="pbtn" id="join-btn">JOIN</button>
+    </div>
+
+    <div class="screen" id="status">
+        <h1 id="status-title" class="dots">CONNECTING</h1>
+        <p id="status-text">JOINING ROOM</p>
+        <button class="pbtn hidden" id="retry-btn">TRY AGAIN</button>
     </div>
 
     <script>
-        let peer, conn;
-        let lastSendTime = 0;
-        let isEnabled = false;
+        const $ = (id) => document.getElementById(id);
+        const params = new URLSearchParams(location.search);
+        const code = (params.get('room') || '').toUpperCase().trim();
 
-        function setup() {
-            noCanvas(); // No drawing on controller
+        let link = null;
+        let gameState = 'title';
+        let ammo = 3;
+        let aim = { x: 0, y: 0 };
+        let lastSent = { x: 9, y: 9, at: 0 };
+        let motionOn = false;
+        let gotMotion = false;
+        let calib = null;
+        let wakeLock = null;
 
-            // Get Host ID
-            const urlParams = new URLSearchParams(window.location.search);
-            const hostId = urlParams.get('hostId');
-
-            if (!hostId) {
-                document.getElementById('status-text').innerText = "Error: No Host ID.";
-                return;
-            }
-
-            // Connect
-            peer = new Peer();
-            peer.on('open', (id) => {
-                conn = peer.connect(hostId);
-                conn.on('open', () => {
-                    // Show "Enable Sensors" button (iOS requires user click)
-                    document.getElementById('status-text').innerText = "Ready!";
-                    document.getElementById('enable-btn').style.display = 'block';
-                });
-            });
+        // ---------- Joining ----------
+        if (!/^[A-Z0-9]{4}$/.test(code)) {
+            $('status').classList.add('hidden');
+            $('enter').classList.remove('hidden');
+            $('code-input').focus();
+        } else {
+            connect(code);
         }
 
-        // Request DeviceOrientation Permission (iOS 13+)
-        function enableTilt() {
-            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                DeviceOrientationEvent.requestPermission()
-                    .then(response => {
-                        if (response === 'granted') {
-                            startSensors();
-                        } else {
-                            alert("Permission denied. Game requires tilt sensors.");
-                        }
-                    })
-                    .catch(console.error);
-            } else {
-                startSensors(); // Android/Desktop
-            }
+        $('join-btn').addEventListener('click', () => {
+            const c = $('code-input').value.toUpperCase().trim();
+            if (c.length === 4) location.search = '?room=' + c;
+        });
+        $('code-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('join-btn').click(); });
+        $('retry-btn').addEventListener('click', () => location.reload());
+
+        function connect(roomCode) {
+            link = GameLink.joinRoom({ game: 'duck', code: roomCode, onStatus, onMessage });
         }
 
-        function startSensors() {
-            window.addEventListener('deviceorientation', handleOrientation);
-            document.getElementById('enable-overlay').style.display = 'none';
-            document.getElementById('game-ui').style.display = 'flex';
-            isEnabled = true;
+        function showStatus(title, text, retry) {
+            $('status-title').textContent = title;
+            $('status-title').classList.toggle('dots', !retry);
+            $('status-text').textContent = text;
+            $('retry-btn').classList.toggle('hidden', !retry);
+            $('status').classList.remove('hidden');
         }
 
-        // Send Tilt Data to Host
-        function handleOrientation(e) {
-            if (!conn || !conn.open) return;
-
-            // Limit send rate to save bandwidth (every 50ms)
-            if (Date.now() - lastSendTime > 50) {
-                let tiltX = e.gamma || 0; // Left/Right
-                let tiltY = e.beta || 0;  // Up/Down
-
-                conn.send({
-                    tiltX: tiltX,
-                    tiltY: -tiltY
-                });
-                lastSendTime = Date.now();
+        function onStatus(s, welcome) {
+            if (s === 'joined') {
+                $('status').classList.add('hidden');
+                $('link').classList.remove('lost');
+                $('link').textContent = link.direct ? 'DIRECT' : 'RELAY';
+                if (welcome) {
+                    document.documentElement.style.setProperty('--pc', welcome.color);
+                    $('name').textContent = welcome.name;
+                    if (typeof welcome.ammo === 'number') setAmmo(welcome.ammo);
+                    setGameState(welcome.state);
+                }
+            } else if (s === 'lost') {
+                $('link').classList.add('lost');
+                $('link').textContent = 'LOST';
+                setMsg('RECONNECTING...', 'bad');
+            } else if (s === 'full') {
+                showStatus('GAME FULL', 'ALL 4 GUNS ARE TAKEN. WAIT FOR A FREE SLOT.', true);
+            } else if (s === 'slow') {
+                showStatus('STILL TRYING', 'CHECK THE CODE ' + code + ' MATCHES THE BIG SCREEN. IF IT DOES, KEEP THIS OPEN OR TRY AGAIN.', true);
             }
         }
 
-        // Send Shoot Command
-        function shoot(e) {
+        function onMessage(m) {
+            if (m.t === 'ammo') setAmmo(m.n);
+            else if (m.t === 'hit') {
+                $('score').textContent = String(m.score).padStart(6, '0');
+                setMsg('HIT! +' + m.points, 'hit');
+                buzz([40, 40, 60]);
+            } else if (m.t === 'flyaway') {
+                setMsg('FLY AWAY', 'bad');
+                buzz(200);
+            } else if (m.t === 'state') {
+                setGameState(m.state, m.round);
+            } else if (m.t === 'result') {
+                $('score').textContent = String(m.score).padStart(6, '0');
+                setMsg(m.of > 1 ? `#${m.rank} OF ${m.of}<br>ROUND ${m.round}` : `GAME OVER<br>ROUND ${m.round}`);
+            }
+        }
+
+        function setGameState(s, roundNo) {
+            gameState = s;
+            const playing = s === 'playing';
+            $('start-btn').classList.toggle('hidden', playing);
+            $('start-btn').textContent = s === 'over' ? 'PLAY AGAIN' : 'START';
+            $('fire').disabled = !playing;
+            if (playing) {
+                if (roundNo === 1) $('score').textContent = '000000';
+                setMsg(roundNo ? 'ROUND ' + roundNo : 'GO!');
+            } else if (s === 'title') setMsg('READY?<br>PRESS START');
+        }
+
+        function setAmmo(n) {
+            ammo = n;
+            [...$('shells').querySelectorAll('i')].forEach((el, i) => el.classList.toggle('used', i >= n));
+        }
+
+        let msgTimer;
+        function setMsg(html, cls) {
+            $('msg').innerHTML = html;
+            $('msg').className = 'msg ' + (cls || '');
+            clearTimeout(msgTimer);
+            if (cls === 'hit') msgTimer = setTimeout(() => setMsg(''), 1200);
+        }
+
+        function buzz(pattern) {
+            if (navigator.vibrate) navigator.vibrate(pattern);
+        }
+
+        // ---------- Fire and start ----------
+        const fireBtn = $('fire');
+        fireBtn.addEventListener('pointerdown', (e) => {
             e.preventDefault();
-            if (conn && conn.open) {
-                conn.send({ action: 'shoot' });
-                // Haptic Feedback
-                if (navigator.vibrate) navigator.vibrate(50);
-            }
+            keepAwake();
+            if (!link || fireBtn.disabled) return;
+            link.send({ t: 'fire' });
+            fireBtn.classList.add('pressed');
+            buzz(25);
+        });
+        ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => fireBtn.addEventListener(ev, () => fireBtn.classList.remove('pressed')));
+
+        $('start-btn').addEventListener('click', () => {
+            keepAwake();
+            if (link) link.send({ t: 'start' });
+        });
+
+        async function keepAwake() {
+            try { if (!wakeLock && navigator.wakeLock) wakeLock = await navigator.wakeLock.request('screen'); } catch { /* not supported */ }
+        }
+
+        // ---------- Aiming ----------
+        function sendAim(force) {
+            const t = performance.now();
+            const moved = Math.abs(aim.x - lastSent.x) + Math.abs(aim.y - lastSent.y);
+            if (!link || (!force && (moved < 0.004 || t - lastSent.at < 40))) return;
+            link.send({ t: 'aim', x: +aim.x.toFixed(3), y: +aim.y.toFixed(3) });
+            lastSent = { x: aim.x, y: aim.y, at: t };
+        }
+
+        const clamp = (v) => Math.max(-1, Math.min(1, v));
+        const angleDiff = (a, b) => ((a - b + 540) % 360) - 180;
+
+        // Pointing like a remote: yaw moves left/right, pitch moves up/down
+        function onOrientation(e) {
+            if (e.alpha == null || e.beta == null) return;
+            gotMotion = true;
+            if (!calib) calib = { a: e.alpha, b: e.beta };
+            aim.x = clamp(-angleDiff(e.alpha, calib.a) / 22);
+            aim.y = clamp(-(e.beta - calib.b) / 14);
+            sendAim();
+        }
+
+        async function enableMotion() {
+            keepAwake();
+            try {
+                if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    const res = await DeviceOrientationEvent.requestPermission();
+                    if (res !== 'granted') { usePad('MOTION WAS BLOCKED'); return; }
+                }
+            } catch { usePad('MOTION NOT AVAILABLE'); return; }
+
+            window.addEventListener('deviceorientation', onOrientation);
+            motionOn = true;
+            calib = null;
+            $('motion-btn').classList.add('hidden');
+            $('center-btn').classList.remove('hidden');
+            $('pad').classList.add('hidden');
+            $('aim-note').textContent = 'POINT AT THE MIDDLE OF THE SCREEN, THEN TAP RE-CENTER';
+            setTimeout(() => { if (!gotMotion) usePad('NO MOTION SENSOR FOUND'); }, 1500);
+        }
+
+        function usePad(reason) {
+            window.removeEventListener('deviceorientation', onOrientation);
+            motionOn = false;
+            $('pad').classList.remove('hidden');
+            $('center-btn').classList.add('hidden');
+            $('motion-btn').classList.remove('hidden');
+            $('aim-note').textContent = (reason ? reason + '. ' : '') + 'DRAG ON THE PAD TO AIM';
+        }
+
+        $('motion-btn').addEventListener('click', enableMotion);
+        $('center-btn').addEventListener('click', () => {
+            calib = null;
+            aim = { x: 0, y: 0 };
+            sendAim(true);
+            buzz(15);
+        });
+
+        // Drag pad: relative movement, like a laptop trackpad
+        const pad = $('pad');
+        let dragging = null;
+        pad.addEventListener('pointerdown', (e) => {
+            try { pad.setPointerCapture(e.pointerId); } catch { /* capture is optional */ }
+            dragging = { x: e.clientX, y: e.clientY };
+        });
+        pad.addEventListener('pointermove', (e) => {
+            if (!dragging) return;
+            const r = pad.getBoundingClientRect();
+            aim.x = clamp(aim.x + ((e.clientX - dragging.x) / r.width) * 2.4);
+            aim.y = clamp(aim.y + ((e.clientY - dragging.y) / r.height) * 2.4);
+            dragging = { x: e.clientX, y: e.clientY };
+            sendAim();
+        });
+        ['pointerup', 'pointercancel'].forEach(ev => pad.addEventListener(ev, () => { dragging = null; sendAim(true); }));
+
+        // Phones without a permission prompt can start motion aiming straight away
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission !== 'function') {
+            enableMotion();
         }
     </script>
 </body>

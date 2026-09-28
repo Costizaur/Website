@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0c0b0a">
+    <title>Join a game · Costin Sarghiuta</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/ui.css">
+</head>
+
+<body class="controller">
+    <div class="ctrl-screen">
+        <h1>Join a game</h1>
+        <p>Type the 4-letter code shown on the big screen.</p>
+        <input class="code-input" id="code" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" inputmode="text">
+        <p id="error" style="color: var(--coral); min-height: 1.5em"></p>
+        <button class="btn" id="join">Join</button>
+        <p style="font-size: 0.85rem">No big screen yet? Open <b>costinsarghiuta.com</b> on a laptop and pick River Racer or Duck Shoot.</p>
+    </div>
+
+    <script>
+        // First letter of the code picks the game: D = Duck Shoot, R = River Racer
+        const ROUTES = { D: '/game/controller.html', R: '/game2/controller.html' };
+        const input = document.getElementById('code');
+        const error = document.getElementById('error');
+
+        const join = () => {
+            const code = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            const route = ROUTES[code[0]];
+            if (code.length !== 4 || !route) {
+                error.textContent = "That code doesn't look right. Check the big screen.";
+                return;
+            }
+            location.href = `${route}?room=${code}`;
+        };
+
+        input.addEventListener('input', () => { error.textContent = ''; });
+        input.addEventListener('keydown', (e) => { if (e.key === 'Enter') join(); });
+        document.getElementById('join').addEventListener('click', join);
+        input.focus();
+    </script>
+</body>
+
+</html>

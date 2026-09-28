@@ -1,199 +1,558 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
-    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duck Shoot · Costin Sarghiuta</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%2364b0ff'/%3E%3Crect x='7' y='2' width='2' height='4' fill='%23000'/%3E%3Crect x='7' y='10' width='2' height='4' fill='%23000'/%3E%3Crect x='2' y='7' width='4' height='2' fill='%23000'/%3E%3Crect x='10' y='7' width='4' height='2' fill='%23000'/%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        body {
+        /* Retro console look: black boxes, green frames, pixel font */
+        :root {
+            --px: 4px;               /* one game pixel on screen, set from JS */
+            --nes-black: #000;
+            --nes-white: #fcfcfc;
+            --nes-green: #80d010;
+            --nes-orange: #fca044;
+            --nes-red: #e40058;
+            --nes-blue: #3cbcfc;
+            --font: 'Press Start 2P', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
             overflow: hidden;
-            background: #333;
-            font-family: 'Courier New', Courier, monospace;
-        }
-
-        /* Top HUD Bar */
-        #ui-layer {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 60px;
             background: #000;
-            border-top: 4px solid #fff;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            z-index: 10;
+            color: var(--nes-white);
+            font-family: var(--font);
+            -webkit-font-smoothing: none;
+            image-rendering: pixelated;
         }
 
-        /* QR Code Box */
-        #qrcode {
+        canvas {
+            display: block;
+            image-rendering: pixelated;
+        }
+
+        body.mouse-aim canvas {
+            cursor: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* A chunky NES-style box */
+        .box {
+            background: var(--nes-black);
+            border: calc(var(--px) * 0.75) solid var(--nes-green);
+            box-shadow: 0 0 0 calc(var(--px) * 0.75) var(--nes-black);
+            border-radius: calc(var(--px) * 1.5);
+            padding: calc(var(--px) * 3);
+        }
+
+        button {
+            font: inherit;
+            color: inherit;
+            background: none;
+            border: 0;
+            cursor: pointer;
+        }
+
+        /* --- Title screen --- */
+        #title {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            overflow: auto;
+        }
+
+        .title-wrap {
+            display: grid;
+            grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+            gap: 28px;
+            width: min(1040px, 100%);
+            align-items: center;
+        }
+
+        .logo {
+            font-size: clamp(34px, 6.4vw, 72px);
+            line-height: 1.15;
+            color: var(--nes-orange);
+            text-shadow:
+                4px 0 0 #000, -4px 0 0 #000, 0 4px 0 #000, 0 -4px 0 #000,
+                4px 4px 0 #000, -4px -4px 0 #000, 4px -4px 0 #000, -4px 4px 0 #000,
+                8px 8px 0 #a83800;
+            margin-bottom: 22px;
+        }
+
+        .logo span {
+            color: var(--nes-white);
+        }
+
+        .menu {
+            display: grid;
+            gap: 16px;
+            font-size: 16px;
+            margin-bottom: 22px;
+        }
+
+        .menu-item {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            text-align: left;
+            color: var(--nes-orange);
+            padding: 2px 0;
+        }
+
+        .menu-item .arrow {
+            width: 16px;
+            visibility: hidden;
+            color: var(--nes-white);
+        }
+
+        .menu-item.selected .arrow {
+            visibility: visible;
+            animation: blink 0.6s steps(1) infinite;
+        }
+
+        .menu-item small {
+            color: var(--nes-white);
+            font-size: 11px;
+        }
+
+        .top-score {
+            color: var(--nes-green);
+            font-size: 14px;
+            margin-bottom: 22px;
+        }
+
+        .slots {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .slot {
+            border: 3px dashed #444;
+            padding: 10px 6px;
+            font-size: 10px;
+            text-align: center;
+            color: #777;
+            line-height: 1.8;
+        }
+
+        .slot.filled {
+            border-style: solid;
+            border-color: var(--c);
+            color: var(--nes-white);
+            background: color-mix(in srgb, var(--c) 18%, #000);
+        }
+
+        .slot b {
+            display: block;
+            color: var(--c);
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .pbtn {
+            padding: 14px 16px;
+            font-size: 12px;
+            background: var(--nes-white);
+            color: #000;
+            box-shadow: inset -4px -4px 0 #a8a8a8, 0 0 0 4px #000;
+            margin: 4px;
+        }
+
+        .pbtn:hover {
+            background: var(--nes-orange);
+        }
+
+        .pbtn:active {
+            box-shadow: inset 4px 4px 0 #a8a8a8, 0 0 0 4px #000;
+        }
+
+        .pbtn:disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .pbtn.dark {
+            background: #000;
+            color: var(--nes-white);
+            box-shadow: inset -4px -4px 0 #333, 0 0 0 4px var(--nes-white);
+        }
+
+        .pbtn.dark:hover {
+            color: var(--nes-orange);
+        }
+
+        .join {
+            text-align: center;
+        }
+
+        .join-label {
+            font-size: 11px;
+            color: var(--nes-green);
+            margin-bottom: 14px;
+            line-height: 1.6;
+        }
+
+        .qr {
+            width: 212px;
+            height: 212px;
+            margin: 0 auto 14px;
+            padding: 8px;
+            background: #fff;
+            display: grid;
+            place-items: center;
+        }
+
+        .qr img,
+        .qr canvas {
+            width: 196px !important;
+            height: 196px !important;
+            image-rendering: pixelated;
+        }
+
+        .room-code {
+            font-size: 34px;
+            letter-spacing: 8px;
+            color: var(--nes-orange);
+            margin-bottom: 10px;
+            padding-left: 8px;
+        }
+
+        .join-url {
+            font-size: 9px;
+            line-height: 1.8;
+            color: #bbb;
+        }
+
+        .link-status {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 12px;
+            font-size: 8px;
+            color: #777;
+        }
+
+        .link-status span::before {
+            content: '■ ';
+            color: #444;
+        }
+
+        .link-status .on {
+            color: var(--nes-white);
+        }
+
+        .link-status .on::before {
+            color: var(--nes-green);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 18px;
+            font-size: 9px;
+            color: #bbb;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: var(--nes-orange);
+        }
+
+        .hint {
+            font-size: 9px;
+            line-height: 1.9;
+            color: #bbb;
+            margin-top: 16px;
+        }
+
+        /* --- In-game HUD on the dirt strip --- */
+        #hud {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            align-content: center;
+            gap: calc(var(--px) * 1.5) calc(var(--px) * 3);
+            padding: 0 calc(var(--px) * 3);
+            pointer-events: none;
+            font-size: calc(var(--px) * 3.2);
+            height: var(--hud-h, 120px);
+        }
+
+        #hud .box {
+            padding: calc(var(--px) * 1.5) calc(var(--px) * 2.5);
+            display: flex;
+            align-items: center;
+            gap: calc(var(--px) * 2);
+        }
+
+        .hud-label {
+            color: var(--nes-blue);
+        }
+
+        .hud-round {
+            color: var(--nes-green);
+        }
+
+        .shots {
+            display: grid;
+            gap: calc(var(--px) * 0.75);
+        }
+
+        .shot-row {
+            display: flex;
+            gap: calc(var(--px) * 0.75);
+        }
+
+        .shell {
+            width: calc(var(--px) * 1.75);
+            height: calc(var(--px) * 3.5);
+            background: var(--c, var(--nes-orange));
+        }
+
+        .shell.used {
+            background: #333;
+        }
+
+        .hits {
+            display: flex;
+            gap: calc(var(--px) * 0.75);
+            align-items: flex-end;
+        }
+
+        .hit-icon {
+            position: relative;
+            width: calc(var(--px) * 3.5);
+            height: calc(var(--px) * 3.5);
+            background: var(--nes-white);
+            clip-path: polygon(0 45%, 55% 45%, 55% 0, 100% 0, 100% 55%, 85% 100%, 15% 100%, 0 70%);
+        }
+
+        .hit-icon.hit {
+            background: var(--nes-red);
+        }
+
+        .hit-icon.miss {
+            background: #3a3a3a;
+        }
+
+        .hit-icon.live {
+            animation: blink 0.4s steps(1) infinite;
+        }
+
+        .quota {
+            position: relative;
+        }
+
+        .quota::after {
+            content: '';
             position: absolute;
-            top: 50%;
+            left: 0;
+            bottom: calc(var(--px) * -1.25);
+            width: var(--q);
+            height: calc(var(--px) * 0.5);
+            background: var(--nes-blue);
+        }
+
+        .scores {
+            display: grid;
+            grid-template-columns: repeat(2, auto);
+            gap: calc(var(--px) * 0.75) calc(var(--px) * 3);
+        }
+
+        .score-line {
+            color: var(--c);
+        }
+
+        .score-line span {
+            color: var(--nes-white);
+        }
+
+        /* Centre messages: ROUND 1, FLY AWAY, PERFECT!! */
+        #message {
+            position: fixed;
             left: 50%;
+            top: 34%;
+            z-index: 15;
             transform: translate(-50%, -50%);
-            background: white;
-            padding: 10px;
-            border: 4px solid white;
+            text-align: center;
+            font-size: calc(var(--px) * 5);
+            line-height: 1.7;
+            white-space: nowrap;
+        }
+
+        #message .box {
+            padding: calc(var(--px) * 3) calc(var(--px) * 5);
+        }
+
+        /* --- Game over --- */
+        #results {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.55);
+        }
+
+        .results {
+            width: min(620px, 100%);
+            text-align: center;
+        }
+
+        .results h2 {
+            font-size: 30px;
+            color: var(--nes-red);
+            margin-bottom: 14px;
+            font-weight: normal;
+        }
+
+        .results .sub {
+            font-size: 11px;
+            color: var(--nes-green);
+            margin-bottom: 22px;
+            line-height: 1.8;
+        }
+
+        .board {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .board-row {
+            display: grid;
+            grid-template-columns: 40px 1fr auto;
+            gap: 12px;
+            font-size: 12px;
+            padding: 10px 12px;
+            border-left: 6px solid var(--c);
+            background: #111;
+            line-height: 1.6;
+        }
+
+        .board-row small {
+            display: block;
+            font-size: 8px;
+            color: #999;
+        }
+
+        .board-row .pts {
+            color: var(--c);
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        @media (max-width: 860px) {
+            .title-wrap {
+                grid-template-columns: 1fr;
+            }
+
+            #title {
+                align-items: flex-start;
+            }
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <script src="https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js"></script>
+    <script src="../shared/link.js"></script>
 </head>
 
 <body>
-    <div id="ui-layer">
-        <span id="score-el">SCORE: 0</span>
-        <span id="status-el">WAVE 1</span>
+    <!-- Title screen -->
+    <div id="title">
+        <div class="title-wrap">
+            <div class="box">
+                <a class="back-link" href="/">&lt; COSTINSARGHIUTA.COM</a>
+                <h1 class="logo">DUCK<br><span>SHOOT</span></h1>
+                <div class="menu" id="menu">
+                    <button class="menu-item selected" data-mode="1"><span class="arrow">▶</span>GAME A <small>1 DUCK</small></button>
+                    <button class="menu-item" data-mode="2"><span class="arrow">▶</span>GAME B <small>2 DUCKS</small></button>
+                </div>
+                <div class="top-score">TOP SCORE = <span id="top-score">000000</span></div>
+                <div class="slots" id="slots"></div>
+                <div class="buttons">
+                    <button class="pbtn" id="start-btn" disabled>START</button>
+                    <button class="pbtn dark" id="mouse-btn">PLAY WITH MOUSE</button>
+                    <button class="pbtn dark" id="flash-btn">FLASH: ON</button>
+                </div>
+                <p class="hint">3 SHOTS PER DUCK. HIT ENOUGH OF THE 10 TO CLEAR THE ROUND.<br>MOUSE: CLICK OR SPACE TO FIRE. ENTER TO START.</p>
+            </div>
+
+            <div class="box join">
+                <div class="join-label">SCAN WITH YOUR PHONE<br>IT BECOMES THE GUN</div>
+                <div class="qr" id="qr"></div>
+                <div class="room-code" id="room-code">----</div>
+                <div class="join-url">OR GO TO COSTINSARGHIUTA.COM/PLAY<br>AND ENTER THE CODE</div>
+                <div class="link-status"><span id="st-relay">RELAY</span><span id="st-direct">DIRECT</span></div>
+            </div>
+        </div>
     </div>
-    <div id="qrcode"></div>
 
-    <script>
-        let peer;
-        let crosshairX, crosshairY;
-        let tiltX = 0, tiltY = 0; // Phone tilt values
-        let ducks = [];
-        let score = 0;
-        let wave = 1;
-        let gameActive = false; // Is a player connected?
+    <!-- HUD -->
+    <div id="hud" class="hidden">
+        <div class="box"><span class="hud-round" id="hud-round">R=1</span></div>
+        <div class="box"><div class="shots" id="hud-shots"></div><span class="hud-label">SHOT</span></div>
+        <div class="box"><span class="hud-label">HIT</span><div class="hits quota" id="hud-hits"></div></div>
+        <div class="box"><div class="scores" id="hud-scores"></div><span class="hud-label">SCORE</span></div>
+    </div>
 
-        function setup() {
-            createCanvas(windowWidth, windowHeight);
-            crosshairX = width / 2;
-            crosshairY = height / 2;
-            textAlign(CENTER, CENTER);
+    <div id="message" class="hidden"></div>
 
-            // --- NETWORKING ---
-            peer = new Peer();
-            peer.on('open', (id) => {
-                // Generate QR code for controller
-                const baseUrl = 'https://www.costinsarghiuta.com/game/';
-                let controllerURL = baseUrl + 'controller.html?hostId=' + id;
-                new QRCode(document.getElementById("qrcode"), {
-                    text: controllerURL,
-                    width: 100,
-                    height: 100
-                });
-            });
+    <!-- Game over -->
+    <div id="results" class="hidden">
+        <div class="box results">
+            <h2>GAME OVER</h2>
+            <div class="sub" id="results-sub"></div>
+            <div class="board" id="board"></div>
+            <div class="buttons" style="justify-content:center">
+                <button class="pbtn" id="again-btn">PLAY AGAIN</button>
+                <button class="pbtn dark" id="title-btn">TITLE</button>
+            </div>
+        </div>
+    </div>
 
-            // Handle connection
-            peer.on('connection', (conn) => {
-                gameActive = true;
-                document.getElementById('status-el').innerText = "GO!";
-                document.getElementById('qrcode').style.display = 'none'; // Hide QR
-
-                conn.on('data', (data) => {
-                    // Update Aim
-                    if (data.tiltX !== undefined) tiltX = data.tiltX;
-                    if (data.tiltY !== undefined) tiltY = data.tiltY;
-
-                    // Fire Shot
-                    if (data.action === 'shoot') {
-                        fireGun();
-                    }
-                });
-            });
-
-            // Spawn ducks every 2 seconds
-            setInterval(spawnDuck, 2000);
-        }
-
-        // --- GAME LOOP ---
-        function draw() {
-            background(60, 188, 252); // Sky Blue
-
-            // Draw Ground
-            noStroke();
-            fill(118, 174, 59);
-            rect(0, height - 100, width, 100);
-
-            if (gameActive) {
-                // Draw and move ducks
-                for (let i = ducks.length - 1; i >= 0; i--) {
-                    let d = ducks[i];
-                    d.x += d.speed;
-
-                    // Duck Body
-                    fill(255, 255, 0);
-                    ellipse(d.x, d.y, 60, 40);
-                    fill(200, 200, 0); // Wing
-                    ellipse(d.x - 10, d.y - 5, 20, 20);
-
-                    // Remove if off screen
-                    if (d.x > width + 50) {
-                        ducks.splice(i, 1);
-                    }
-                }
-            } else {
-                // Waiting message
-                fill(0);
-                textSize(30);
-                text("Waiting for Player...", width / 2, height / 2);
-            }
-
-            // Move Crosshair based on phone tilt
-            crosshairX += tiltX * 0.8;
-            crosshairY += tiltY * 0.8;
-
-            // Keep on screen
-            crosshairX = constrain(crosshairX, 0, width);
-            crosshairY = constrain(crosshairY, 0, height - 100);
-
-            drawCrosshair(crosshairX, crosshairY);
-        }
-
-        function spawnDuck() {
-            if (!gameActive) return;
-            let duck = {
-                x: -50,
-                y: random(50, height - 150),
-                speed: random(3, 8) + (wave * 0.5) // Faster every wave
-            };
-            ducks.push(duck);
-        }
-
-        function fireGun() {
-            background(255); // Flash screen
-
-            // Check collision
-            for (let i = ducks.length - 1; i >= 0; i--) {
-                let d = ducks[i];
-                let distance = dist(crosshairX, crosshairY, d.x, d.y);
-
-                // Hit!
-                if (distance < 40) {
-                    ducks.splice(i, 1);
-                    score += 100;
-                    updateUI();
-                    break;
-                }
-            }
-        }
-
-        function updateUI() {
-            document.getElementById('score-el').innerText = "SCORE: " + score;
-            // Next Wave every 500 points
-            if (score > 0 && score % 500 === 0) {
-                wave++;
-                document.getElementById('status-el').innerText = "WAVE " + wave;
-            }
-        }
-
-        function drawCrosshair(x, y) {
-            noFill();
-            stroke(255, 0, 0);
-            strokeWeight(3);
-            ellipse(x, y, 40, 40);
-            line(x - 25, y, x + 25, y);
-            line(x, y - 25, x, y + 25);
-        }
-
-        function windowResized() {
-            resizeCanvas(windowWidth, windowHeight);
-        }
-    </script>
+    <script src="duck.js"></script>
 </body>
 
 </html>

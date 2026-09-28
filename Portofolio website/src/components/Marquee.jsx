@@ -2,7 +2,7 @@ import React from 'react';
 import './Marquee.css';
 
 const SKILLS = ['Game Design', 'UI/UX Design', 'Systems', 'Playtesting', 'Prototyping', 'Balancing', 'Front-end'];
-const TOOLS = ['Unity', 'C#', 'Figma', 'React', 'JavaScript', 'p5.js', 'Python', 'Excel'];
+const TOOLS = ['Unity', 'C#', 'Figma', 'React', 'JavaScript', 'Swift', 'p5.js', 'Python', 'Excel'];
 
 // One scrolling strip; the list is doubled so the loop is seamless
 const Tape = ({ items, className }) => (

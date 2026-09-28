@@ -44,6 +44,10 @@ import iconPortfolio from '../assets/icons/portfolio.png';
 import iconMuster from '../assets/icons/muster.png';
 import iconRiverRacer from '../assets/icons/river-racer.png';
 import iconDuckShoot from '../assets/icons/duck-shoot.png';
+import iconEarshot from '../assets/icons/earshot.png';
+import earshotHero from '../assets/earshot-hero.jpg';
+import earshotHow from '../assets/earshot-how.jpg';
+import earshotMenu from '../assets/earshot-menu.png';
 
 // --- PROJECT DATA ---
 const projects = [
@@ -185,6 +189,28 @@ const projects = [
     ],
     folderImages: [iconMuster, iconRiverRacer, iconDuckShoot], // Icons that pop out of the folder
     longDescription: 'Games where I led the design: core loops, rules, player feedback and balancing, prototyped in Unity and p5.js.'
+  },
+  {
+    id: 4,
+    title: 'Apps',
+    description: 'Native tools I built to fix everyday annoyances, starting with a macOS menu bar app that gives every app its own speaker.',
+    tags: ['Swift', 'macOS', 'Core Audio'],
+    link: '#',
+    color: '#3ddc97', // Mint
+    images: [
+      {
+        title: 'Earshot',
+        icon: iconEarshot,
+        src: earshotHero,
+        extraImages: [earshotHero, earshotHow, earshotMenu],
+        description: 'A macOS menu bar app that sends each app\'s sound to its own output: Chrome on the monitor speakers, everything else on the laptop, without ever changing the system output. Routes can also follow a window as you drag it between screens.',
+        longDescription: 'Built on Apple\'s public Core Audio process-tap API, so there is no driver or kernel extension to install. Each routed app is captured and muted at the source, then played through a private device on the chosen speaker, with per-app volume presets and a level meter. I measured and tuned the audio path so a route switches on in 7 to 14 ms when sound starts, and only holds the audio capture while something is actually playing.',
+        tags: ['macOS', 'Core Audio', 'Menu Bar App', 'UX'],
+        tools: ['Swift', 'SwiftUI', 'AppKit', 'Core Audio', 'Xcode']
+      }
+    ],
+    folderImages: [iconEarshot], // Icons that pop out of the folder
+    longDescription: 'Native apps and tools, designed and built end to end.'
   },
   /* Hidden for now — Video Production folder
   {

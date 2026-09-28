@@ -27,10 +27,10 @@
     color: var(--text-secondary);
 }
 
-/* Grid Layout for Cards: three across on desktop so nothing is left alone on a row */
+/* Grid Layout for Cards: two by two on desktop so nothing is left alone on a row */
 .projects-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.5rem;
 }
 

@@ -2,7 +2,7 @@ import React from 'react';
 import './About.css';
 import profileImg from '../assets/profile.jpg';
 
-const TOOLKIT = ['Figma', 'Unity', 'C#', 'React', 'JavaScript', 'HTML', 'CSS', 'p5.js', 'Python', 'Canva', 'Excel'];
+const TOOLKIT = ['Figma', 'Unity', 'C#', 'React', 'JavaScript', 'Swift', 'HTML', 'CSS', 'p5.js', 'Python', 'Canva', 'Excel'];
 
 const DISCIPLINES = [
     { name: 'Game design', note: 'Loops, rules, balance', color: 'var(--accent)' },

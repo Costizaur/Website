@@ -1,74 +1,246 @@
-/* About Section Background */
-.about-section {
-    background-color: var(--surface-color);
-}
-
-/* Section Header */
-.section-title {
-    font-size: 2.5rem;
-    margin-bottom: 3rem;
-    text-align: center;
-    font-weight: 700;
-}
-
-/* 2-Column Layout for Text + Image */
-.about-content {
+/* --- Bento grid --- */
+.bento {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: center;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-areas:
+        "photo bio bio status"
+        "photo tools tools disc";
+    gap: 1.25rem;
 }
 
-/* Paragraph styling */
-.about-text p {
-    margin-bottom: 1.5rem;
+.bento-photo { grid-area: photo; }
+.bento-bio { grid-area: bio; }
+.bento-status { grid-area: status; }
+.bento-tools { grid-area: tools; }
+.bento-disc { grid-area: disc; }
+
+/* Shared card with a cursor spotlight (fed --mx/--my by Cursor.jsx) */
+.bento-card,
+.spot-card {
+    position: relative;
+    isolation: isolate;
+}
+
+.bento-card {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 1.75rem;
+    overflow: hidden;
+}
+
+.spot-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(420px circle at var(--mx, -500px) var(--my, -500px), rgba(255, 197, 61, 0.09), transparent 45%);
+    pointer-events: none;
+    z-index: -1;
+    transition: opacity 0.3s ease;
+}
+
+/* Spotlight on the border too */
+.spot-card::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: radial-gradient(300px circle at var(--mx, -500px) var(--my, -500px), rgba(255, 197, 61, 0.7), transparent 40%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    pointer-events: none;
+}
+
+.card-label {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 1.1rem;
+}
+
+/* Photo */
+.bento-photo {
+    padding: 0;
+    min-height: 420px;
+}
+
+.profile-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(0.35) contrast(1.05);
+    transition: transform 0.8s var(--ease-out), filter 0.5s ease;
+}
+
+.bento-photo:hover .profile-img {
+    transform: scale(1.05);
+    filter: grayscale(0) contrast(1.05);
+}
+
+.sticker {
+    position: absolute;
+    left: 1rem;
+    bottom: 1.25rem;
+    z-index: 2;
+    padding: 0.5rem 0.9rem;
+    border-radius: 10px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    transform: rotate(-6deg);
+    box-shadow: 0 4px 0 var(--accent-dark), 0 12px 24px rgba(0, 0, 0, 0.4);
+    transition: transform 0.4s var(--ease-spring);
+}
+
+.bento-photo:hover .sticker {
+    transform: rotate(3deg) scale(1.08);
+}
+
+/* Bio */
+.bento-bio p {
+    color: var(--text-secondary);
+    font-size: 1.02rem;
+    margin-bottom: 1rem;
+}
+
+.bento-bio p:last-child {
+    margin-bottom: 0;
+}
+
+.bento-bio .bio-lead {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin-bottom: 1.25rem;
+}
+
+/* Status */
+.bento-status {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(160deg, rgba(61, 220, 151, 0.1), var(--surface-color) 60%);
+}
+
+.status-text {
+    font-size: 1.05rem;
+    line-height: 1.45;
+    color: var(--text-secondary);
+    flex: 1;
+}
+
+.status-text b {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.status-link {
+    margin-top: 1.25rem;
+    font-weight: 600;
+    color: var(--mint);
+}
+
+.status-link:hover {
+    letter-spacing: 0.02em;
+}
+
+/* Toolkit keycaps */
+.keycaps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+}
+
+.keycap {
+    display: inline-block;
+    padding: 0.55rem 0.95rem;
+    border-radius: 10px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    background: linear-gradient(180deg, #2a2622, #1f1c19);
+    border: 1px solid rgba(243, 239, 230, 0.08);
+    box-shadow: 0 4px 0 #0a0908, inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    transform: translateY(0);
+    transition: transform 0.1s ease, box-shadow 0.1s ease, color 0.2s ease, background 0.2s ease;
+    user-select: none;
+}
+
+.keycap:hover {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 #0a0908, inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    color: var(--accent-ink);
+    background: var(--accent);
+}
+
+/* Disciplines */
+.disc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.disc-list li {
+    display: flex;
+    flex-direction: column;
+    padding-left: 1rem;
+    border-left: 3px solid var(--disc-color);
+}
+
+.disc-name {
+    font-family: var(--font-display);
+    font-weight: 700;
     font-size: 1.1rem;
+    line-height: 1.2;
+}
+
+.disc-note {
+    font-size: 0.85rem;
     color: var(--text-secondary);
 }
 
-/* Skills Tags Wrapper */
-.skills-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-top: 2rem;
+/* Tablet */
+@media (max-width: 1000px) {
+    .bento {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-areas:
+            "photo bio"
+            "photo bio"
+            "status disc"
+            "tools tools";
+    }
 }
 
-/* Individual Skill Tag */
-.skill-item {
-    background: var(--surface-hover);
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    color: var(--text-accent);
-    border: 1px solid var(--border-color);
-}
-
-/* Image Container */
-.about-image {
-    position: relative;
-}
-
-/* Profile Image Styling */
-.profile-img {
-    width: 100%;
-    aspect-ratio: 1;
-    object-fit: cover;
-    border-radius: 20px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease;
-}
-
-.profile-img:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35);
-}
-
-/* Mobile Stack Layout */
-@media (max-width: 768px) {
-    .about-content {
+/* Phone */
+@media (max-width: 640px) {
+    .bento {
         grid-template-columns: 1fr;
-        gap: 2rem;
+        grid-template-areas:
+            "photo"
+            "bio"
+            "status"
+            "disc"
+            "tools";
+    }
+
+    .bento-photo {
+        min-height: 360px;
     }
 }

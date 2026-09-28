@@ -13,6 +13,13 @@ const Finder = ({ categories, initialCategory, onClose, onSelectProject }) => {
         }
     }, [initialCategory]);
 
+    // Close on Escape
+    useEffect(() => {
+        const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [onClose]);
+
     // Switch folders via sidebar
     const handleCategoryClick = (category) => {
         setActiveCategory(category);

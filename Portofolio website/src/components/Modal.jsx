@@ -35,6 +35,13 @@ const Modal = ({ project, onClose, onBack }) => {
         };
     }, [project]);
 
+    // Close on Escape
+    useEffect(() => {
+        const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [onClose]);
+
     // Update description when slide changes
     const handleSlideChange = (index) => {
         setCurrentIndex(index);

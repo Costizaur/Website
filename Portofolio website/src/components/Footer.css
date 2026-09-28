@@ -1,34 +1,60 @@
 /* Footer Container */
 .footer {
-    padding: 2rem 0;
-    border-top: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+    padding: 0 0 2rem;
     background-color: var(--bg-color);
+    border-top: 1px solid var(--border-color);
 }
 
-/* Flex layout for Copyright and Links */
+/* Giant outlined surname that fills in on hover */
+.footer-wordmark {
+    font-family: var(--font-display);
+    font-size: 22vw;
+    font-weight: 800;
+    line-height: 0.85;
+    letter-spacing: -0.05em;
+    text-align: center;
+    white-space: nowrap;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(243, 239, 230, 0.14);
+    margin: 2rem 0 1.5rem;
+    user-select: none;
+    background: linear-gradient(90deg, var(--accent), var(--coral)) no-repeat;
+    background-size: 0% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    transition: background-size 1.2s var(--ease-out), -webkit-text-stroke-color 0.6s ease;
+}
+
+.footer-wordmark:hover {
+    background-size: 100% 100%;
+    -webkit-text-stroke-color: transparent;
+}
+
+/* Copyright and back-to-top */
 .footer-content {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
     color: var(--text-secondary);
     font-size: 0.9rem;
 }
 
-/* Links Wrapper */
-.footer-links {
-    display: flex;
-    gap: 2rem;
+.back-to-top {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
 }
 
-.footer-links a:hover {
-    color: var(--text-primary);
+.back-to-top:hover {
+    color: var(--accent);
 }
 
-/* Mobile Stack Layout */
-@media (max-width: 768px) {
+@media (max-width: 640px) {
     .footer-content {
         flex-direction: column;
-        gap: 1rem;
         text-align: center;
     }
 }

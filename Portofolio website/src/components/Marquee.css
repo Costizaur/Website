@@ -1,0 +1,88 @@
+/* Two crossing ticker tapes */
+.marquee {
+    position: relative;
+    height: 170px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tape {
+    position: absolute;
+    left: -5%;
+    width: 110%;
+    overflow: hidden;
+    padding: 0.9rem 0;
+}
+
+.tape-front {
+    background: var(--accent);
+    color: var(--accent-ink);
+    transform: rotate(-3deg);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    z-index: 2;
+}
+
+.tape-back {
+    background: var(--surface-hover);
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    transform: rotate(2.5deg);
+    z-index: 1;
+}
+
+.tape-track {
+    display: flex;
+    width: max-content;
+    animation: tapeScroll 38s linear infinite;
+}
+
+.tape-back .tape-track {
+    animation-direction: reverse;
+    animation-duration: 46s;
+}
+
+.tape-item {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.tape-back .tape-item {
+    font-size: 1.3rem;
+}
+
+.tape-star {
+    margin: 0 1.5rem;
+    font-size: 0.8em;
+}
+
+.tape-front .tape-star {
+    color: var(--coral);
+}
+
+@keyframes tapeScroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+@media (max-width: 768px) {
+    .marquee {
+        height: 130px;
+    }
+
+    .tape-item {
+        font-size: 1.2rem;
+    }
+
+    .tape-back .tape-item {
+        font-size: 1rem;
+    }
+}

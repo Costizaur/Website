@@ -1,49 +1,93 @@
-/* Projects Section Background */
+/* Projects Section */
 .projects-section {
-    background-color: var(--bg-color);
+    background:
+        radial-gradient(60% 40% at 100% 20%, rgba(77, 141, 255, 0.06), transparent 70%),
+        var(--bg-color);
 }
 
-/* Grid Layout for Cards */
+.folders-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.folders-title {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.folders-hint {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* Grid Layout for Cards: three across on desktop so nothing is left alone on a row */
 .projects-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    /* Responsive columns */
-    gap: 2.5rem;
-    padding: 2rem 0;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
 }
 
 /* Individual Project Card */
 .project-card {
     background: var(--surface-color);
-    border-radius: 16px;
-    /* overflow: hidden; removed so folder animation pops out */
+    border-radius: 24px;
+    /* no overflow: hidden, so the folder papers can pop out */
     border: 1px solid var(--border-color);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    /* Includes opacity so the scroll reveal still fades */
+    transition: opacity 0.9s var(--ease-out), transform 0.6s var(--ease-out), box-shadow 0.4s ease;
     display: flex;
     flex-direction: column;
-    position: relative;
 }
 
-/* Hover Effect: Lift up */
-.project-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    border-color: var(--primary-color);
+.project-card.is-visible:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.7);
 }
 
 /* Container for Folder Icon */
 .project-folder-container {
-    height: 220px;
-    background: var(--surface-hover);
+    height: 240px;
+    background:
+        radial-gradient(70% 70% at 50% 60%, color-mix(in srgb, var(--card-color) 16%, transparent), transparent 70%),
+        linear-gradient(var(--surface-hover), var(--surface-color));
+    background-size: auto, auto;
     display: flex;
     align-items: center;
     justify-content: center;
     padding-top: 20px;
     border-bottom: 1px solid var(--border-color);
-    border-radius: 16px 16px 0 0;
-    /* Top rounded corners */
+    border-radius: 24px 24px 0 0;
     position: relative;
     z-index: 10;
+}
+
+/* Faint dotted backdrop behind the folder */
+.project-folder-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-image: radial-gradient(rgba(243, 239, 230, 0.08) 1px, transparent 1px);
+    background-size: 18px 18px;
+    -webkit-mask-image: radial-gradient(circle at 50% 55%, #000, transparent 75%);
+    mask-image: radial-gradient(circle at 50% 55%, #000, transparent 75%);
+    pointer-events: none;
+}
+
+.folder-index {
+    position: absolute;
+    top: 1rem;
+    left: 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--card-color);
 }
 
 /* Items inside the folder (when open) */
@@ -63,47 +107,63 @@
 
 /* Text Content Area */
 .project-content {
-    padding: 1.5rem;
+    padding: 1.5rem 1.6rem 1.6rem;
     flex: 1;
     display: flex;
     flex-direction: column;
+    cursor: pointer;
 }
 
 .project-title {
-    font-size: 1.25rem;
-    margin-bottom: 0.75rem;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.6rem;
     color: var(--text-primary);
 }
 
 .project-description {
     font-size: 0.95rem;
     color: var(--text-secondary);
-    margin-bottom: 1.5rem;
-    line-height: 1.5;
+    margin-bottom: 1.25rem;
+    line-height: 1.55;
     flex-grow: 1;
 }
 
-/* Tags Wrapper */
-.project-tags {
+/* What's inside the folder, listed like files */
+.project-files {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.35rem;
     margin-bottom: 1.5rem;
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-color);
 }
 
-/* Individual Tag */
-.tag {
-    font-size: 0.75rem;
-    color: var(--primary-color);
-    background: rgba(124, 58, 237, 0.1);
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-weight: 500;
+.project-files li {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
 }
 
-/* "View Projects" Link */
+.project-files li::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    background: var(--card-color);
+    flex-shrink: 0;
+}
+
+/* "Open folder" link */
 .project-link {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 600;
     color: var(--text-primary);
     display: inline-flex;
@@ -112,6 +172,27 @@
     margin-top: auto;
 }
 
-.project-link:hover {
-    color: var(--primary-color);
+.project-link .arrow {
+    display: inline-block;
+    transition: transform 0.3s var(--ease-spring);
+}
+
+.project-card:hover .project-link {
+    color: var(--card-color, var(--accent));
+}
+
+.project-card:hover .project-link .arrow {
+    transform: translateX(6px);
+}
+
+@media (max-width: 1000px) {
+    .projects-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
 }

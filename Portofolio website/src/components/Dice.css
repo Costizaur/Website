@@ -1,0 +1,172 @@
+/* --- 3D dice tray in the hero --- */
+.dice-tray {
+    --die: 76px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    perspective: 900px;
+}
+
+.dice-row {
+    display: flex;
+    gap: 1.6rem;
+}
+
+.die-wrap {
+    position: relative;
+    width: var(--die);
+    height: calc(var(--die) + 26px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.die-gold { --die-bg: #ffc53d; --die-edge: #c58f0e; --pip: #1a1405; }
+.die-coral { --die-bg: #ff5b47; --die-edge: #b8321f; --pip: #fff6ee; }
+.die-blue { --die-bg: #4d8dff; --die-edge: #2455b8; --pip: #f4f8ff; }
+
+/* Idle bob; each die out of phase */
+.die-float {
+    width: var(--die);
+    height: var(--die);
+    transform-style: preserve-3d;
+    transform: rotateX(-20deg) rotateY(28deg);
+    animation: dieBob 3.2s ease-in-out infinite;
+}
+
+.die-wrap:nth-child(2) .die-float { animation-delay: -1.1s; }
+.die-wrap:nth-child(3) .die-float { animation-delay: -2.2s; }
+
+@keyframes dieBob {
+    0%, 100% { transform: translateY(0) rotateX(-20deg) rotateY(28deg); }
+    50% { transform: translateY(-10px) rotateX(-20deg) rotateY(28deg); }
+}
+
+.die {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 1.3s cubic-bezier(0.2, 0.9, 0.25, 1.05);
+}
+
+.die-wrap:hover .die-float {
+    animation-play-state: paused;
+}
+
+.die-face {
+    position: absolute;
+    inset: 0;
+    background: var(--die-bg);
+    border-radius: 18%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    padding: 16%;
+    gap: 4%;
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.25), inset 0 -8px 16px rgba(0, 0, 0, 0.18);
+    backface-visibility: hidden;
+}
+
+/* Darker side faces fake some lighting */
+.die-right,
+.die-left { filter: brightness(0.82); }
+.die-bottom { filter: brightness(0.7); }
+.die-back { filter: brightness(0.75); }
+
+.die-front { transform: translateZ(calc(var(--die) / 2)); }
+.die-back { transform: rotateY(180deg) translateZ(calc(var(--die) / 2)); }
+.die-right { transform: rotateY(90deg) translateZ(calc(var(--die) / 2)); }
+.die-left { transform: rotateY(-90deg) translateZ(calc(var(--die) / 2)); }
+.die-top { transform: rotateX(90deg) translateZ(calc(var(--die) / 2)); }
+.die-bottom { transform: rotateX(-90deg) translateZ(calc(var(--die) / 2)); }
+
+.pip {
+    border-radius: 50%;
+    background: var(--pip);
+    box-shadow: inset 0 2px 2px rgba(0, 0, 0, 0.35);
+    align-self: center;
+    justify-self: center;
+    width: 78%;
+    aspect-ratio: 1;
+}
+
+.pip.empty {
+    visibility: hidden;
+}
+
+/* Ground shadow shrinks as the die bobs */
+.die-shadow {
+    position: absolute;
+    bottom: 0;
+    width: 70%;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    filter: blur(6px);
+    animation: dieShadow 3.2s ease-in-out infinite;
+}
+
+.die-wrap:nth-child(2) .die-shadow { animation-delay: -1.1s; }
+.die-wrap:nth-child(3) .die-shadow { animation-delay: -2.2s; }
+
+@keyframes dieShadow {
+    0%, 100% { transform: scaleX(1); opacity: 0.8; }
+    50% { transform: scaleX(0.75); opacity: 0.5; }
+}
+
+/* Jump while rolling */
+.is-rolling .die-float {
+    animation: dieJump 1.3s cubic-bezier(0.3, 0.7, 0.4, 1) both;
+}
+
+.is-rolling .die-wrap:nth-child(2) .die-float { animation-delay: 0.08s; }
+.is-rolling .die-wrap:nth-child(3) .die-float { animation-delay: 0.16s; }
+
+@keyframes dieJump {
+    0% { transform: translateY(0) rotateX(-20deg) rotateY(28deg); }
+    25% { transform: translateY(-70px) rotateX(-20deg) rotateY(28deg); }
+    55% { transform: translateY(0) rotateX(-20deg) rotateY(28deg); }
+    70% { transform: translateY(-16px) rotateX(-20deg) rotateY(28deg); }
+    85%, 100% { transform: translateY(0) rotateX(-20deg) rotateY(28deg); }
+}
+
+.dice-readout {
+    min-height: 3rem;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    text-align: center;
+    max-width: 320px;
+}
+
+.dice-readout b {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.dice-sub {
+    display: block;
+    margin-top: 0.2rem;
+    color: var(--text-secondary);
+}
+
+.dice-hint {
+    animation: hintPulse 2s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+}
+
+@media (max-width: 900px) {
+    .dice-tray {
+        --die: 58px;
+    }
+
+    .dice-row {
+        gap: 1.2rem;
+    }
+}

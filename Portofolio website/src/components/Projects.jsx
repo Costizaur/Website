@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Folder from './Folder';
 import Modal from './Modal';
 import Finder from './Finder';
+import Featured from './Featured';
 import './Projects.css';
 
 // Import assets (Images/Videos)
@@ -35,7 +36,7 @@ const projects = [
     description: 'A showcase of my user interface and user experience designs using Figma, Sketch, and other industry tools.',
     tags: ['Figma', 'UI/UX'],
     link: '#',
-    color: '#6366f1', // Indigo
+    color: '#ff7a6b', // Coral
     images: [
       {
         title: 'Roomerr',
@@ -87,7 +88,7 @@ const projects = [
     description: 'Custom-built web applications and front-end implementations with React, JavaScript, HTML, and CSS.',
     tags: ['React', 'HTML', 'CSS', 'JavaScript'],
     link: '#',
-    color: '#ec4899', // Pink
+    color: '#4d8dff', // Blue
     images: [
       {
         title: 'Portfolio Website',
@@ -113,7 +114,7 @@ const projects = [
     description: 'Games designed around meaningful decisions, clear feedback and fair balance, from a dice-driven strategy duel to phone-controlled party games.',
     tags: ['Game Design', 'Systems', 'Balancing', 'Playtesting'],
     link: '#',
-    color: '#10b981', // Emerald
+    color: '#ffc53d', // Gold
     images: [
       {
         title: 'Muster',
@@ -239,18 +240,42 @@ const Projects = () => {
     setSelectedProject(scopedProject);
   };
 
+  // Jump straight from the featured card to Muster's case study
+  const openMusterCaseStudy = () => {
+    const games = projects.find(p => p.id === 3);
+    setCurrentCategoryProject(games);
+    handleSelectProject(games, games.images.findIndex(item => item.title === 'Muster'));
+  };
+
   return (
     <section id="projects" className="section projects-section">
       <div className="container">
-        <h2 className="section-title">Projects</h2>
+        <div className="section-head" data-reveal>
+          <div className="section-label">02 · Work</div>
+          <h2 className="section-title">Selected <em>work.</em></h2>
+        </div>
+
+        {/* Featured, playable project */}
+        <Featured onCaseStudy={openMusterCaseStudy} />
+
+        <div className="folders-head" data-reveal>
+          <h3 className="folders-title">Browse the folders</h3>
+          <p className="folders-hint">Click a folder to peek inside. Open it to see the projects.</p>
+        </div>
 
         {/* Grid of Project Folders */}
         <div className="projects-grid">
-          {projects.map((project) => (
-            <div key={project.id} className="project-card">
+          {projects.map((project, i) => (
+            <div
+              key={project.id}
+              className="project-card spot-card"
+              style={{ '--card-color': project.color, '--reveal-delay': `${i * 0.1}s` }}
+              data-reveal
+            >
 
               {/* Folder Icon Component */}
               <div className="project-folder-container">
+                <span className="folder-index">0{i + 1}</span>
                 <Folder
                   size={2}
                   color={project.color}
@@ -281,17 +306,16 @@ const Projects = () => {
               <div
                 className="project-content"
                 onClick={(e) => handleOpenFinder(e, project)}
-                style={{ cursor: 'pointer' }}
               >
                 <h3 className="project-title">{project.title}</h3>
                 <p className="project-description">{project.description}</p>
-                <div className="project-tags">
-                  {project.tags.map(tag => (
-                    <span key={tag} className="tag">{tag}</span>
+                <ul className="project-files">
+                  {project.images.map(item => (
+                    <li key={item.title}>{item.title}</li>
                   ))}
-                </div>
+                </ul>
                 <a href={project.link} className="project-link" onClick={(e) => handleOpenFinder(e, project)}>
-                  Projects &rarr;
+                  Open folder <span className="arrow" aria-hidden="true">→</span>
                 </a>
               </div>
             </div>

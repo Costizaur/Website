@@ -65,7 +65,7 @@ const projects = [
         icon: iconShiftPro,
         src: shiftProFinal,
         extraImages: [shiftProFinal, shiftProResearch, shiftProLoFi, shiftProHiFi],
-        designLink: 'https://www.figma.com/proto/iy2G6HL5QwJBaxSke646jH/Design-Thinking?page-id=0%3A1&node-id=295-23&scaling=scale-down&content-scaling=fixed&starting-point-node-id=295%3A23',
+        designLink: 'https://www.figma.com/proto/iy2G6HL5QwJBaxSke646jH/Design-Thinking?page-id=0%3A1&node-id=304-590&scaling=scale-down&content-scaling=fixed&starting-point-node-id=304%3A590',
         description: 'At Primark, where I work, the schedule is a printed sheet in a hallway, so swapping a shift comes down to luck. I interviewed a colleague and an HR assistant, then designed ShiftPro: a mobile app where staff can check their shifts anywhere, swap them and read company news.',
         longDescription: 'A Design Thinking project that went from interviews to three rounds of prototypes: grey lo-fi wireframes, a hi-fi version and a final version. I tested each round (3 people on the lo-fi, 9 on the hi-fi) and let the feedback decide what changed next.',
         tags: ['Figma', 'UI/UX', 'User Research', 'Usability Testing'],

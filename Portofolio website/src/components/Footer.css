@@ -2,34 +2,37 @@
 .footer {
     position: relative;
     overflow: hidden;
-    padding: 0 0 2rem;
-    background-color: var(--bg-color);
-    border-top: 1px solid var(--border-color);
+    padding-bottom: calc(var(--sp-5) + env(safe-area-inset-bottom));
+    background: var(--ink);
+    border-top: 1px solid var(--line);
 }
 
-/* Giant outlined surname that fills in on hover */
+/* Giant outlined surname. Hovering fills it with gold, left to right. */
 .footer-wordmark {
+    margin: var(--sp-6) 0 var(--sp-5);
     font-family: var(--font-display);
-    font-size: 22vw;
+    font-stretch: 80%;
+    font-size: clamp(5rem, 25.5vw, 21rem);
     font-weight: 800;
-    line-height: 0.85;
-    letter-spacing: -0.05em;
+    line-height: 0.82;
+    letter-spacing: -0.015em;
     text-align: center;
     white-space: nowrap;
     color: transparent;
-    -webkit-text-stroke: 1px rgba(243, 239, 230, 0.14);
-    margin: 2rem 0 1.5rem;
-    user-select: none;
-    background: linear-gradient(90deg, var(--accent), var(--coral)) no-repeat;
-    background-size: 0% 100%;
+    -webkit-text-stroke: 1px var(--line-strong);
+    background: linear-gradient(var(--gold), var(--gold)) no-repeat 0 0 / 0% 100%;
     -webkit-background-clip: text;
     background-clip: text;
-    transition: background-size 1.2s var(--ease-out), -webkit-text-stroke-color 0.6s ease;
+    transition: background-size 0.9s var(--ease-out), -webkit-text-stroke-color 0.5s ease;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
-.footer-wordmark:hover {
-    background-size: 100% 100%;
-    -webkit-text-stroke-color: transparent;
+@media (hover: hover) and (pointer: fine) {
+    .footer-wordmark:hover {
+        background-size: 100% 100%;
+        -webkit-text-stroke-color: transparent;
+    }
 }
 
 /* Copyright and back-to-top */
@@ -37,24 +40,44 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 1rem;
-    color: var(--text-secondary);
-    font-size: 0.9rem;
+    gap: var(--sp-2) var(--sp-4);
+    font-size: var(--fs-small);
+    color: var(--muted);
 }
 
 .back-to-top {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2.75rem;
+    font-weight: 500;
+    transition: color 0.15s ease;
 }
 
-.back-to-top:hover {
-    color: var(--accent);
+.back-to-top svg {
+    transition: transform 0.2s var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .back-to-top:hover {
+        color: var(--bone);
+    }
+
+    .back-to-top:hover svg {
+        transform: translateY(-2px);
+    }
 }
 
 @media (max-width: 640px) {
     .footer-content {
         flex-direction: column;
         text-align: center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .footer-wordmark,
+    .back-to-top svg {
+        transition: none;
     }
 }

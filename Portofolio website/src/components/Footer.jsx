@@ -1,4 +1,5 @@
 import React from 'react';
+import { ArrowUp } from '@phosphor-icons/react';
 import './Footer.css';
 
 const Footer = () => {
@@ -10,7 +11,9 @@ const Footer = () => {
             <div className="container footer-content">
                 <p>&copy; {new Date().getFullYear()} Costin Sarghiuta. Designed and built in React.</p>
 
-                <a href="#" className="back-to-top">Back to top <span aria-hidden="true">↑</span></a>
+                <a href="#" className="back-to-top">
+                    Back to top <ArrowUp size={14} weight="bold" aria-hidden="true" />
+                </a>
             </div>
         </footer>
     );

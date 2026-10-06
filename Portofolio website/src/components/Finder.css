@@ -1,291 +1,257 @@
-/* Full Screen Overlay */
-.finder-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.4);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-    backdrop-filter: blur(5px);
-    animation: fadeIn 0.2s ease-out;
+/* Finder view: sidebar of folders, list of files */
+.finder {
+    display: grid;
+    grid-template-columns: 14rem minmax(0, 1fr);
+    height: 100%;
 }
 
-/* Mac-style Window */
-.finder-window {
-    width: 900px;
-    height: 600px;
-    background: rgba(30, 30, 30, 0.70);
-    /* Dark translucent glass */
-    backdrop-filter: blur(40px);
-    -webkit-backdrop-filter: blur(40px);
-    border-radius: 12px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    color: #dfdfdf;
-}
-
-/* Window Title Bar */
-.finder-header {
-    height: 52px;
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    background: rgba(50, 50, 50, 0.4);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-    justify-content: space-between;
-}
-
-/* Traffic Light Buttons */
-.window-controls {
-    display: flex;
-    gap: 8px;
-}
-
-.control-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.control-dot.close {
-    background: #FF5F57;
-    border: 1px solid #E0443E;
-}
-
-.control-dot.minimize {
-    background: #FEBC2E;
-    border: 1px solid #D89E24;
-}
-
-.control-dot.maximize {
-    background: #28C840;
-    border: 1px solid #1AAB29;
-}
-
-.finder-title {
-    color: #dfdfdf;
-    font-weight: 600;
-    font-size: 13px;
-    opacity: 0.9;
-}
-
-.finder-toolbar {
-    width: 60px;
-}
-
-/* Spacer */
-
-/* Layout: Sidebar + Main Content */
-.finder-body {
-    display: flex;
-    flex: 1;
-    overflow: hidden;
-}
-
-/* Sidebar Styling */
+/* Sidebar */
 .finder-sidebar {
-    width: 200px;
-    background: rgba(40, 40, 40, 0.3);
-    border-right: 1px solid rgba(0, 0, 0, 0.2);
-    padding: 20px 0;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.sidebar-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.sidebar-title {
-    font-size: 11px;
-    color: #888;
-    font-weight: 600;
-    padding: 0 16px 8px;
-    letter-spacing: 0.5px;
-}
-
-.sidebar-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 6px 16px;
-    font-size: 13px;
-    color: #ccc;
-    cursor: pointer;
-    transition: background 0.1s;
-}
-
-.sidebar-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-.sidebar-item.active {
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-}
-
-.sidebar-icon {
-    font-size: 16px;
-}
-
-/* Main Content Area */
-.finder-content {
-    flex: 1;
-    background: transparent;
-    padding: 20px;
+    padding: var(--sp-5) var(--sp-2);
+    border-right: 1px solid var(--line);
+    background: rgba(0, 0, 0, 0.22);
     overflow-y: auto;
 }
 
-/* File Grid */
-.projects-grid-view {
+.finder-sidebar-title {
+    padding: 0 var(--sp-3) var(--sp-2);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.finder-tabs {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-    gap: 20px;
-    align-items: start;
+    gap: 2px;
 }
 
-/* Individual File/Folder Item */
-.finder-item {
+.finder-tab {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 8px;
-    padding: 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.1s;
-}
-
-.finder-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-}
-
-/* Icon Styling */
-.finder-item-icon {
-    width: 64px;
-    height: 64px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-}
-
-.finder-item-icon img {
-    border-radius: 4px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-/* App icon, shaped like a phone home-screen icon */
-.finder-item-icon .app-icon {
-    width: 64px;
-    height: 64px;
-    object-fit: cover;
-    border-radius: 22%;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.finder-item:hover .app-icon {
-    transform: translateY(-3px) scale(1.06);
-}
-
-/* Custom CSS Folder Icon */
-.folder-shape {
-    width: 56px;
-    height: 40px;
-    background: linear-gradient(180deg, #6DC2FF 0%, #3A8DFF 100%);
-    border-radius: 4px;
-    position: relative;
-    margin-top: 5px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-}
-
-/* Folder Top Tab */
-.folder-shape::before {
-    content: '';
-    position: absolute;
-    top: -6px;
-    left: 0;
-    width: 24px;
-    height: 10px;
-    background: linear-gradient(180deg, #6DC2FF 0%, #3A8DFF 100%);
-    border-radius: 4px 4px 0 0;
-}
-
-.finder-item-name {
-    font-size: 12px;
-    text-align: center;
-    color: #dfdfdf;
+    gap: var(--sp-3);
     width: 100%;
-    word-break: break-word;
-    line-height: 1.3;
-    padding: 2px;
+    min-height: 2.75rem;
+    padding: 0 var(--sp-3);
+    border-radius: var(--r-s);
+    font-size: 0.9375rem;
+    text-align: left;
+    color: var(--muted);
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-/* Animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
+.finder-tab-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.finder-tab-count {
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+}
+
+.finder-tab[aria-current='true'] {
+    background: rgba(243, 239, 230, 0.1);
+    color: var(--bone);
+    font-weight: 500;
+}
+
+/* Main pane */
+.finder-main {
+    padding: var(--sp-6);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.finder-desc {
+    max-width: 58ch;
+    margin-bottom: var(--sp-5);
+    font-size: 1.0625rem;
+    line-height: 1.55;
+    color: var(--muted);
+    text-wrap: pretty;
+}
+
+.finder-empty {
+    padding: var(--sp-8) 0;
+    text-align: center;
+    color: var(--muted);
+}
+
+.finder-list {
+    display: grid;
+    gap: var(--sp-1);
+    margin: 0 calc(var(--sp-4) * -1);
+}
+
+/* One project per row: icon, name and a line about it, screenshot */
+.file-row {
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr) 10.5rem 1rem;
+    align-items: center;
+    gap: var(--sp-5);
+    width: 100%;
+    padding: var(--sp-4);
+    border-radius: var(--r-m);
+    text-align: left;
+    transition: background-color 0.15s ease;
+}
+
+.file-icon {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 22%;
+    object-fit: cover;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.file-icon.is-blank {
+    display: block;
+    background: var(--folder);
+}
+
+.file-text {
+    display: grid;
+    gap: 0.3rem;
+    min-width: 0;
+}
+
+.file-title {
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+}
+
+.file-desc {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    font-size: var(--fs-small);
+    line-height: 1.45;
+    color: var(--muted);
+}
+
+.file-shot {
+    width: 10.5rem;
+    aspect-ratio: 16 / 10;
+    border-radius: var(--r-s);
+    object-fit: cover;
+    box-shadow: 0 0 0 1px var(--line);
+}
+
+.file-caret {
+    color: var(--muted);
+    transition: transform 0.2s var(--ease-out), color 0.15s ease;
+}
+
+.file-row:active {
+    background: rgba(243, 239, 230, 0.09);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .finder-tab:hover {
+        color: var(--bone);
+        background: rgba(243, 239, 230, 0.06);
     }
 
-    to {
-        opacity: 1;
+    .finder-tab[aria-current='true']:hover {
+        background: rgba(243, 239, 230, 0.1);
+    }
+
+    .file-row:hover {
+        background: rgba(243, 239, 230, 0.06);
+    }
+
+    .file-row:hover .file-caret {
+        transform: translateX(3px);
+        color: var(--bone);
     }
 }
 
-@keyframes scaleIn {
-    from {
-        transform: scale(0.95);
-        opacity: 0;
-    }
-
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-/* Mobile Adjustments */
-@media (max-width: 768px) {
-    .finder-window {
-        width: 100%;
-        height: 100%;
-        border-radius: 0;
+/* Phone: folders become a row of tabs along the top */
+@media (max-width: 720px) {
+    .finder {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
     }
 
     .finder-sidebar {
-        width: 60px;
+        padding: var(--sp-2) 0;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        overflow: visible;
     }
 
-    .sidebar-title,
-    .sidebar-text {
+    .finder-sidebar-title {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+    }
+
+    .finder-tabs {
+        position: relative;
+        display: flex;
+        gap: var(--sp-1);
+        padding: 0 var(--sp-3);
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+    }
+
+    .finder-tabs::-webkit-scrollbar {
         display: none;
     }
 
-    /* Show only icons */
-    .sidebar-item {
-        justify-content: center;
-        padding: 10px;
+    .finder-tab {
+        width: auto;
+        white-space: nowrap;
+        gap: var(--sp-2);
+    }
+
+    .finder-tab-count {
+        display: none;
+    }
+
+    .finder-main {
+        padding: var(--sp-5) var(--sp-4);
+    }
+
+    .finder-list {
+        margin: 0 calc(var(--sp-3) * -1);
+    }
+
+    .file-row {
+        grid-template-columns: 3rem minmax(0, 1fr) 1rem;
+        gap: var(--sp-4);
+        padding: var(--sp-3);
+    }
+
+    .file-icon {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    .file-title {
+        font-size: 1.1875rem;
+    }
+
+    .file-shot {
+        display: none;
     }
 }
 
-/* Hide scrollbars */
-.finder-content::-webkit-scrollbar {
-    display: none;
-}
-
-.finder-content {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+@media (prefers-reduced-motion: reduce) {
+    .file-caret {
+        transition: none;
+    }
 }

@@ -1,225 +1,170 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { ArrowUpRight, ArrowUUpLeft, MapTrifold, Play } from '@phosphor-icons/react';
 import Carousel from './Carousel';
 import './Modal.css';
 
-const Modal = ({ project, onClose, onBack }) => {
-    // --- STATE MANAGEMENT ---
-    const [currentDescription, setCurrentDescription] = React.useState('');
-    // Track "Unfold" animation state: 'idle' -> 'playing-1' (open) -> 'showing-image' (text) -> 'playing-2' (close) -> 'idle'
-    const [unfoldState, setUnfoldState] = React.useState('idle');
+// True on phone-sized screens; used to pick the portrait unfold video
+const useIsPhone = () => {
+    const query = '(max-width: 768px)';
+    const [isPhone, setIsPhone] = useState(() => window.matchMedia(query).matches);
 
-    // Track currently visible slide
-    const [currentIndex, setCurrentIndex] = React.useState(project.initialIndex || 0);
-
-    // Check if on mobile to swap video assets
-    const [isMobile, setIsMobile] = React.useState(window.innerWidth <= 768);
-
-    // --- EFFECT HOOKS ---
     useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth <= 768);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
+        const media = window.matchMedia(query);
+        const onChange = (e) => setIsPhone(e.matches);
+        media.addEventListener('change', onChange);
+        return () => media.removeEventListener('change', onChange);
     }, []);
 
-    useEffect(() => {
-        // Lock body scroll when modal is open
-        document.body.style.overflow = 'hidden';
+    return isPhone;
+};
 
-        // Initialize state from props
-        if (project) {
-            setCurrentDescription(project.description);
-            setCurrentIndex(project.initialIndex || 0);
-        }
-        return () => {
-            document.body.style.overflow = 'unset'; // Unlock scroll on close
-        };
-    }, [project]);
+// Project detail, shown inside the window: screenshots, the write-up, links, and the unfold
+const Modal = ({ category, item }) => {
+    // Unfold steps: 'idle' -> 'opening' (video) -> 'open' (notes on the paper) -> 'closing' (video) -> 'idle'
+    const [unfold, setUnfold] = useState('idle');
+    const endVideo = useRef(null);
+    const sheet = useRef(null);
+    const isPhone = useIsPhone();
 
-    // Close on Escape
-    useEffect(() => {
-        const onKey = (e) => { if (e.key === 'Escape') onClose(); };
-        window.addEventListener('keydown', onKey);
-        return () => window.removeEventListener('keydown', onKey);
-    }, [onClose]);
-
-    // Update description when slide changes
-    const handleSlideChange = (index) => {
-        setCurrentIndex(index);
-        if (!project || !project.images) return;
-
-        const currentImage = project.images[index];
-        if (typeof currentImage === 'object' && currentImage.description) {
-            setCurrentDescription(currentImage.description);
-        } else {
-            setCurrentDescription(project.description);
-        }
-    };
+    // Item fields override the folder's
+    const description = item.description || category.description;
+    const longDescription = item.longDescription || category.longDescription;
+    const tags = item.tags || category.tags || [];
+    const tools = item.tools || tags;
+    const images = item.extraImages && item.extraImages.length > 0 ? item.extraImages : [item.src];
 
     // --- UNFOLD LOGIC ---
-    // The "Unfold" animation is tied to the first item
-    const primaryItem = project.images[0];
-
     // Select appropriate video based on device (Mobile/Desktop)
-    const activeUnfoldVideoStart = (isMobile && primaryItem?.unfoldVideoStartMobile)
-        ? primaryItem.unfoldVideoStartMobile
-        : primaryItem?.unfoldVideoStart;
+    const videoStart = (isPhone && item.unfoldVideoStartMobile) || item.unfoldVideoStart;
+    const videoEnd = (isPhone && item.unfoldVideoEndMobile) || item.unfoldVideoEnd;
+    const unfoldText = item.unfoldText;
+    const canUnfold = Boolean(videoStart); // Only show button if video exists
 
-    const activeUnfoldVideoEnd = (isMobile && primaryItem?.unfoldVideoEndMobile)
-        ? primaryItem.unfoldVideoEndMobile
-        : primaryItem?.unfoldVideoEnd;
+    const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const activeUnfoldText = primaryItem?.unfoldText;
+    const startUnfold = () => setUnfold(reducedMotion() ? 'open' : 'opening');
 
-    const canUnfold = !!activeUnfoldVideoStart; // Only show button if video exists
-
-    const handleUnfoldClick = () => {
-        if (canUnfold) {
-            setUnfoldState('playing-1'); // Start opening animation
+    const foldBack = () => {
+        const video = endVideo.current;
+        if (reducedMotion() || !video) {
+            setUnfold('idle');
+            return;
         }
+        setUnfold('closing');
+        video.play().catch(() => setUnfold('idle'));
     };
 
-    const handleVideoEnd = () => {
-        if (unfoldState === 'playing-1') {
-            setUnfoldState('showing-image'); // Show static content after open
-        } else if (unfoldState === 'playing-2') {
-            setUnfoldState('idle'); // Reset after closing
-        }
-    };
-
-    const handleReverseStart = (e) => {
-        e.stopPropagation();
-        setUnfoldState('playing-2'); // Start closing animation
-    };
-
-    if (!project) return null;
+    // Once the paper is open, put focus on it so the notes can be read and scrolled straight away
+    useEffect(() => {
+        if (unfold === 'open' && sheet.current) sheet.current.focus({ preventScroll: true });
+    }, [unfold]);
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content" onClick={e => e.stopPropagation()}>
-
-                {/* --- CONTROLS --- */}
-                {unfoldState === 'idle' && canUnfold && (
-                    <button className="unfold-btn" onClick={handleUnfoldClick}>Unfold</button>
-                )}
-                <button className="modal-close" onClick={onClose}>&times;</button>
-
-                {onBack && (
-                    <button className="modal-back" onClick={onBack}>&larr;</button>
-                )}
-
-                {/* --- CONTENT RENDERER --- */}
-                {unfoldState !== 'idle' ? (
-                    // 1. UNFOLD ANIMATION MODE
-                    <div className="unfold-overlay">
-                        {/* Phase 1: Opening Video */}
-                        {unfoldState === 'playing-1' && (
-                            <video
-                                src={activeUnfoldVideoStart}
-                                autoPlay
-                                className="unfold-media"
-                                onEnded={handleVideoEnd}
-                                onClick={handleVideoEnd}
-                            />
-                        )}
-                        {/* Phase 3: Closing Video */}
-                        {unfoldState === 'playing-2' && (
-                            <video
-                                src={activeUnfoldVideoEnd}
-                                autoPlay
-                                className="unfold-media"
-                                onEnded={handleVideoEnd}
-                                onClick={handleVideoEnd}
-                            />
-                        )}
-                        {/* Phase 2: Static Content (Text overlay on last frame) */}
-                        {unfoldState === 'showing-image' && (
-                            <div className="unfold-paused-container" onClick={handleReverseStart}>
-                                <video
-                                    src={activeUnfoldVideoEnd} // Use end video (first frame matches start video last frame)
-                                    className="unfold-media"
-                                />
-                                {/* Overlay Text Grid */}
-                                {Array.isArray(activeUnfoldText) ? (
-                                    <div className="unfold-grid-overlay">
-                                        {activeUnfoldText.map((section, index) => (
-                                            <div key={index} className="unfold-grid-item">
-                                                <h4>{section.title}</h4>
-                                                <ul>
-                                                    {section.items.map((item, i) => (
-                                                        <li key={i}>{item}</li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="unfold-text-overlay">
-                                        <p>{activeUnfoldText}</p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                ) : (
-                    // 2. STANDARD CAROUSEL MODE
-                    <div className="modal-body">
-                        <div className="modal-carousel-container">
-                            <Carousel images={project.images || [project.color]} onSlideChange={handleSlideChange} initialIndex={project.initialIndex || 0} />
-                        </div>
-
-                        {/* Project Details */}
-                        <div className="modal-info">
-                            <h2 className="modal-title">{project.title}</h2>
-                            <div className="modal-tags">
-                                {project.tags.map(tag => (
-                                    <span key={tag} className="tag">{tag}</span>
-                                ))}
-                            </div>
-                            <p className="modal-description">{currentDescription}</p>
-
-                            <div className="modal-long-description">
-                                <p>{project.longDescription}</p>
-                                <p>Tools used: {(project.tools || project.tags).join(', ')}</p>
-                            </div>
-
-                            {/* External Links */}
-                            {project.designLink && (
-                                <a
-                                    href={project.designLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="project-link"
-                                    style={{ marginTop: '20px', display: 'inline-block' }}
-                                >
-                                    View Design in Figma &rarr;
-                                </a>
-                            )}
-                            {project.gameLink && (
-                                <a
-                                    href={project.gameLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="project-link"
-                                    style={{ marginTop: '20px', marginLeft: '10px', display: 'inline-block' }}
-                                >
-                                    Play Game &rarr;
-                                </a>
-                            )}
-                            {project.liveLink && (
-                                <a
-                                    href={project.liveLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="project-link"
-                                    style={{ marginTop: '20px', marginLeft: '10px', display: 'inline-block' }}
-                                >
-                                    View Live App &rarr;
-                                </a>
-                            )}
-                        </div>
-                    </div>
-                )}
+        <div className="project">
+            <div className="project-scroll">
+            {/* --- SCREENSHOTS --- */}
+            <div className="project-media">
+                <Carousel images={images} title={item.title} />
             </div>
+
+            {/* --- DETAILS --- */}
+            <div className="project-info">
+                <h3 className="project-name display">{item.title}</h3>
+
+                {tags.length > 0 && (
+                    <ul className="project-tags" aria-label="Tags">
+                        {tags.map(tag => (
+                            <li key={tag} className="tag">{tag}</li>
+                        ))}
+                    </ul>
+                )}
+
+                <p className="project-desc">{description}</p>
+                {longDescription && <p className="project-long">{longDescription}</p>}
+
+                {tools.length > 0 && (
+                    <p className="project-tools"><span>Tools used:</span> {tools.join(', ')}</p>
+                )}
+
+                {/* External links and the unfold */}
+                <div className="project-actions">
+                    {item.gameLink && (
+                        <a href={item.gameLink} target="_blank" rel="noopener noreferrer" className="btn">
+                            <Play size={14} weight="fill" aria-hidden="true" /> Play {item.title}
+                        </a>
+                    )}
+                    {item.designLink && (
+                        <a href={item.designLink} target="_blank" rel="noopener noreferrer" className="btn">
+                            View design in Figma <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
+                        </a>
+                    )}
+                    {item.liveLink && (
+                        <a href={item.liveLink} target="_blank" rel="noopener noreferrer" className="btn">
+                            View live app <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
+                        </a>
+                    )}
+                    {canUnfold && (
+                        <button type="button" className="btn btn-secondary" onClick={startUnfold}>
+                            <MapTrifold size={18} weight="bold" aria-hidden="true" /> Unfold the process
+                        </button>
+                    )}
+                </div>
+            </div>
+            </div>
+
+            {/* --- UNFOLD: a sheet of paper opens over the project, with the process written on it --- */}
+            {unfold !== 'idle' && (
+                <div className="unfold" data-step={unfold}>
+                    {/* The folding-back video waits underneath; its first frame is the open sheet */}
+                    <video
+                        ref={endVideo}
+                        src={videoEnd}
+                        className="unfold-video"
+                        muted
+                        playsInline
+                        preload="auto"
+                        onEnded={() => setUnfold('idle')}
+                        onError={() => unfold === 'closing' && setUnfold('idle')}
+                    />
+                    {unfold === 'opening' && (
+                        <video
+                            src={videoStart}
+                            className="unfold-video"
+                            muted
+                            playsInline
+                            autoPlay
+                            onEnded={() => setUnfold('open')}
+                            onError={() => setUnfold('open')}
+                            onClick={() => setUnfold('open')}
+                        />
+                    )}
+
+                    {unfold === 'open' && (
+                        <div className="unfold-sheet" ref={sheet} tabIndex={-1} role="region" aria-label={`${item.title}: process notes`}>
+                            <button type="button" className="unfold-back" onClick={foldBack}>
+                                <ArrowUUpLeft size={16} weight="bold" aria-hidden="true" /> Fold back
+                            </button>
+
+                            {Array.isArray(unfoldText) ? (
+                                <div className="unfold-grid">
+                                    {unfoldText.map((section, index) => (
+                                        <section key={index} className="unfold-note">
+                                            <h4>{section.title}</h4>
+                                            <ul>
+                                                {section.items.map((line, i) => (
+                                                    <li key={i}>{line}</li>
+                                                ))}
+                                            </ul>
+                                        </section>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="unfold-plain">{unfoldText}</p>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 };

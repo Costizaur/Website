@@ -80,6 +80,7 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 5rem;
+  scrollbar-gutter: stable;
   scrollbar-color: var(--surface-3) var(--ink);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
@@ -165,6 +166,11 @@ textarea {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--muted);
+}
+
+/* The page behind an open window does not scroll */
+html:has(dialog[open]) {
+  overflow: hidden;
 }
 
 /* --- Layout --- */

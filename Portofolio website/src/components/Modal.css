@@ -1,280 +1,243 @@
-/* Full Screen Overlay */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
+/* Project detail inside the window: screenshots on the left, write-up on the right */
+.project {
+    position: relative;
+    height: 100%;
+}
+
+.project-scroll {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    height: 100%;
+}
+
+.project-media {
+    min-width: 0;
+    min-height: 0;
+    padding: var(--sp-5);
+    border-right: 1px solid var(--line);
+    background: rgba(0, 0, 0, 0.22);
+}
+
+.project-info {
+    min-width: 0;
+    padding: var(--sp-6) var(--sp-6) var(--sp-7);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.project-name {
+    font-size: clamp(2.5rem, 4.4vw, 3.5rem);
+    margin-bottom: var(--sp-4);
+    overflow-wrap: anywhere;
+}
+
+.project-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin-bottom: var(--sp-5);
+}
+
+.project-desc {
+    font-size: 1.0625rem;
+    line-height: 1.55;
+    margin-bottom: var(--sp-4);
+    text-wrap: pretty;
+}
+
+.project-long {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--muted);
+    margin-bottom: var(--sp-4);
+    text-wrap: pretty;
+}
+
+.project-tools {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--muted);
+}
+
+.project-tools span {
+    font-weight: 600;
+    color: var(--bone);
+}
+
+.project-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-3);
+    margin-top: var(--sp-6);
+}
+
+.project-actions:empty {
+    display: none;
+}
+
+/* --- Unfold: a sheet of paper over the whole project --- */
+.unfold {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    /* Paper tone, shown if the video cannot play */
+    background: #dcdad5;
+    overflow: hidden;
+    animation: unfold-in 0.2s ease-out;
+}
+
+@keyframes unfold-in {
+    from { opacity: 0; }
+}
+
+.unfold-video {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(5px);
-    z-index: 2000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-    animation: fadeIn 0.3s ease;
+    object-fit: cover;
 }
 
-/* Modal Window */
-.modal-content {
-    background: var(--surface-color);
-    width: 100%;
-    max-width: 900px;
-    max-height: 90vh;
-    /* Limits height to viewport */
-    border-radius: 20px;
-    border: 1px solid var(--border-color);
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Close Button (Top Right) */
-.modal-close {
+/* The notes are printed on the paper: dark ink, no boxes */
+.unfold-sheet {
     position: absolute;
-    top: 15px;
-    right: 20px;
-    font-size: 2rem;
-    color: var(--text-secondary);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    z-index: 100;
-    line-height: 1;
-    transition: color 0.2s;
-}
-
-.modal-close:hover {
-    color: var(--text-primary);
-}
-
-/* Inner Scrollable Area */
-.modal-body {
-    padding: 0;
+    inset: 0;
+    padding: clamp(1.25rem, 3.4vw, 2.25rem) clamp(1.25rem, 5vw, 3.5rem) clamp(1.5rem, 4vw, 2.5rem);
     overflow-y: auto;
-    /* Allow scrolling for long text */
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+    overscroll-behavior: contain;
+    color: #1d1a14;
+    animation: ink-in 0.35s var(--ease-out);
 }
 
-/* Carousel Section */
-.modal-carousel-container {
-    width: 100%;
-    background: #000;
+.unfold-sheet:focus {
+    outline: none;
 }
 
-/* Text Content Section */
-.modal-info {
-    padding: 2rem;
-    padding-bottom: 5rem;
-    /* Space for buttons */
+@keyframes ink-in {
+    from { opacity: 0; transform: translateY(6px); }
 }
 
-.modal-title {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-    color: var(--text-primary);
+.unfold-back {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    float: right;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    min-height: 2.75rem;
+    margin: 0 0 var(--sp-2) var(--sp-4);
+    padding: 0 var(--sp-4);
+    border-radius: var(--r-s);
+    background: #1d1a14;
+    color: var(--bone);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    transition: transform var(--press), background-color 0.15s ease;
 }
 
-.modal-tags {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
+.unfold-back:active {
+    transform: scale(0.97);
 }
 
-.modal-description {
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-    margin-bottom: 2rem;
+.unfold-back:focus-visible {
+    outline-color: #1d1a14;
+}
+
+.unfold-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.5rem, 3vw, 2.25rem) clamp(1.5rem, 5vw, 4rem);
+    clear: both;
+    max-width: 56rem;
+    margin-inline: auto;
+}
+
+.unfold-note h4 {
+    font-family: var(--font-display);
+    font-stretch: 80%;
+    font-size: 1.75rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    padding-bottom: var(--sp-3);
+    margin-bottom: var(--sp-3);
+    border-bottom: 2px solid #1d1a14;
+}
+
+.unfold-note ul {
+    display: grid;
+    gap: 0.55rem;
+}
+
+.unfold-note li {
+    position: relative;
+    padding-left: 1rem;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    text-wrap: pretty;
+}
+
+/* An ink pip instead of a bullet */
+.unfold-note li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.unfold-plain {
+    clear: both;
+    max-width: 60ch;
+    font-size: 1.0625rem;
     line-height: 1.6;
 }
 
-.modal-long-description p {
-    margin-bottom: 1rem;
-    color: var(--text-secondary);
-}
-
-/* --- Animations --- */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
+@media (hover: hover) and (pointer: fine) {
+    .unfold-back:hover {
+        background: #38332a;
     }
 }
 
-@keyframes scaleUp {
-    from {
-        transform: scale(0.95);
-        opacity: 0;
+/* Phone: one column, and the whole view scrolls as one */
+@media (max-width: 720px) {
+    .project-scroll {
+        display: block;
+        overflow-y: auto;
+        overscroll-behavior: contain;
     }
 
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-/* --- Unfold Animation Styles --- */
-
-.unfold-btn {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    backdrop-filter: blur(4px);
-    z-index: 1001;
-    transition: all 0.3s ease;
-}
-
-.unfold-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-2px);
-}
-
-/* Full Container for Unfold Video */
-.unfold-overlay {
-    position: relative;
-    width: 100%;
-    height: auto;
-    min-height: 300px;
-    background: black;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    border-radius: 20px;
-}
-
-.unfold-media {
-    width: 100%;
-    height: auto;
-    display: block;
-    object-fit: contain;
-}
-
-/* Text Grid overlaid on video */
-.unfold-grid-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 1.5rem;
-    padding: 4rem;
-    pointer-events: none;
-    /* Clicks pass through */
-    animation: fadeIn 0.3s ease;
-    max-width: 900px;
-    margin: 0 auto;
-}
-
-/* Glass-morphism Card for Text */
-.unfold-grid-item {
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(8px);
-    border-radius: 12px;
-    padding: 1rem;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.unfold-grid-item h4 {
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-    color: var(--accent-color, #6366f1);
-    font-weight: 600;
-}
-
-.unfold-grid-item ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.unfold-grid-item li {
-    font-size: 0.85rem;
-    margin-bottom: 0.5rem;
-    line-height: 1.4;
-    opacity: 0.9;
-}
-
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
-    .modal-overlay {
-        padding: 1rem;
+    .project-media {
+        padding: var(--sp-3);
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
     }
 
-    .modal-title {
+    .project-info {
+        padding: var(--sp-5) var(--sp-4) var(--sp-7);
+        overflow: visible;
+    }
+
+    .project-actions {
+        flex-direction: column;
+    }
+
+    .unfold-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .unfold-note h4 {
         font-size: 1.5rem;
     }
+}
 
-    .unfold-grid-overlay {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto;
-        overflow-y: auto;
-        pointer-events: auto;
-        /* Allow scrolling */
+@media (prefers-reduced-motion: reduce) {
+    .unfold,
+    .unfold-sheet {
+        animation: none;
     }
-}
-
-/* Back Button (Bottom Left) */
-.modal-back {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    font-size: 1.2rem;
-    width: auto;
-    height: auto;
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
-    z-index: 101;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    backdrop-filter: blur(4px);
-}
-
-.modal-back:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: var(--text-primary);
-    transform: scale(1.1);
-}
-
-/* Hide scrollbars but keep functionality */
-.modal-info,
-.modal-body {
-    scrollbar-width: none;
-    /* Firefox */
-    -ms-overflow-style: none;
-    /* IE/Edge */
-}
-
-.modal-info::-webkit-scrollbar,
-.modal-body::-webkit-scrollbar {
-    display: none;
-    /* Chrome/Safari */
 }

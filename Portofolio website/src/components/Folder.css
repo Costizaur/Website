@@ -1,140 +1,100 @@
-/* Default Variables */
-:root {
-    --folder-color: #70a1ff;
-    --folder-back-color: #4785ff;
-    --paper-1: #e6e6e6;
-    --paper-2: #f2f2f2;
-    --paper-3: #ffffff;
-}
-
-/* Folder Wrapper */
+/* Folder drawn in CSS. Every measure hangs off --u, one unit of a 156-unit-wide folder. */
 .folder {
-    transition: all 0.2s ease-in;
-    cursor: pointer;
-}
-
-/* Hover: Slight lift up */
-.folder:not(.folder--click):hover {
-    transform: translateY(-8px);
-}
-
-/* Hover: Papers peek out slightly */
-.folder:not(.folder--click):hover .paper {
-    transform: translate(-50%, 0%);
-}
-
-/* Hover: Front flap skews to look "open" */
-.folder:not(.folder--click):hover .folder__front {
-    transform: skew(15deg) scaleY(0.6);
-}
-
-.folder:not(.folder--click):hover .right {
-    transform: skew(-15deg) scaleY(0.6);
-}
-
-/* --- STATE: OPEN --- */
-
-/* Lift folder higher */
-.folder.open {
-    transform: translateY(-8px);
-}
-
-/* Paper 1: Pops out Left */
-.folder.open .paper:nth-child(1) {
-    transform: translate(-120%, -70%) rotateZ(-15deg);
-}
-
-.folder.open .paper:nth-child(1):hover {
-    transform: translate(-120%, -70%) rotateZ(-15deg) scale(1.1);
-}
-
-/* Paper 2: Pops out Right */
-.folder.open .paper:nth-child(2) {
-    transform: translate(10%, -70%) rotateZ(15deg);
-    height: 80%;
-}
-
-.folder.open .paper:nth-child(2):hover {
-    transform: translate(10%, -70%) rotateZ(15deg) scale(1.1);
-}
-
-/* Paper 3: Pops out Center */
-.folder.open .paper:nth-child(3) {
-    transform: translate(-50%, -100%) rotateZ(5deg);
-    height: 80%;
-}
-
-.folder.open .paper:nth-child(3):hover {
-    transform: translate(-50%, -100%) rotateZ(5deg) scale(1.1);
-}
-
-/* Keep front flap open */
-.folder.open .folder__front {
-    transform: skew(15deg) scaleY(0.6);
-}
-
-.folder.open .right {
-    transform: skew(-15deg) scaleY(0.6);
-}
-
-/* --- STRUCTURE --- */
-
-/* Back Panel */
-.folder__back {
+    --w: 172px;
+    --u: calc(var(--w) / 156);
     position: relative;
-    width: 100px;
-    height: 80px;
-    background: var(--folder-back-color);
-    border-radius: 0px 10px 10px 10px;
+    display: block;
+    flex: none;
+    width: var(--w);
+    height: calc(var(--u) * 142);
 }
 
-/* Folder Tab (Top Left bump) */
-.folder__back::after {
+.folder-back {
     position: absolute;
-    z-index: 0;
-    bottom: 98%;
     left: 0;
-    content: '';
-    width: 30px;
-    height: 10px;
-    background: var(--folder-back-color);
-    border-radius: 5px 5px 0 0;
-}
-
-/* Paper Inserts */
-.paper {
-    position: absolute;
-    z-index: 2;
-    bottom: 10%;
-    left: 50%;
-    transform: translate(-50%, 10%);
-    width: 70%;
-    height: 80%;
-    background: var(--paper-1);
-    border-radius: 10px;
-    transition: all 0.3s ease-in-out;
-}
-
-.paper:nth-child(2) {
-    background: var(--paper-2);
-    width: 80%;
-    height: 70%;
-}
-
-.paper:nth-child(3) {
-    background: var(--paper-3);
-    width: 90%;
-    height: 60%;
-}
-
-/* Front Flap */
-.folder__front {
-    position: absolute;
-    z-index: 3;
+    top: calc(var(--u) * 30);
     width: 100%;
-    height: 100%;
-    background: var(--folder-color);
-    border-radius: 5px 10px 10px 10px;
+    height: calc(var(--u) * 112);
+    border-radius: 0 calc(var(--u) * 12) calc(var(--u) * 12) calc(var(--u) * 12);
+    background: color-mix(in srgb, var(--folder) 68%, #000);
+}
+
+/* Tab */
+.folder-back::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: calc(100% - 1px);
+    width: calc(var(--u) * 60);
+    height: calc(var(--u) * 16);
+    border-radius: calc(var(--u) * 8) calc(var(--u) * 8) 0 0;
+    background: inherit;
+}
+
+/* Project icons, tucked in like papers */
+.folder-paper {
+    --x: 0;
+    --y: 0;
+    --r: 0deg;
+    position: absolute;
+    top: calc(var(--u) * 6);
+    left: 50%;
+    width: calc(var(--u) * 56);
+    height: calc(var(--u) * 56);
+    margin-left: calc(var(--u) * -28);
+    border-radius: 22%;
+    object-fit: cover;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    transform: translate(calc(var(--u) * var(--x)), calc(var(--u) * var(--y))) rotate(var(--r));
+    transition: transform 0.3s var(--ease-out);
+}
+
+.folder[data-papers='3'] .folder-paper:nth-child(2) { --x: -43; --y: 9; --r: -8deg; }
+.folder[data-papers='3'] .folder-paper:nth-child(4) { --x: 43; --y: 9; --r: 8deg; }
+.folder[data-papers='2'] .folder-paper:nth-child(2) { --x: -25; --y: 4; --r: -6deg; }
+.folder[data-papers='2'] .folder-paper:nth-child(3) { --x: 25; --y: 4; --r: 6deg; }
+
+.folder-front {
+    position: absolute;
+    left: 0;
+    top: calc(var(--u) * 50);
+    width: 100%;
+    height: calc(var(--u) * 92);
+    border-radius: calc(var(--u) * 12);
+    background: linear-gradient(color-mix(in srgb, var(--folder), #fff 12%), var(--folder));
+    box-shadow: inset 0 1.5px 0 rgba(255, 255, 255, 0.3), 0 -3px 8px rgba(0, 0, 0, 0.25);
     transform-origin: bottom;
-    transition: all 0.3s ease-in-out;
+    transition: transform 0.3s var(--ease-out);
+}
+
+/* Open: the flap leans forward and the papers rise and fan out */
+@media (hover: hover) and (pointer: fine) {
+    .folder-host:hover .folder-front {
+        transform: perspective(600px) rotateX(-24deg);
+    }
+
+    .folder-host:hover .folder[data-papers='3'] .folder-paper:nth-child(2) { --x: -52; --y: -10; --r: -13deg; }
+    .folder-host:hover .folder[data-papers='3'] .folder-paper:nth-child(3) { --y: -22; }
+    .folder-host:hover .folder[data-papers='3'] .folder-paper:nth-child(4) { --x: 52; --y: -10; --r: 13deg; }
+    .folder-host:hover .folder[data-papers='2'] .folder-paper:nth-child(2) { --x: -33; --y: -16; --r: -10deg; }
+    .folder-host:hover .folder[data-papers='2'] .folder-paper:nth-child(3) { --x: 33; --y: -16; --r: 10deg; }
+    .folder-host:hover .folder[data-papers='1'] .folder-paper:nth-child(2) { --y: -20; --r: -4deg; }
+}
+
+.folder-host:has(:focus-visible) .folder-front {
+    transform: perspective(600px) rotateX(-24deg);
+}
+
+.folder-host:has(:focus-visible) .folder[data-papers='3'] .folder-paper:nth-child(2) { --x: -52; --y: -10; --r: -13deg; }
+.folder-host:has(:focus-visible) .folder[data-papers='3'] .folder-paper:nth-child(3) { --y: -22; }
+.folder-host:has(:focus-visible) .folder[data-papers='3'] .folder-paper:nth-child(4) { --x: 52; --y: -10; --r: 13deg; }
+.folder-host:has(:focus-visible) .folder[data-papers='2'] .folder-paper:nth-child(2) { --x: -33; --y: -16; --r: -10deg; }
+.folder-host:has(:focus-visible) .folder[data-papers='2'] .folder-paper:nth-child(3) { --x: 33; --y: -16; --r: 10deg; }
+.folder-host:has(:focus-visible) .folder[data-papers='1'] .folder-paper:nth-child(2) { --y: -20; --r: -4deg; }
+
+@media (prefers-reduced-motion: reduce) {
+    .folder-paper,
+    .folder-front {
+        transition: none;
+    }
 }

@@ -1,103 +1,87 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
+import { CaretRight } from '@phosphor-icons/react';
 import './Finder.css';
-import Folder from './Folder';
 
-const Finder = ({ categories, initialCategory, onClose, onSelectProject }) => {
-    // Current folder being viewed (e.g., "UI/UX Design")
-    const [activeCategory, setActiveCategory] = useState(initialCategory || categories[0]);
+// The Finder view inside the window: folders down the side, the open folder's files as a list
+const Finder = ({ categories, category, focusIndex, onSelectCategory, onOpenItem }) => {
+    const listRef = useRef(null);
 
-    // Update active folder if prop changes
+    // Coming back from a project puts focus on the row you came from
     useEffect(() => {
-        if (initialCategory) {
-            setActiveCategory(initialCategory);
-        }
-    }, [initialCategory]);
+        if (focusIndex == null) return;
+        const rows = listRef.current ? listRef.current.querySelectorAll('.file-row') : [];
+        if (rows[focusIndex]) rows[focusIndex].focus({ preventScroll: true });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-    // Close on Escape
+    // On a phone the folders are a scrolling row of tabs: keep the open one in view
+    const tabsRef = useRef(null);
     useEffect(() => {
-        const onKey = (e) => { if (e.key === 'Escape') onClose(); };
-        window.addEventListener('keydown', onKey);
-        return () => window.removeEventListener('keydown', onKey);
-    }, [onClose]);
+        const tabs = tabsRef.current;
+        const active = tabs ? tabs.querySelector('[aria-current="true"]') : null;
+        if (!active || tabs.scrollWidth <= tabs.clientWidth) return;
+        tabs.scrollTo({ left: active.offsetLeft - (tabs.clientWidth - active.offsetWidth) / 2 });
+    }, [category.id]);
 
-    // Switch folders via sidebar
-    const handleCategoryClick = (category) => {
-        setActiveCategory(category);
-    };
-
-    // Get list of items in current folder
-    const currentItems = activeCategory ? activeCategory.images : [];
+    const items = category.images || [];
 
     return (
-        <div className="finder-overlay" onClick={onClose}>
-            {/* Main Window */}
-            <div className="finder-window" onClick={e => e.stopPropagation()}>
+        <div className="finder">
+            {/* --- SIDEBAR (Category List) --- */}
+            <nav className="finder-sidebar" aria-label="Folders">
+                <p className="finder-sidebar-title">Categories</p>
+                <ul className="finder-tabs" ref={tabsRef}>
+                    {categories.map(c => (
+                        <li key={c.id}>
+                            <button
+                                type="button"
+                                className="finder-tab"
+                                style={{ '--folder': c.color }}
+                                aria-current={c.id === category.id ? 'true' : undefined}
+                                onClick={() => onSelectCategory(c)}
+                            >
+                                <span className="mini-folder" aria-hidden="true"></span>
+                                <span className="finder-tab-name">{c.title}</span>
+                                <span className="finder-tab-count">{c.images.length}</span>
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            </nav>
 
-                {/* --- HEADER (Traffic Lights + Title) --- */}
-                <div className="finder-header">
-                    <div className="window-controls">
-                        <div className="control-dot close" onClick={onClose}></div>
-                        <div className="control-dot minimize"></div>
-                        <div className="control-dot maximize"></div>
-                    </div>
-                    <div className="finder-title">Projects — {activeCategory ? activeCategory.title : 'All'}</div>
-                    <div className="finder-toolbar"></div>
-                </div>
+            {/* --- MAIN CONTENT (List of Files) --- */}
+            <div className="finder-main">
+                <p className="finder-desc">{category.description}</p>
 
-                <div className="finder-body">
-                    {/* --- SIDEBAR (Category List) --- */}
-                    <div className="finder-sidebar">
-                        <div className="sidebar-group">
-                            <div className="sidebar-title">Categories</div>
-                            {categories.map(category => (
-                                <div
-                                    key={category.id}
-                                    className={`sidebar-item ${activeCategory.id === category.id ? 'active' : ''}`}
-                                    onClick={() => handleCategoryClick(category)}
-                                >
-                                    <span className="sidebar-icon">📂</span>
-                                    <span className="sidebar-text">{category.title}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* --- MAIN CONTENT (Grid of Files) --- */}
-                    <div className="finder-content">
-                        <div className="projects-grid-view">
-                            {currentItems.map((item, index) => (
-                                <div
-                                    key={item.title || index}
-                                    className="finder-item"
-                                    onClick={() => onSelectProject(activeCategory, index)}
-                                >
-                                    <div className="finder-item-icon">
-                                        {/* App icon if the project has one, else a thumbnail, else a generic folder */}
+                {items.length === 0 ? (
+                    <p className="finder-empty">No items in this folder</p>
+                ) : (
+                    <ul className="finder-list" ref={listRef}>
+                        {items.map((item, index) => {
+                            const isColor = typeof item.src === 'string' && item.src.startsWith('#');
+                            return (
+                                <li key={item.title || index}>
+                                    <button type="button" className="file-row" onClick={() => onOpenItem(index)}>
+                                        {/* App icon if the project has one, else a plain tile in the folder colour */}
                                         {item.icon ? (
-                                            <img src={item.icon} alt="" className="app-icon" />
-                                        ) : typeof item === 'string' || !item.src || (typeof item.src === 'string' && item.src.startsWith('#')) ? (
-                                            <div 
-                                                className="folder-shape" 
-                                                style={{ 
-                                                    backgroundColor: (typeof item === 'object' && typeof item.src === 'string' && item.src.startsWith('#')) ? item.src : '#2563eb',
-                                                    borderRadius: '4px',
-                                                    width: '100%',
-                                                    height: '100%'
-                                                }}
-                                            ></div>
+                                            <img src={item.icon} alt="" className="file-icon" />
                                         ) : (
-                                            <img src={item.src} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '4px' }} />
+                                            <span className="file-icon is-blank" style={isColor ? { background: item.src } : undefined}></span>
                                         )}
-                                    </div>
-                                    <span className="finder-item-name">{item.title || `Item ${index + 1}`}</span>
-                                </div>
-                            ))}
-                            {currentItems.length === 0 && (
-                                <div style={{ color: '#999', padding: '20px', width: '100%', textAlign: 'center' }}>No items in this folder</div>
-                            )}
-                        </div>
-                    </div>
-                </div>
+                                        <span className="file-text">
+                                            <span className="file-title">{item.title || `Item ${index + 1}`}</span>
+                                            {item.description && <span className="file-desc">{item.description}</span>}
+                                        </span>
+                                        {item.src && !isColor && (
+                                            <img src={item.src} alt="" className="file-shot" loading="lazy" decoding="async" />
+                                        )}
+                                        <CaretRight className="file-caret" size={16} weight="bold" aria-hidden="true" />
+                                    </button>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                )}
             </div>
         </div>
     );

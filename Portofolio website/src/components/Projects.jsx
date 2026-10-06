@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
+import { ArrowRight } from '@phosphor-icons/react';
 
 // Import sub-components
 import Folder from './Folder';
-import Modal from './Modal';
-import Finder from './Finder';
+import ProjectWindow from './ProjectWindow';
 import Featured from './Featured';
 import './Projects.css';
 
@@ -241,165 +241,83 @@ const projects = [
 
 
 const Projects = () => {
-  const [selectedProject, setSelectedProject] = useState(null); // For Modal
-  const [showFinder, setShowFinder] = useState(false); // For Finder window
+  // The open window: which folder it shows and which project inside it (null means the file list)
+  const [win, setWin] = useState(null);
 
-  const [currentCategoryProject, setCurrentCategoryProject] = useState(null);
-
-  // Open the MacOS-style Finder window for a category
-  const handleOpenFinder = (e, project) => {
-    e.preventDefault();
-    setCurrentCategoryProject(project);
-    setShowFinder(true);
+  // Remember where the click happened, so the window can grow out of that spot
+  const originOf = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
   };
 
-  // Select a specific project to show details for
-  const handleSelectProject = (project, index = 0) => {
-    setShowFinder(false);
-
-    const selectedItem = project.images[index];
-
-    // Prepare images for the carousel/modal
-    let scopedImages;
-    if (selectedItem.extraImages && selectedItem.extraImages.length > 0) {
-      scopedImages = selectedItem.extraImages.map((imgSrc, i) => {
-        if (i === 0) {
-          // Attach metadata (video/text) to first image
-          return {
-            src: imgSrc,
-            unfoldVideoStart: selectedItem.unfoldVideoStart,
-            unfoldVideoEnd: selectedItem.unfoldVideoEnd,
-            unfoldVideoStartMobile: selectedItem.unfoldVideoStartMobile,
-            unfoldVideoEndMobile: selectedItem.unfoldVideoEndMobile,
-            unfoldText: selectedItem.unfoldText
-          };
-        }
-        return imgSrc;
-      });
-    } else {
-      scopedImages = [selectedItem];
-    }
-
-    // Create a temporary object for the Modal to read (item fields override the folder's)
-    const scopedProject = {
-      ...project,
-      title: selectedItem.title || project.title,
-      description: selectedItem.description || project.description,
-      longDescription: selectedItem.longDescription || project.longDescription,
-      tags: selectedItem.tags || project.tags,
-      tools: selectedItem.tools || project.tools,
-      images: scopedImages,
-      designLink: selectedItem.designLink,
-      gameLink: selectedItem.gameLink,
-      liveLink: selectedItem.liveLink,
-      initialIndex: 0
-    };
-
-    setSelectedProject(scopedProject);
+  // Open the Finder window on a category
+  const openFolder = (e, project) => {
+    const folder = e.currentTarget.closest('.desk-folder');
+    setWin({ categoryId: project.id, itemIndex: null, origin: originOf({ currentTarget: folder || e.currentTarget }) });
   };
 
   // Jump straight from the featured card to Muster's case study
-  const openMusterCaseStudy = () => {
-    const games = projects.find(p => p.id === 3);
-    setCurrentCategoryProject(games);
-    handleSelectProject(games, games.images.findIndex(item => item.title === 'Muster'));
+  const games = projects.find(p => p.id === 3);
+  const openMusterCaseStudy = (e) => {
+    setWin({
+      categoryId: games.id,
+      itemIndex: games.images.findIndex(item => item.title === 'Muster'),
+      origin: originOf(e)
+    });
   };
 
   return (
     <section id="projects" className="section projects-section">
       <div className="container">
-        <div className="section-head" data-reveal>
-          <div className="section-label">02 · Work</div>
-          <h2 className="section-title">Selected <em>work.</em></h2>
-        </div>
+        <h2 className="h2 display">Selected work<span className="pip">.</span></h2>
 
         {/* Featured, playable project */}
-        <Featured onCaseStudy={openMusterCaseStudy} />
+        <Featured onCaseStudy={openMusterCaseStudy} category={games} />
 
-        <div className="folders-head" data-reveal>
+        <div className="folders-head">
           <h3 className="folders-title">Browse the folders</h3>
           <p className="folders-hint">Click a folder to peek inside. Open it to see the projects.</p>
         </div>
 
-        {/* Grid of Project Folders */}
-        <div className="projects-grid">
-          {projects.map((project, i) => (
-            <div
-              key={project.id}
-              className="project-card spot-card"
-              style={{ '--card-color': project.color, '--reveal-delay': `${i * 0.1}s` }}
-              data-reveal
-            >
+        {/* The desk: one folder per category, with its projects peeking out */}
+        <ul className="desk">
+          {projects.map(project => (
+            <li key={project.id} className="desk-folder folder-host" style={{ '--folder': project.color }}>
+              <Folder
+                color={project.color}
+                items={project.folderImages || project.images.map(item => item.icon || item.src)}
+              />
 
-              {/* Folder Icon Component */}
-              <div className="project-folder-container">
-                <span className="folder-index">0{i + 1}</span>
-                <Folder
-                  size={2}
-                  color={project.color}
-                  transparentPapers={!!project.folderImages}
-                  items={(project.folderImages || project.images).map((item, index) => (
-                    typeof item === 'string' && item.startsWith('#') ? (
-                      <div
-                        key={index}
-                        className="gallery-item"
-                        style={{ backgroundColor: item }}
-                      >
-                        <span>Img {index + 1}</span>
-                      </div>
-                    ) : (
-                      <img
-                        key={index}
-                        src={item}
-                        alt={`Project ${index + 1}`}
-                        className="gallery-item-image"
-                        style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '4px', background: 'transparent' }}
-                      />
-                    )
-                  ))}
-                />
-              </div>
+              <h4 className="desk-title">{project.title}</h4>
+              <p className="desk-count">
+                {project.images.length} {project.images.length === 1 ? 'project' : 'projects'}
+              </p>
 
-              {/* Project Text Info */}
-              <div
-                className="project-content"
-                onClick={(e) => handleOpenFinder(e, project)}
-              >
-                <h3 className="project-title">{project.title}</h3>
-                <p className="project-description">{project.description}</p>
-                <ul className="project-files">
-                  {project.images.map(item => (
-                    <li key={item.title}>{item.title}</li>
-                  ))}
-                </ul>
-                <a href={project.link} className="project-link" onClick={(e) => handleOpenFinder(e, project)}>
-                  Open folder <span className="arrow" aria-hidden="true">→</span>
-                </a>
-              </div>
-            </div>
+              {/* What's inside the folder, listed like files */}
+              <ul className="desk-files">
+                {project.images.map(item => (
+                  <li key={item.title}>{item.title}</li>
+                ))}
+              </ul>
+
+              <button type="button" className="desk-open link-arrow" onClick={(e) => openFolder(e, project)}>
+                <span className="desk-open-label">
+                  Open folder<span className="visually-hidden">: {project.title}</span>
+                </span>
+                <ArrowRight size={16} weight="bold" aria-hidden="true" />
+              </button>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
 
-      {/* Project Detail Modal */}
-      {selectedProject && (
-        <Modal
-          project={selectedProject}
-          onClose={() => setSelectedProject(null)}
-          onBack={() => {
-            setSelectedProject(null);
-            setShowFinder(true); // Go back to Finder
-          }}
-        />
-      )}
-
-      {/* Categories Finder Window */}
-      {showFinder && (
-        <Finder
+      {/* Finder window, with the project detail inside the same frame */}
+      {win && (
+        <ProjectWindow
           categories={projects}
-          initialCategory={currentCategoryProject}
-          onClose={() => setShowFinder(false)}
-          onSelectProject={handleSelectProject}
+          win={win}
+          onNavigate={setWin}
+          onClose={() => setWin(null)}
         />
       )}
     </section>

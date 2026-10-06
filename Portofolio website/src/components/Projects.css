@@ -1,198 +1,182 @@
-/* Projects Section */
-.projects-section {
-    background:
-        radial-gradient(60% 40% at 100% 20%, rgba(77, 141, 255, 0.06), transparent 70%),
-        var(--bg-color);
-}
-
+/* Projects section */
 .folders-head {
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.5rem 2rem;
-    margin-bottom: 1.5rem;
+    flex-direction: column;
+    gap: var(--sp-2);
+    margin-bottom: var(--sp-5);
 }
 
 .folders-title {
     font-family: var(--font-display);
-    font-size: 1.75rem;
+    font-size: var(--fs-h3);
     font-weight: 700;
+    line-height: 1.1;
     letter-spacing: -0.02em;
 }
 
 .folders-hint {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    color: var(--muted);
 }
 
-/* Grid Layout for Cards: two by two on desktop so nothing is left alone on a row */
-.projects-grid {
+/* The desk: a dotted table top with one folder per category */
+.desk {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--sp-2);
+    padding: var(--sp-3);
+    border-radius: var(--r-l);
+    border: 1px solid var(--line);
+    background-color: var(--surface-1);
+    background-image: radial-gradient(rgba(243, 239, 230, 0.1) 1.2px, transparent 1.6px);
+    background-size: 26px 26px;
+    box-shadow: inset 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
-/* Individual Project Card */
-.project-card {
-    background: var(--surface-color);
-    border-radius: 24px;
-    /* no overflow: hidden, so the folder papers can pop out */
-    border: 1px solid var(--border-color);
-    /* Includes opacity so the scroll reveal still fades */
-    transition: opacity 0.9s var(--ease-out), transform 0.6s var(--ease-out), box-shadow 0.4s ease;
+.desk-folder {
+    --w: clamp(120px, 12.5vw, 172px);
+    position: relative;
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
+    padding: var(--sp-6) var(--sp-5) var(--sp-5);
+    border-radius: var(--r-m);
+    transition: background-color 0.2s ease;
 }
 
-.project-card.is-visible:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 24px 50px -20px rgba(0, 0, 0, 0.7);
+.desk-folder .folder {
+    --w: inherit;
+    margin-bottom: var(--sp-5);
 }
 
-/* Container for Folder Icon */
-.project-folder-container {
-    height: 240px;
-    background:
-        radial-gradient(70% 70% at 50% 60%, color-mix(in srgb, var(--card-color) 16%, transparent), transparent 70%),
-        linear-gradient(var(--surface-hover), var(--surface-color));
-    background-size: auto, auto;
+.desk-title {
+    font-family: var(--font-display);
+    font-size: var(--fs-title);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+
+/* Count, with the folder colour as a small square */
+.desk-count {
     display: flex;
     align-items: center;
-    justify-content: center;
-    padding-top: 20px;
-    border-bottom: 1px solid var(--border-color);
-    border-radius: 24px 24px 0 0;
-    position: relative;
-    z-index: 10;
+    gap: var(--sp-2);
+    margin-top: 0.35rem;
+    font-size: var(--fs-small);
+    font-weight: 500;
+    color: var(--muted);
 }
 
-/* Faint dotted backdrop behind the folder */
-.project-folder-container::before {
+.desk-count::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--folder);
+}
+
+.desk-files {
+    display: grid;
+    align-content: start;
+    gap: 0.3rem;
+    flex: 1;
+    width: 100%;
+    margin-top: var(--sp-4);
+    padding-top: var(--sp-4);
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-small);
+    line-height: 1.4;
+    color: color-mix(in srgb, var(--bone) 86%, transparent);
+}
+
+.desk-open {
+    margin-top: var(--sp-5);
+    font-size: var(--fs-small);
+}
+
+/* The button's hit area is the whole folder tile */
+.desk-open::after {
     content: '';
     position: absolute;
     inset: 0;
-    border-radius: inherit;
-    background-image: radial-gradient(rgba(243, 239, 230, 0.08) 1px, transparent 1px);
-    background-size: 18px 18px;
-    -webkit-mask-image: radial-gradient(circle at 50% 55%, #000, transparent 75%);
-    mask-image: radial-gradient(circle at 50% 55%, #000, transparent 75%);
-    pointer-events: none;
+    border-radius: var(--r-m);
 }
 
-.folder-index {
-    position: absolute;
-    top: 1rem;
-    left: 1.25rem;
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--card-color);
+.desk-open:focus-visible {
+    outline: none;
 }
 
-/* Items inside the folder (when open) */
-.gallery-item {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    color: white;
-    font-weight: bold;
-    font-size: 0.8rem;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+.desk-open:focus-visible::after {
+    outline: 2px solid var(--gold);
+    outline-offset: -2px;
 }
 
-/* Text Content Area */
-.project-content {
-    padding: 1.5rem 1.6rem 1.6rem;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    cursor: pointer;
+.desk-folder:has(.desk-open:active) {
+    background: rgba(243, 239, 230, 0.07);
 }
 
-.project-title {
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    margin-bottom: 0.6rem;
-    color: var(--text-primary);
-}
+@media (hover: hover) and (pointer: fine) {
+    .desk-folder:hover {
+        background: rgba(243, 239, 230, 0.05);
+    }
 
-.project-description {
-    font-size: 0.95rem;
-    color: var(--text-secondary);
-    margin-bottom: 1.25rem;
-    line-height: 1.55;
-    flex-grow: 1;
-}
-
-/* What's inside the folder, listed like files */
-.project-files {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    margin-bottom: 1.5rem;
-    padding: 0.85rem 1rem;
-    border-radius: 12px;
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid var(--border-color);
-}
-
-.project-files li {
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-}
-
-.project-files li::before {
-    content: '';
-    width: 7px;
-    height: 7px;
-    border-radius: 2px;
-    background: var(--card-color);
-    flex-shrink: 0;
-}
-
-/* "Open folder" link */
-.project-link {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-top: auto;
-}
-
-.project-link .arrow {
-    display: inline-block;
-    transition: transform 0.3s var(--ease-spring);
-}
-
-.project-card:hover .project-link {
-    color: var(--card-color, var(--accent));
-}
-
-.project-card:hover .project-link .arrow {
-    transform: translateX(6px);
-}
-
-@media (max-width: 1000px) {
-    .projects-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .desk-folder:hover .desk-open svg {
+        transform: translateX(3px);
     }
 }
 
-@media (max-width: 640px) {
-    .projects-grid {
-        grid-template-columns: 1fr;
+/* Tablet: two by two */
+@media (max-width: 999px) {
+    .desk {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .desk-folder {
+        --w: clamp(104px, 22vw, 172px);
+    }
+}
+
+/* Phone: folder, name and count only. The files are one tap away. */
+@media (max-width: 560px) {
+    .desk {
+        padding: var(--sp-2);
+        gap: 0;
+    }
+
+    .desk-folder {
+        padding: var(--sp-5) var(--sp-3) var(--sp-4);
+    }
+
+    .desk-folder .folder {
+        margin-bottom: var(--sp-4);
+    }
+
+    .desk-title {
+        font-size: 1rem;
+    }
+
+    .desk-files,
+    .desk-open svg {
+        display: none;
+    }
+
+    .desk-open {
+        margin: 0;
+    }
+
+    .desk-open-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .desk-folder {
+        transition: none;
     }
 }

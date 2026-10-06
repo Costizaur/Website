@@ -1,51 +1,77 @@
-/* Global design tokens. Colours borrow from Muster's UI: gold, coral red and blue on warm ink. */
+/* Design tokens. The site is a game table: warm ink surface, bone pieces, one gold piece. */
 :root {
-  /* Surfaces */
-  --bg-color: #0c0b0a;
-  --surface-color: #151311;
-  --surface-hover: #1f1c19;
-  --border-color: rgba(243, 239, 230, 0.1);
+  color-scheme: dark;
 
-  /* Text */
-  --text-primary: #f3efe6;
-  --text-secondary: #a39e94;
-  --text-accent: #ffd66b;
+  /* Colour */
+  --ink: #0c0b0a;
+  --surface-1: #151311;
+  --surface-2: #1f1c19;
+  --surface-3: #2a2622;
+  --line: rgba(243, 239, 230, 0.1);
+  --line-strong: rgba(243, 239, 230, 0.2);
+  --bone: #f3efe6;
+  --muted: #a39e94;
+  --placeholder: #8f8a80;
+  --gold: #ffc53d;
+  --gold-edge: #c58f0e;
+  --gold-ink: #1a1405;
 
-  /* Accents */
-  --accent: #ffc53d;
-  --accent-dark: #c58f0e;
-  --accent-ink: #1a1405;
-  --coral: #ff5b47;
-  --blue: #4d8dff;
-  --mint: #3ddc97;
+  /* Type: Bricolage Grotesque for display, Geist for everything else */
+  --font-display: 'Bricolage Grotesque Variable', 'Arial Narrow', sans-serif;
+  --font-text: 'Geist Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fs-hero: clamp(4.5rem, 24.6vw, 8rem);
+  --fs-h2: clamp(2.75rem, 1.6rem + 5vw, 5.5rem);
+  --fs-h3: clamp(1.625rem, 1.3rem + 1.2vw, 2.125rem);
+  --fs-title: 1.5rem;
+  --fs-lead: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
+  --fs-body: 1rem;
+  --fs-small: 0.875rem;
 
-  /* Older names still used by Folder, Finder and Modal */
-  --primary-color: var(--accent);
-  --primary-glow: rgba(255, 197, 61, 0.35);
-  --secondary-color: var(--coral);
-  --accent-color: var(--accent);
+  /* Spacing, 4px base */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4rem;
+  --sp-9: 6rem;
+  --sp-10: 8rem;
+  --gutter: clamp(1.25rem, 5vw, 3rem);
+  --tape-h: 3.5rem;
+  --section-pad: clamp(5rem, 3rem + 7vw, 8rem);
 
-  /* Typography */
-  --font-display: 'Bricolage Grotesque', 'Inter', sans-serif;
-  --font-main: 'Inter', sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* Radius: small controls, buttons and tiles, panels and windows */
+  --r-s: 8px;
+  --r-m: 14px;
+  --r-l: 24px;
 
-  /* Spacing */
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 1rem;
-  --spacing-md: 2rem;
-  --spacing-lg: 4rem;
-  --spacing-xl: 8rem;
+  /* Layers */
+  --z-nav: 100;
+  --z-grain: 900;
 
-  /* Transitions */
-  --transition-fast: 0.2s ease;
-  --transition-smooth: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Motion */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --press: 120ms var(--ease-out);
 }
 
-/* Reset default browser styles */
-* {
+@media (min-width: 900px) {
+  :root {
+    --fs-hero: clamp(5.5rem, 10.5vw, 9.5rem);
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --tape-h: 3rem;
+  }
+}
+
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -53,15 +79,22 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  scrollbar-color: var(--surface-3) var(--ink);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
-  font-family: var(--font-main);
-  background-color: var(--bg-color);
-  color: var(--text-primary);
+  font-family: var(--font-text);
+  font-size: var(--fs-body);
   line-height: 1.6;
-  overflow-x: hidden;
+  background-color: var(--ink);
+  color: var(--bone);
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Film grain over everything, for a printed, tactile feel */
@@ -70,216 +103,308 @@ body::after {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 9000;
-  opacity: 0.05;
+  z-index: var(--z-grain);
+  opacity: 0.045;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 ::selection {
-  background: var(--accent);
-  color: var(--accent-ink);
+  background: var(--gold);
+  color: var(--gold-ink);
 }
 
 a {
-  text-decoration: none;
   color: inherit;
-  transition: var(--transition-fast);
+  text-decoration: none;
 }
 
 ul {
   list-style: none;
 }
 
+img,
+video {
+  display: block;
+  max-width: 100%;
+}
+
 button {
-  font-family: inherit;
+  font: inherit;
+  color: inherit;
   cursor: pointer;
   border: none;
   background: none;
-  color: inherit;
+  touch-action: manipulation;
+}
+
+input,
+textarea {
+  font: inherit;
+  caret-color: var(--gold);
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--gold);
   outline-offset: 3px;
-  border-radius: 4px;
 }
 
-/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-color);
+  background: var(--ink);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--surface-hover);
-  border-radius: 4px;
+  background: var(--surface-3);
+  border-radius: 5px;
+  border: 2px solid var(--ink);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
+  background: var(--muted);
 }
 
-/* --- Utility Classes --- */
+/* --- Layout --- */
 
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1.25rem;
+  width: min(100% - var(--gutter) * 2, 1200px);
+  margin-inline: auto;
 }
 
 .section {
-  padding: 7rem 0;
+  padding-block: var(--section-pad);
   position: relative;
 }
 
-/* Section heading: small HUD label above a big display title */
-.section-head {
-  margin-bottom: 3.5rem;
+.skip-link {
+  position: fixed;
+  top: var(--sp-3);
+  left: var(--sp-3);
+  z-index: calc(var(--z-nav) + 1);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-s);
+  background: var(--gold);
+  color: var(--gold-ink);
+  font-weight: 600;
+  transform: translateY(-200%);
 }
 
-.section-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 1rem;
+.skip-link:focus-visible {
+  transform: none;
 }
 
-.section-label::after {
-  content: '';
-  width: 48px;
+.visually-hidden {
+  position: absolute;
+  width: 1px;
   height: 1px;
-  background: currentColor;
-  opacity: 0.6;
-}
-
-.section-title {
-  font-family: var(--font-display);
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: -0.03em;
-}
-
-.section-title em {
-  font-style: normal;
-  color: var(--accent);
-}
-
-.gradient-text {
-  background: linear-gradient(90deg, var(--accent), var(--coral));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Tags used across cards and the modal */
-.tag {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  color: var(--text-accent);
-  background: rgba(255, 197, 61, 0.08);
-  border: 1px solid rgba(255, 197, 61, 0.2);
-  padding: 0.2rem 0.65rem;
-  border-radius: 20px;
-  font-weight: 500;
+  overflow: hidden;
+  clip-path: inset(50%);
   white-space: nowrap;
 }
 
-/* --- Chunky game-style buttons that press down --- */
+/* --- Type --- */
+
+.display {
+  font-family: var(--font-display);
+  font-stretch: 80%;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.h2 {
+  font-size: var(--fs-h2);
+  margin-bottom: var(--sp-7);
+}
+
+/* The gold full stop that closes every big heading, like a pip on a die */
+.pip {
+  color: var(--gold);
+}
+
+.lead {
+  font-size: var(--fs-lead);
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 60ch;
+  text-wrap: pretty;
+}
+
+/* Small label for a category, with its folder colour as a square */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--r-s);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--chip-color, var(--bone));
+  background: color-mix(in srgb, var(--chip-color, var(--bone)) 12%, transparent);
+  white-space: nowrap;
+}
+
+.chip::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+/* Plain tag for skills and tools */
+.tag {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--r-s);
+  border: 1px solid var(--line);
+  font-size: var(--fs-small);
+  line-height: 1.3;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* --- Buttons: chunky game pieces that press down --- */
+
 .btn {
-  --btn-bg: var(--accent);
-  --btn-fg: var(--accent-ink);
-  --btn-edge: var(--accent-dark);
-  position: relative;
+  --btn-bg: var(--gold);
+  --btn-fg: var(--gold-ink);
+  --btn-edge: var(--gold-edge);
+  --btn-depth: 5px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  padding: 0.95rem 1.8rem;
-  border-radius: 14px;
+  min-height: 3.25rem;
+  padding: 0.75rem 1.6rem;
+  border-radius: var(--r-m);
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 1.0625rem;
+  line-height: 1.2;
   letter-spacing: -0.01em;
+  white-space: nowrap;
   background: var(--btn-bg);
   color: var(--btn-fg);
-  box-shadow: 0 6px 0 var(--btn-edge), 0 14px 30px -10px var(--primary-glow);
-  transform: translateY(0);
-  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.2s ease;
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 0 var(--btn-edge), 0 18px 34px -10px var(--primary-glow);
-  filter: brightness(1.05);
+  box-shadow: 0 var(--btn-depth) 0 var(--btn-edge);
+  margin-bottom: var(--btn-depth);
+  transition: transform var(--press), box-shadow var(--press), background-color 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .btn:active {
-  transform: translateY(6px);
-  box-shadow: 0 0 0 var(--btn-edge), 0 4px 10px -6px var(--primary-glow);
+  transform: translateY(calc(var(--btn-depth) - 1px));
+  box-shadow: 0 1px 0 var(--btn-edge);
 }
 
+.btn-secondary,
 .btn-outline {
-  --btn-bg: var(--surface-hover);
-  --btn-fg: var(--text-primary);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 6px 0 #000;
+  --btn-bg: var(--surface-2);
+  --btn-fg: var(--bone);
+  --btn-edge: #000;
+  box-shadow: 0 var(--btn-depth) 0 var(--btn-edge), inset 0 0 0 1px var(--line);
 }
 
-.btn-outline:hover {
-  box-shadow: 0 8px 0 #000;
-}
-
+.btn-secondary:active,
 .btn-outline:active {
-  box-shadow: 0 0 0 #000;
+  box-shadow: 0 1px 0 var(--btn-edge), inset 0 0 0 1px var(--line);
 }
 
-/* --- Scroll reveal --- */
-[data-reveal] {
-  opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
-  transition-delay: var(--reveal-delay, 0s);
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 calc(var(--btn-depth) + 1px) 0 var(--btn-edge);
+    background: color-mix(in srgb, var(--btn-bg), white 10%);
+  }
+
+  .btn-secondary:hover,
+  .btn-outline:hover {
+    box-shadow: 0 calc(var(--btn-depth) + 1px) 0 var(--btn-edge), inset 0 0 0 1px var(--line-strong);
+  }
+
+  .btn:hover:active {
+    transform: translateY(calc(var(--btn-depth) - 1px));
+    box-shadow: 0 1px 0 var(--btn-edge);
+  }
+
+  .btn-secondary:hover:active,
+  .btn-outline:hover:active {
+    box-shadow: 0 1px 0 var(--btn-edge), inset 0 0 0 1px var(--line);
+  }
 }
 
-[data-reveal].is-visible {
-  opacity: 1;
-  transform: none;
+/* Text link with an arrow that leans forward on hover */
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-weight: 600;
+  color: var(--bone);
+}
+
+.link-arrow svg {
+  transition: transform 0.2s var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .link-arrow:hover svg {
+    transform: translateX(3px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-
-  [data-reveal] {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-  }
 }
 
-@media (max-width: 768px) {
-  .section {
-    padding: 5rem 0;
-  }
+/* ---- Legacy names still used by sections that are not rebuilt yet ---- */
+:root {
+  --bg-color: var(--ink);
+  --surface-color: var(--surface-1);
+  --surface-hover: var(--surface-2);
+  --border-color: var(--line);
+  --text-primary: var(--bone);
+  --text-secondary: var(--muted);
+  --text-accent: var(--gold);
+  --accent: var(--gold);
+  --accent-dark: var(--gold-edge);
+  --accent-ink: var(--gold-ink);
+  --coral: #ff5b47;
+  --blue: #4d8dff;
+  --mint: #3ddc97;
+  --primary-color: var(--gold);
+  --primary-glow: rgba(255, 197, 61, 0.35);
+  --secondary-color: var(--coral);
+  --accent-color: var(--gold);
+  --font-main: var(--font-text);
+  --font-mono: var(--font-text);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
 
-  .section-head {
-    margin-bottom: 2.5rem;
-  }
+.section-head {
+  margin-bottom: 3.5rem;
+}
+
+.section-label {
+  display: none;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-stretch: 80%;
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.015em;
+}
+
+.section-title em {
+  font-style: normal;
 }

@@ -1,200 +1,278 @@
-/* Section Background */
+/* Contact: a slightly lifted band that closes the page */
 .contact-section {
-    background:
-        radial-gradient(50% 60% at 0% 100%, rgba(255, 91, 71, 0.08), transparent 70%),
-        var(--surface-color);
-    border-top: 1px solid var(--border-color);
+    background: var(--surface-1);
+    border-top: 1px solid var(--line);
 }
 
 .contact-title {
-    font-size: clamp(2.6rem, 7vw, 5.5rem);
-    max-width: 14ch;
+    max-width: 10em;
 }
 
 /* 2-Column Grid Layout */
 .contact-wrapper {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-    gap: 4rem;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: clamp(2.5rem, 6vw, 5rem);
     align-items: start;
 }
 
 .contact-text {
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-    margin-bottom: 2rem;
-    max-width: 460px;
+    margin-bottom: var(--sp-6);
 }
 
 /* Big click-to-copy email */
 .email-card {
     position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.35rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.2rem var(--sp-4);
     width: 100%;
-    max-width: 480px;
-    padding: 1.25rem 1.5rem;
-    border-radius: 18px;
-    background: var(--bg-color);
-    border: 1px solid var(--border-color);
+    max-width: 30rem;
+    padding: var(--sp-4) var(--sp-5);
+    border-radius: var(--r-m);
+    background: var(--ink);
+    box-shadow: 0 5px 0 #000, inset 0 0 0 1px var(--line);
+    margin-bottom: 5px;
     text-align: left;
-    box-shadow: 0 6px 0 #000;
-    transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.2s ease;
-}
-
-.email-card:hover {
-    border-color: var(--accent);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 0 #000;
+    transition: transform var(--press), box-shadow var(--press);
 }
 
 .email-card:active {
-    transform: translateY(6px);
-    box-shadow: 0 0 0 #000;
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #000, inset 0 0 0 1px var(--line);
 }
 
 .email-label {
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
+    grid-column: 1;
+    font-size: var(--fs-small);
+    font-weight: 500;
+    color: var(--muted);
 }
 
 .email-value {
+    grid-column: 1 / -1;
     font-family: var(--font-display);
-    font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+    font-size: clamp(1.0625rem, 0.9rem + 0.9vw, 1.375rem);
     font-weight: 700;
+    line-height: 1.25;
     letter-spacing: -0.01em;
-    color: var(--text-primary);
-    word-break: break-all;
+    overflow-wrap: anywhere;
 }
 
-.email-toast {
-    position: absolute;
-    top: 1rem;
-    right: 1.25rem;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--mint);
-    opacity: 0;
-    transform: translateY(6px);
-    transition: opacity 0.25s ease, transform 0.25s var(--ease-spring);
+.email-action {
+    grid-column: 2;
+    grid-row: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: var(--fs-small);
+    font-weight: 600;
+    color: var(--muted);
+    transition: color 0.15s ease;
 }
 
-.email-card.is-copied .email-toast {
-    opacity: 1;
-    transform: none;
+.email-card.is-copied .email-action {
+    color: var(--gold);
 }
 
 .mail-app-link {
-    display: inline-block;
-    margin: 1rem 0 2.25rem;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 2.75rem;
+    margin: var(--sp-2) 0 var(--sp-5);
+    font-size: 0.9375rem;
+    color: var(--muted);
+    text-decoration: underline;
+    text-decoration-color: var(--line-strong);
+    text-underline-offset: 4px;
+    transition: color 0.15s ease;
 }
 
-.mail-app-link:hover {
-    color: var(--accent);
-}
-
-/* Social pill links */
+/* Social links */
 .social-links {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: var(--sp-3);
 }
 
 .social-links a {
-    padding: 0.65rem 1.2rem;
-    border-radius: 999px;
-    border: 1px solid var(--border-color);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    min-height: 2.75rem;
+    padding: 0 var(--sp-4);
+    border-radius: var(--r-s);
+    border: 1px solid var(--line-strong);
+    font-size: 0.9375rem;
     font-weight: 600;
-    color: var(--text-primary);
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform var(--press);
 }
 
-.social-links a:hover {
-    background: var(--text-primary);
-    color: var(--bg-color);
+.social-links a:active {
+    transform: scale(0.97);
+}
+
+.social-links a svg:last-child {
+    color: var(--muted);
+    transition: color 0.15s ease;
 }
 
 /* --- Form Styles --- */
 .contact-form {
-    background: var(--bg-color);
-    padding: 2.25rem;
-    border-radius: 24px;
-    border: 1px solid var(--border-color);
+    padding: clamp(1.25rem, 3vw, 2.25rem);
+    border-radius: var(--r-l);
+    border: 1px solid var(--line);
+    background: var(--ink);
 }
 
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
+    gap: var(--sp-4);
 }
 
 .form-group {
-    margin-bottom: 1.25rem;
+    margin-bottom: var(--sp-5);
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 0.5rem;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
+    margin-bottom: var(--sp-2);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    color: var(--bone);
 }
 
 .form-group input,
 .form-group textarea {
+    display: block;
     width: 100%;
-    padding: 0.9rem 1rem;
-    background: var(--surface-hover);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    color: var(--text-primary);
-    font-family: inherit;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--r-m);
+    background: var(--surface-2);
+    color: var(--bone);
+    /* 16px stops iOS from zooming the page when a field is focused */
     font-size: 1rem;
+    line-height: 1.5;
     resize: vertical;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.form-group textarea {
+    min-height: 8.5rem;
 }
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-    color: #6d685f;
+    color: var(--placeholder);
+    opacity: 1;
 }
 
-.form-group input:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: var(--accent);
-    background: #25211d;
-    box-shadow: 0 0 0 4px rgba(255, 197, 61, 0.12);
+.form-group input:focus-visible,
+.form-group textarea:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 1px;
+    border-color: var(--gold);
+    background: var(--surface-3);
 }
 
-.contact-form .btn {
-    width: 100%;
-    margin-top: 0.5rem;
+/* Keep the dark fields dark when the browser autofills them */
+.form-group input:-webkit-autofill {
+    -webkit-text-fill-color: var(--bone);
+    box-shadow: inset 0 0 0 100px var(--surface-2);
+    caret-color: var(--gold);
+}
+
+.form-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-3) var(--sp-5);
+}
+
+.contact-form .btn:disabled {
+    cursor: progress;
+    opacity: 0.7;
+    transform: none;
+}
+
+.form-status {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    font-size: 0.9375rem;
+    line-height: 1.4;
+}
+
+.form-status:empty {
+    display: none;
+}
+
+.form-status.is-sent {
+    color: var(--gold);
+}
+
+.form-status.is-error {
+    color: #ff9d8f;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .email-card:hover {
+        box-shadow: 0 5px 0 #000, inset 0 0 0 1px var(--line-strong);
+    }
+
+    .email-card:hover .email-action {
+        color: var(--bone);
+    }
+
+    .email-card.is-copied:hover .email-action {
+        color: var(--gold);
+    }
+
+    .email-card:hover:active {
+        box-shadow: 0 1px 0 #000, inset 0 0 0 1px var(--line);
+    }
+
+    .mail-app-link:hover {
+        color: var(--bone);
+    }
+
+    .social-links a:hover {
+        background: var(--bone);
+        border-color: var(--bone);
+        color: var(--ink);
+    }
+
+    .social-links a:hover svg:last-child {
+        color: var(--ink);
+    }
 }
 
 /* Mobile Stack Layout */
-@media (max-width: 900px) {
+@media (max-width: 899px) {
     .contact-wrapper {
-        grid-template-columns: 1fr;
-        gap: 3rem;
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--sp-7);
     }
 }
 
 @media (max-width: 520px) {
-    .contact-form {
-        padding: 1.5rem;
-    }
-
     .form-row {
         grid-template-columns: 1fr;
         gap: 0;
+    }
+
+    .contact-form .btn {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .email-card,
+    .social-links a {
+        transition: none;
     }
 }

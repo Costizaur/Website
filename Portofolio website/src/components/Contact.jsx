@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { ArrowRight, ArrowUpRight, Check, Copy, GithubLogo, LinkedinLogo } from '@phosphor-icons/react';
 import './Contact.css';
 
 const EMAIL = 'sarghiuta.costin@gmail.com';
 
 const Contact = () => {
     const [copied, setCopied] = useState(false);
+    // Form state: 'idle' | 'sending' | 'sent' | 'error'
+    const [status, setStatus] = useState('idle');
     const timer = useRef(null);
 
     useEffect(() => () => clearTimeout(timer.current), []);
@@ -21,49 +24,84 @@ const Contact = () => {
         }
     };
 
+    // Send through Web3Forms without leaving the page. Without JavaScript the form still posts normally.
+    const sendMessage = async (e) => {
+        e.preventDefault();
+        const form = e.currentTarget;
+        setStatus('sending');
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                headers: { Accept: 'application/json' },
+                body: new FormData(form)
+            });
+            const result = await response.json();
+            if (!response.ok || !result.success) throw new Error('Not sent');
+            form.reset();
+            setStatus('sent');
+        } catch {
+            setStatus('error');
+        }
+    };
+
     return (
         <section id="contact" className="section contact-section">
             <div className="container">
-                <div className="section-head" data-reveal>
-                    <div className="section-label">03 · Contact</div>
-                    <h2 className="section-title contact-title">Let's make something <em>playable.</em></h2>
-                </div>
+                <h2 className="h2 display contact-title">Let's make something playable<span className="pip">.</span></h2>
 
                 <div className="contact-wrapper">
 
                     {/* Left Column: Contact Details */}
-                    <div className="contact-info" data-reveal>
-                        <p className="contact-text">
+                    <div className="contact-info">
+                        <p className="lead contact-text">
                             I'm open to internships and junior roles. Have a project, a role, or just want to talk games and interfaces? Send me a message.
                         </p>
 
                         <button type="button" className={`email-card ${copied ? 'is-copied' : ''}`} onClick={copyEmail}>
-                            <span className="email-label">Email · click to copy</span>
+                            <span className="email-label">Email</span>
                             <span className="email-value">{EMAIL}</span>
-                            <span className="email-toast" aria-live="polite">{copied ? 'Copied ✓' : ''}</span>
+                            <span className="email-action" aria-live="polite">
+                                {copied ? (
+                                    <><Check size={16} weight="bold" aria-hidden="true" /> Copied</>
+                                ) : (
+                                    <><Copy size={16} weight="bold" aria-hidden="true" /> Copy</>
+                                )}
+                            </span>
                         </button>
-                        <a href={`mailto:${EMAIL}`} className="mail-app-link">or open your mail app ↗</a>
+                        <a href={`mailto:${EMAIL}`} className="mail-app-link">
+                            or open your mail app <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+                        </a>
 
-                        <div className="social-links">
-                            <a href="https://www.linkedin.com/in/costin-sarghiuta-b01788217/?locale=en_US" target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a>
-                            <a href="https://github.com/Costizaur" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
-                        </div>
+                        <ul className="social-links">
+                            <li>
+                                <a href="https://www.linkedin.com/in/costin-sarghiuta-b01788217/?locale=en_US" target="_blank" rel="noopener noreferrer">
+                                    <LinkedinLogo size={18} weight="fill" aria-hidden="true" /> LinkedIn
+                                    <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+                                </a>
+                            </li>
+                            <li>
+                                <a href="https://github.com/Costizaur" target="_blank" rel="noopener noreferrer">
+                                    <GithubLogo size={18} weight="fill" aria-hidden="true" /> GitHub
+                                    <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+                                </a>
+                            </li>
+                        </ul>
                     </div>
 
                     {/* Right Column: Contact Form */}
                     {/* Uses Web3Forms API to send emails without server code */}
-                    <form className="contact-form spot-card" action="https://api.web3forms.com/submit" method="POST" data-reveal style={{ '--reveal-delay': '0.1s' }}>
+                    <form className="contact-form" action="https://api.web3forms.com/submit" method="POST" onSubmit={sendMessage}>
                         {/* Hidden key for the API service */}
                         <input type="hidden" name="access_key" value="6bcd15d9-36a9-42dd-bfc1-b7bb9f107117" />
 
                         <div className="form-row">
                             <div className="form-group">
                                 <label htmlFor="name">Name</label>
-                                <input type="text" id="name" name="name" placeholder="Your name" required />
+                                <input type="text" id="name" name="name" placeholder="Your name" autoComplete="name" required />
                             </div>
                             <div className="form-group">
                                 <label htmlFor="email">Email</label>
-                                <input type="email" id="email" name="email" placeholder="you@email.com" required />
+                                <input type="email" id="email" name="email" placeholder="you@email.com" autoComplete="email" required />
                             </div>
                         </div>
                         <div className="form-group">
@@ -71,7 +109,15 @@ const Contact = () => {
                             <textarea id="message" name="message" rows="5" placeholder="Tell me about your project or role" required></textarea>
                         </div>
 
-                        <button type="submit" className="btn btn-primary">Send message <span aria-hidden="true">→</span></button>
+                        <div className="form-footer">
+                            <button type="submit" className="btn" disabled={status === 'sending'}>
+                                {status === 'sending' ? 'Sending…' : <>Send message <ArrowRight size={16} weight="bold" aria-hidden="true" /></>}
+                            </button>
+                            <p className={`form-status is-${status}`} role="status">
+                                {status === 'sent' && <><Check size={16} weight="bold" aria-hidden="true" /> Message sent. Thank you!</>}
+                                {status === 'error' && <>That did not send. Please try again, or email me directly.</>}
+                            </p>
+                        </div>
                     </form>
                 </div>
             </div>

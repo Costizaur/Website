@@ -473,7 +473,7 @@
 
 /* ================= Phones and narrow windows =================
    The page is one scrolling column, with the screenshot first. */
-@media (max-width: 899px) {
+@media (max-width: 899px), (max-height: 520px) {
     .pg-hero {
         min-height: 0;
     }
@@ -662,6 +662,20 @@
 
     .pg-hop-name {
         font-size: calc(1.35rem * var(--w-scale));
+    }
+}
+
+/* A phone on its side: the picture sits beside the words again, or it would be taller than the screen */
+@media (max-width: 899px) and (orientation: landscape) and (min-width: 600px), (max-height: 520px) and (orientation: landscape) and (min-width: 600px) {
+    .pg-main {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        align-items: start;
+        gap: 1.5rem 2rem;
+    }
+
+    .pg-media {
+        order: 0;
     }
 }
 

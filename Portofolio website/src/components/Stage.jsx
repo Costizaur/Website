@@ -171,7 +171,9 @@ const Stage = () => {
                     </header>
                     {/* Empty places that mark where each folder rests on the desk */}
                     <div className="desk" aria-hidden="true">
-                        {worlds.map(w => <span key={w.key} className="desk-slot"></span>)}
+                        <div className="desk-in">
+                            {worlds.map(w => <span key={w.key} className="desk-slot"></span>)}
+                        </div>
                     </div>
                 </div>
             </div>

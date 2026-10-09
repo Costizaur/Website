@@ -22,6 +22,9 @@
 
     /* The width of a folder on the desk. The folder drawing and its label hang off it. */
     --fw: calc(var(--u) * 19);
+    /* 'fixed': the folders have that width. 'slot': the layout sizes the places on the desk
+       and the motion code gives the folders the width of their place (phones). */
+    --fold-fit: fixed;
 
     position: relative;
     isolation: isolate;
@@ -174,6 +177,11 @@
     align-items: center;
     min-height: calc(var(--u) * 27);
     padding: calc(var(--u) * 2) calc(var(--u) * 3.5);
+}
+
+/* On a laptop the inner box does nothing: the places sit straight in the row */
+.desk-in {
+    display: contents;
 }
 
 .desk-slot {
@@ -692,18 +700,21 @@
 }
 
 /* ================= Phones and narrow windows =================
-   Below 900px the stage stops being one fixed screen. It becomes as long as its contents and
+   Below 900px wide, or on a screen under 520px tall (a big phone on its side), the stage
+   stops being one fixed screen. It becomes as long as its contents and
    the window scrolls over it: the folders stand in a grid, and inside a world they line up
    as tabs along the top with the sheets in a column underneath. The motion code is the same;
    it simply finds everything in different places. */
-@media (max-width: 899px) {
+@media (max-width: 899px), (max-height: 520px) {
     .stage {
         --u: clamp(9px, 2.6vw, 11px);
         /* Side padding; never less than the phone's safe area in landscape */
         --pad: max(1.25rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
         --top: env(safe-area-inset-top, 0px);
-        /* Two folders across, as wide as the screen allows */
+        /* Two folders across, as wide as the screen allows. This is only the first guess:
+           the desk below works out what really fits, and the folders follow it. */
         --fw: min(calc((100vw - 2 * var(--pad) - 1.25rem) / 2), 15rem);
+        --fold-fit: slot;
         display: grid;
         min-height: 100vh;
         min-height: 100svh;
@@ -714,6 +725,15 @@
         position: relative;
         inset: auto;
         grid-area: 1 / 1;
+    }
+
+    /* The home screen is exactly as tall as the part of the screen the browser shows, so
+       nothing is cut off and there is nothing to scroll. Only when even small folders do
+       not fit (a very short screen) does it grow and scroll. */
+    .home > .frame {
+        height: auto;
+        min-height: 100vh;
+        min-height: 100svh;
     }
 
     .h-nav {
@@ -752,23 +772,40 @@
         font-size: 1.0625rem;
     }
 
+    /* The desk takes whatever height is left under the name. The folders are then as big
+       as two rows of them fit into that height, and never wider than half the screen. */
     .desk {
+        display: block;
+        flex: 1 1 0;
+        min-height: 21rem;
+        padding: 0;
+        container-type: size;
+    }
+
+    .desk-in {
+        --label: 3.6rem;
+        --slot: min(
+            calc((100cqw - 2 * var(--pad) - 1.25rem) / 2),
+            calc(((100cqh - 3.75rem - env(safe-area-inset-bottom, 0px)) / 2 - var(--label)) * 156 / 142),
+            15rem
+        );
         display: grid;
-        grid-template-columns: repeat(2, var(--fw));
+        grid-template-columns: repeat(2, var(--slot));
         justify-content: center;
         align-content: center;
-        gap: 1.75rem max(1.25rem, min(5vw, 2.5rem));
-        min-height: 0;
-        padding: 2rem var(--pad) calc(2rem + env(safe-area-inset-bottom, 0px));
+        gap: 1.25rem max(1.25rem, min(5vw, 2.5rem));
+        height: 100%;
+        padding: 1.25rem var(--pad) calc(1.25rem + env(safe-area-inset-bottom, 0px));
     }
 
     .desk-slot {
-        height: calc(var(--fw) * 142 / 156 + 4rem);
+        width: var(--slot);
+        height: calc(var(--slot) * 142 / 156 + var(--label));
     }
 
     .fold-name {
         margin-top: 0.9rem;
-        font-size: clamp(0.875rem, calc(var(--fw) * 0.1), 1.0625rem);
+        font-size: clamp(0.8125rem, calc(var(--fw) * 0.1), 1.0625rem);
     }
 
     .fold-count {
@@ -914,15 +951,55 @@
 }
 
 /* A phone on its side is wide and short: the four folders go back into one row */
-@media (max-width: 899px) and (orientation: landscape) {
+@media (max-width: 899px) and (orientation: landscape), (max-height: 520px) and (orientation: landscape) {
     .stage {
         --fw: min(calc((100vw - 2 * var(--pad) - 3.5rem) / 4), 9.5rem);
     }
 
+    /* One row has to fit in the little height there is */
     .desk {
-        grid-template-columns: repeat(4, var(--fw));
+        min-height: 11.5rem;
+    }
+
+    .desk-in {
+        --slot: min(
+            calc((100cqw - 2 * var(--pad) - 3.5rem) / 4),
+            calc((100cqh - 2.5rem - env(safe-area-inset-bottom, 0px) - var(--label)) * 156 / 142),
+            9.5rem
+        );
+        grid-template-columns: repeat(4, var(--slot));
         justify-content: space-between;
         column-gap: 0;
+    }
+}
+
+/* Small phones, where the browser leaves little height: the folder labels lose their
+   second line so the folders themselves can stay a decent size */
+@media (max-height: 380px) and (orientation: landscape) {
+    .desk {
+        min-height: 9.25rem;
+    }
+
+    .desk-in {
+        --label: 2.5rem;
+    }
+
+    .fold-count {
+        display: none;
+    }
+}
+
+@media (max-width: 599px) and (max-height: 620px) and (orientation: portrait) {
+    .desk {
+        min-height: 17.5rem;
+    }
+
+    .desk-in {
+        --label: 2.5rem;
+    }
+
+    .fold-count {
+        display: none;
     }
 }
 
@@ -950,6 +1027,11 @@
 
     .h-name span {
         display: block;
+    }
+
+    /* The two columns line up with the edges of the text above them */
+    .desk-in {
+        justify-content: space-between;
     }
 
     .w-crumbs {

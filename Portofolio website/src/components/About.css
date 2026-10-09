@@ -145,7 +145,7 @@
     }
 }
 
-@media (max-width: 899px) {
+@media (max-width: 899px), (max-height: 520px) {
     .about {
         grid-template-columns: minmax(0, 1fr) minmax(0, 15rem);
         gap: 2.5rem 2rem;

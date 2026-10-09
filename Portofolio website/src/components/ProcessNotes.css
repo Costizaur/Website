@@ -112,7 +112,7 @@
     line-height: 1.6;
 }
 
-@media (max-width: 899px) {
+@media (max-width: 899px), (max-height: 520px) {
     .paper {
         border-radius: 0.5rem;
     }

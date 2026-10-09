@@ -167,6 +167,10 @@ export const createStageMotion = (root, commit, start) => {
         if (!u) return;
         const frame = root.getBoundingClientRect();
         home = deskSlots.map(el => rectIn(el, frame));
+        // On a phone the layout decides how big a folder can be; the folders take that width
+        // before the sidebar places, which depend on it, are measured
+        if (getComputedStyle(root).getPropertyValue('--fold-fit').trim() === 'slot' && home[0] && home[0].w) root.style.setProperty('--fw', `${home[0].w}px`);
+        else root.style.removeProperty('--fw');
         rail = railSlots.map(el => rectIn(el, frame));
         if (active >= 0) {
             origin = fromRail ? railCentre(active) : homeCentre(active);

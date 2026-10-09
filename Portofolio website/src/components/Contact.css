@@ -242,7 +242,7 @@
     }
 }
 
-@media (max-width: 899px) {
+@media (max-width: 899px), (max-height: 520px) {
     .contact {
         grid-template-columns: minmax(0, 1fr);
         gap: 2.5rem;

@@ -109,7 +109,7 @@
     }
 }
 
-@media (max-width: 899px) {
+@media (max-width: 899px), (max-height: 520px) {
     .info-body {
         padding: 1.75rem var(--pad) calc(3.5rem + env(safe-area-inset-bottom, 0px));
     }

@@ -14,6 +14,8 @@ import './Stage.css';
 const SITE_TITLE = document.title;
 const HOME = { world: null, project: null, info: null };
 const PAGE_TITLES = { about: 'About', contact: 'Contact' };
+// The two theme-color tags in index.html, light and dark, with the desk colour each starts with
+const THEME_TAGS = [...document.querySelectorAll('meta[name="theme-color"]')].map(tag => ({ tag, desk: tag.content, dark: (tag.getAttribute('media') || '').includes('dark') }));
 
 // How the sheets lie on the table: a small tilt and drop each, so they look placed by hand
 const LIE = {
@@ -153,6 +155,24 @@ const Stage = () => {
         document.documentElement.style.overflow = ui.view === 'project' || onPage ? 'hidden' : '';
         return () => { document.documentElement.style.overflow = ''; };
     }, [ui.view, onPage]);
+
+    // The page behind the stage takes the open folder's colour. A phone's browser fills the
+    // strips behind its own bars, and the space past either end of the page, with it; older
+    // browsers tint their bars from the theme-color tags instead.
+    useEffect(() => {
+        const page = document.body.style;
+        if (ui.view !== 'home' && world) {
+            page.setProperty('--wc', world.color);
+            page.setProperty('--wd', world.deep);
+        } else {
+            page.removeProperty('--wc');
+            page.removeProperty('--wd');
+        }
+        // A project brings its own backdrop, so only the folder page itself changes the tags
+        THEME_TAGS.forEach(({ tag, desk, dark }) => {
+            tag.content = ui.view === 'world' && world ? (dark ? world.deep : world.color) : desk;
+        });
+    }, [ui.view, world]);
 
     // The open world's colours, for everything on the stage that takes them
     const colours = world ? { '--wc': world.color, '--wi': world.ink, '--wd': world.deep, '--wdi': world.deepInk } : undefined;

@@ -78,11 +78,21 @@ body {
   font-family: var(--font-text);
   font-size: 1rem;
   line-height: 1.55;
-  background-color: var(--stage);
+  /* A phone's browser paints this colour behind its own bars and past either end of the
+     page, where the stage does not reach. Inside a folder it is the folder's colour:
+     --wc and --wd (the dark one) arrive from Stage.jsx while a folder is open. */
+  background-color: var(--wc, var(--stage));
+  transition: background-color 400ms ease;
   color: var(--ink);
   overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: var(--wd, var(--stage));
+  }
 }
 
 ::selection {

@@ -62,9 +62,9 @@ const Contact = () => {
                             <span className="email-value">{EMAIL}</span>
                             <span className="email-action" aria-live="polite">
                                 {copied ? (
-                                    <><Check size={16} weight="bold" aria-hidden="true" /> Copied</>
+                                    <span key="copied" className="swap-in"><Check size={16} weight="bold" aria-hidden="true" /> Copied</span>
                                 ) : (
-                                    <><Copy size={16} weight="bold" aria-hidden="true" /> Copy</>
+                                    <span key="copy" className="swap-in"><Copy size={16} weight="bold" aria-hidden="true" /> Copy</span>
                                 )}
                             </span>
                         </button>

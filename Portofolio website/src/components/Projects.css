@@ -55,6 +55,8 @@
     font-weight: 700;
     line-height: 1.15;
     letter-spacing: -0.02em;
+    overflow-wrap: break-word;
+    max-width: 100%;
 }
 
 /* Count, with the folder colour as a small square */

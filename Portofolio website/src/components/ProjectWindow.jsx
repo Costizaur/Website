@@ -13,6 +13,9 @@ const ProjectWindow = ({ categories, win, onNavigate, onClose }) => {
     const pressedBackdrop = useRef(false);
     const lastItem = useRef(null);
     const [closing, setClosing] = useState(false);
+    // Which way the view inside the window last changed: 'forward' into a project, 'back' out of it
+    const [direction, setDirection] = useState('none');
+    const [instant] = useState(Boolean(win.instant));
 
     const category = categories.find(c => c.id === win.categoryId) || categories[0];
     const item = win.itemIndex == null ? null : category.images[win.itemIndex];
@@ -35,10 +38,15 @@ const ProjectWindow = ({ categories, win, onNavigate, onClose }) => {
         if (inProject) titleRef.current.focus({ preventScroll: true });
     }, [inProject]);
 
+    // Mouse and touch get a short slide between the list and a project; the keyboard gets none
     const showCategory = (next) => onNavigate({ categoryId: next.id, itemIndex: null });
-    const openItem = (index) => onNavigate({ categoryId: category.id, itemIndex: index });
-    const back = () => {
+    const openItem = (index, e) => {
+        setDirection(e && e.detail === 0 ? 'none' : 'forward');
+        onNavigate({ categoryId: category.id, itemIndex: index });
+    };
+    const back = (e) => {
         lastItem.current = win.itemIndex;
+        setDirection(e && e.detail === 0 ? 'none' : 'back');
         onNavigate({ categoryId: category.id, itemIndex: null });
     };
 
@@ -51,9 +59,10 @@ const ProjectWindow = ({ categories, win, onNavigate, onClose }) => {
         }
     };
 
+    // Escape closes straight away: keyboard actions are never made to wait for an animation
     const handleCancel = (e) => {
         e.preventDefault();
-        requestClose();
+        dialogRef.current.close();
     };
 
     const handleAnimationEnd = (e) => {
@@ -72,7 +81,7 @@ const ProjectWindow = ({ categories, win, onNavigate, onClose }) => {
     return (
         <dialog
             ref={dialogRef}
-            className={`window ${closing ? 'is-closing' : ''}`}
+            className={`window ${closing ? 'is-closing' : ''} ${instant ? 'is-instant' : ''}`}
             style={{ '--folder': category.color }}
             aria-labelledby="window-title"
             onCancel={handleCancel}
@@ -92,7 +101,7 @@ const ProjectWindow = ({ categories, win, onNavigate, onClose }) => {
                         <span className="window-bar-icon" aria-hidden="true"><span className="mini-folder"></span></span>
                     )}
                 </div>
-                <h2 id="window-title" ref={titleRef} tabIndex={-1} className="window-title">
+                <h2 id="window-title" ref={titleRef} tabIndex={-1} className="window-title" title={inProject ? item.title : category.title}>
                     {inProject ? item.title : category.title}
                 </h2>
                 <div className="window-bar-side is-end">
@@ -102,7 +111,7 @@ const ProjectWindow = ({ categories, win, onNavigate, onClose }) => {
                 </div>
             </header>
 
-            <div className="window-body">
+            <div className="window-body" data-direction={direction}>
                 {inProject ? (
                     <Modal key={`${category.id}-${win.itemIndex}`} category={category} item={item} />
                 ) : (

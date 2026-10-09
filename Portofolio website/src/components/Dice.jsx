@@ -81,14 +81,31 @@ const Die = ({ value, turns, color }) => {
 
 const roll = () => 1 + Math.floor(Math.random() * 6);
 
+const AT_REST = [[0, 0], [0, 0], [0, 0]];
+// One spin short of rest, so the dice tumble as they are thrown in
+const MID_THROW = [[-1, -1], [-1, 0], [0, -1]];
+
 const Dice = () => {
+    // On first load the dice are thrown onto the table once (skipped with reduced motion)
+    const [entering, setEntering] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     const [values, setValues] = useState([3, 5, 1]);
-    const [turns, setTurns] = useState([[0, 0], [0, 0], [0, 0]]);
+    const [turns, setTurns] = useState(entering ? MID_THROW : AT_REST);
     const [rollCount, setRollCount] = useState(0);
     const [rolling, setRolling] = useState(false);
     const timer = useRef(null);
 
     useEffect(() => () => clearTimeout(timer.current), []);
+
+    useEffect(() => {
+        if (!entering) return;
+        const frame = requestAnimationFrame(() => setTurns(AT_REST));
+        const done = setTimeout(() => setEntering(false), 1300);
+        return () => {
+            cancelAnimationFrame(frame);
+            clearTimeout(done);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // You can roll again mid-roll: the dice just take off from where they are
     const rollAll = () => {
@@ -96,6 +113,7 @@ const Dice = () => {
         setValues([roll(), roll(), roll()]);
         setTurns(prev => prev.map(([x, y]) => [x + 1 + Math.round(Math.random()), y + 1 + Math.round(Math.random())]));
         setRollCount(count => count + 1);
+        setEntering(false);
         setRolling(!reduced);
         clearTimeout(timer.current);
         timer.current = setTimeout(() => setRolling(false), 1250);
@@ -103,7 +121,7 @@ const Dice = () => {
 
     const total = values.reduce((a, b) => a + b, 0);
     // Two identical jump animations; swapping between them restarts the jump on every roll
-    const jump = rolling ? (rollCount % 2 ? 'is-rolling jump-a' : 'is-rolling jump-b') : '';
+    const jump = rolling ? (rollCount % 2 ? 'is-rolling jump-a' : 'is-rolling jump-b') : entering ? 'is-entering' : '';
 
     return (
         <div className="dice-tray">

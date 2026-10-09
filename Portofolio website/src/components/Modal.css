@@ -28,7 +28,19 @@
 .project-name {
     font-size: clamp(2.5rem, 4.4vw, 3.5rem);
     margin-bottom: var(--sp-4);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    text-wrap: wrap;
+}
+
+.project-name.is-long {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    line-height: 1;
+}
+
+.project-name.is-very-long {
+    font-size: 1.625rem;
+    line-height: 1.05;
 }
 
 .project-tags {
@@ -38,11 +50,13 @@
     margin-bottom: var(--sp-5);
 }
 
+/* A pasted link or other unbroken string wraps instead of running past the edge */
 .project-desc {
     font-size: 1.0625rem;
     line-height: 1.55;
     margin-bottom: var(--sp-4);
     text-wrap: pretty;
+    overflow-wrap: anywhere;
 }
 
 .project-long {
@@ -51,12 +65,14 @@
     color: var(--muted);
     margin-bottom: var(--sp-4);
     text-wrap: pretty;
+    overflow-wrap: anywhere;
 }
 
 .project-tools {
     font-size: 0.9375rem;
     line-height: 1.5;
     color: var(--muted);
+    overflow-wrap: anywhere;
 }
 
 .project-tools span {
@@ -73,6 +89,21 @@
 
 .project-actions:empty {
     display: none;
+}
+
+/* A button is never wider than the column; a very long game name is cut with an ellipsis */
+.project-actions .btn {
+    max-width: 100%;
+}
+
+.project-actions .btn > svg {
+    flex: none;
+}
+
+.btn-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* --- Unfold: a sheet of paper over the whole project --- */
@@ -176,6 +207,7 @@
     font-size: 0.9375rem;
     line-height: 1.45;
     text-wrap: pretty;
+    overflow-wrap: anywhere;
 }
 
 /* An ink pip instead of a bullet */

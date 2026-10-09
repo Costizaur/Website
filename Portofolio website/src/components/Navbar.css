@@ -52,7 +52,7 @@
     border-radius: var(--r-s);
     background: var(--gold);
     box-shadow: 0 3px 0 var(--gold-edge);
-    transition: transform 0.4s var(--ease-out);
+    transition: transform 0.3s var(--ease-out);
 }
 
 .brand-die i {
@@ -86,7 +86,13 @@
     transition: color 0.15s ease;
 }
 
+.nav-links a[aria-current='true'],
+.nav-links a:active {
+    color: var(--bone);
+}
+
 .nav-links .nav-cv {
+    position: relative;
     gap: 0.35rem;
     min-height: 2.25rem;
     margin-left: var(--sp-3);
@@ -95,6 +101,13 @@
     font-weight: 600;
     color: var(--bone);
     transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform var(--press);
+}
+
+/* The button looks compact but takes a full-size tap */
+.nav-links .nav-cv::after {
+    content: '';
+    position: absolute;
+    inset: -5px 0;
 }
 
 .nav-links .nav-cv:active {

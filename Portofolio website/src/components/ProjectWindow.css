@@ -28,11 +28,17 @@
 }
 
 .window.is-closing {
-    animation: window-out 0.16s ease-in forwards;
+    animation: window-out 0.16s var(--ease-out) forwards;
 }
 
 .window.is-closing::backdrop {
-    animation: backdrop-out 0.16s ease-in forwards;
+    animation: backdrop-out 0.16s var(--ease-out) forwards;
+}
+
+/* Opened from the keyboard: no entrance */
+.window.is-instant[open],
+.window.is-instant::backdrop {
+    animation: none;
 }
 
 @keyframes window-in {
@@ -137,6 +143,21 @@
     min-height: 0;
 }
 
+/* Going into a project slides in from the right, coming back from the left */
+.window-body[data-direction='forward'] > * {
+    animation: view-in 0.18s var(--ease-out);
+    --view-from: 10px;
+}
+
+.window-body[data-direction='back'] > * {
+    animation: view-in 0.18s var(--ease-out);
+    --view-from: -10px;
+}
+
+@keyframes view-in {
+    from { opacity: 0; transform: translateX(var(--view-from)); }
+}
+
 /* Path bar */
 .window-path {
     flex: none;
@@ -171,7 +192,14 @@
     text-overflow: ellipsis;
 }
 
+.window-crumbs > span:first-child {
+    flex: none;
+}
+
 .window-crumb {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     padding: 0.4rem 0;
     text-decoration: underline;
     text-decoration-color: var(--line-strong);
@@ -202,6 +230,7 @@
         margin: 0;
         width: 100%;
         height: min(92dvh, 100dvh - 2.5rem);
+        padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
         border-width: 1px 0 0;
         border-radius: var(--r-l) var(--r-l) 0 0;
         transform-origin: bottom !important;
@@ -212,7 +241,7 @@
     }
 
     .window.is-closing {
-        animation: sheet-out 0.22s ease-in forwards;
+        animation: sheet-out 0.2s var(--ease-out) forwards;
     }
 
     @keyframes sheet-in {
@@ -226,7 +255,8 @@
 
 @media (prefers-reduced-motion: reduce) {
     .window[open],
-    .window::backdrop {
+    .window::backdrop,
+    .window-body[data-direction] > * {
         animation: none;
     }
 }

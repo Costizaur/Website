@@ -22,6 +22,7 @@ const Featured = ({ onCaseStudy, category }) => {
                     rel="noopener noreferrer"
                     className="featured-shot"
                     aria-label="Play Muster in your browser"
+                    tabIndex={-1}
                 >
                     <img
                         src={musterBattle}

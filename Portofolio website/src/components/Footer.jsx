@@ -6,7 +6,7 @@ const Footer = () => {
     return (
         <footer className="footer">
             {/* Oversized outlined wordmark */}
-            <div className="footer-wordmark" aria-hidden="true">Sarghiuta</div>
+            <div className="footer-wordmark" data-text="Sarghiuta" aria-hidden="true">Sarghiuta</div>
 
             <div className="container footer-content">
                 <p>&copy; {new Date().getFullYear()} Costin Sarghiuta. Designed and built in React.</p>

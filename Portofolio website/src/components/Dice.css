@@ -197,6 +197,29 @@
     100% { transform: translateY(0); }
 }
 
+/* First load: the dice are thrown in from above, land and settle */
+.is-entering .die-lift { animation: die-drop 0.75s both; }
+.is-entering .die-shadow { animation: die-shadow-in 0.75s both; }
+
+.is-entering .die-slot:nth-child(2) .die-lift,
+.is-entering .die-slot:nth-child(2) .die-shadow { animation-delay: 0.07s; }
+.is-entering .die-slot:nth-child(3) .die-lift,
+.is-entering .die-slot:nth-child(3) .die-shadow { animation-delay: 0.14s; }
+
+@keyframes die-drop {
+    0% { opacity: 0; transform: translateY(calc(var(--die) * -1.5)); animation-timing-function: cubic-bezier(0.6, 0, 0.9, 0.5); }
+    18% { opacity: 1; }
+    56% { transform: translateY(0); animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1); }
+    76% { transform: translateY(calc(var(--die) * -0.14)); animation-timing-function: cubic-bezier(0.6, 0, 0.9, 0.5); }
+    100% { transform: translateY(0); }
+}
+
+@keyframes die-shadow-in {
+    0% { transform: scale(0.5); opacity: 0; }
+    56%, 100% { transform: scale(1); opacity: 1; }
+    76% { transform: scale(0.92); opacity: 0.8; }
+}
+
 @keyframes die-shadow {
     0%, 64%, 100% { transform: scale(1); opacity: 1; }
     32% { transform: scale(0.6); opacity: 0.35; }

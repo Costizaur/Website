@@ -15,8 +15,19 @@ const slideType = (src, img) => {
 // the arrows, the thumbnails and the arrow keys just scroll it.
 const Carousel = ({ images, title = 'Project' }) => {
     const trackRef = useRef(null);
+    const thumbsRef = useRef(null);
     const [index, setIndex] = useState(0);
+    // Images that failed to load, by position
+    const [failed, setFailed] = useState({});
     const count = images ? images.length : 0;
+
+    // With many screenshots the strip scrolls: keep the open one in view
+    useEffect(() => {
+        const strip = thumbsRef.current;
+        const active = strip ? strip.children[index] : null;
+        if (!active || strip.scrollWidth <= strip.clientWidth) return;
+        strip.scrollTo({ left: active.offsetLeft - (strip.clientWidth - active.offsetWidth) / 2 });
+    }, [index]);
 
     // The slide that is mostly in view is the current one
     useEffect(() => {
@@ -33,16 +44,17 @@ const Carousel = ({ images, title = 'Project' }) => {
 
     if (!images || count === 0) return null;
 
-    const goTo = (next) => {
+    // Buttons and thumbnails glide to the slide; the arrow keys jump straight to it
+    const goTo = (next, glide = true) => {
         const track = trackRef.current;
         const clamped = Math.max(0, Math.min(count - 1, next));
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        track.scrollTo({ left: track.clientWidth * clamped, behavior: reduced ? 'auto' : 'smooth' });
+        track.scrollTo({ left: track.clientWidth * clamped, behavior: glide && !reduced ? 'smooth' : 'instant' });
     };
 
     const onKeyDown = (e) => {
-        if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(index - 1); }
-        if (e.key === 'ArrowRight') { e.preventDefault(); goTo(index + 1); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(index - 1, false); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); goTo(index + 1, false); }
     };
 
     return (
@@ -51,7 +63,7 @@ const Carousel = ({ images, title = 'Project' }) => {
                 <div className="carousel-track" ref={trackRef} tabIndex={count > 1 ? 0 : undefined}>
                     {images.map((img, i) => {
                         const src = typeof img === 'object' ? img.src : img;
-                        const type = slideType(src, img);
+                        const type = failed[i] ? 'missing' : slideType(src, img);
                         const label = `${title}, image ${i + 1} of ${count}`;
                         return (
                             <div key={i} className="slide" data-index={i}>
@@ -65,12 +77,23 @@ const Carousel = ({ images, title = 'Project' }) => {
                                     />
                                 ) : type === 'video' ? (
                                     <video src={src} controls playsInline />
+                                ) : type === 'missing' ? (
+                                    <div className="slide-blank is-missing">
+                                        <span>This image could not be loaded</span>
+                                    </div>
                                 ) : type === 'color' ? (
                                     <div className="slide-blank" style={{ backgroundColor: src }}>
                                         <span>{typeof img === 'object' && img.title ? img.title : `Image ${i + 1}`}</span>
                                     </div>
                                 ) : (
-                                    <img src={src} alt={label} loading={i === 0 ? 'eager' : 'lazy'} decoding="async" draggable="false" />
+                                    <img
+                                        src={src}
+                                        alt={label}
+                                        loading={i === 0 ? 'eager' : 'lazy'}
+                                        decoding="async"
+                                        draggable="false"
+                                        onError={() => setFailed(prev => ({ ...prev, [i]: true }))}
+                                    />
                                 )}
                             </div>
                         );
@@ -79,10 +102,10 @@ const Carousel = ({ images, title = 'Project' }) => {
 
                 {count > 1 && (
                     <>
-                        <button type="button" className="carousel-btn is-prev" onClick={() => goTo(index - 1)} disabled={index === 0} aria-label="Previous image">
+                        <button type="button" className="carousel-btn is-prev" onClick={(e) => goTo(index - 1, e.detail !== 0)} disabled={index === 0} aria-label="Previous image">
                             <CaretLeft size={18} weight="bold" aria-hidden="true" />
                         </button>
-                        <button type="button" className="carousel-btn is-next" onClick={() => goTo(index + 1)} disabled={index === count - 1} aria-label="Next image">
+                        <button type="button" className="carousel-btn is-next" onClick={(e) => goTo(index + 1, e.detail !== 0)} disabled={index === count - 1} aria-label="Next image">
                             <CaretRight size={18} weight="bold" aria-hidden="true" />
                         </button>
                     </>
@@ -91,16 +114,16 @@ const Carousel = ({ images, title = 'Project' }) => {
 
             {/* Thumbnails show how many screenshots there are and let you jump to one */}
             {count > 1 && (
-                <ul className="carousel-thumbs">
+                <ul className="carousel-thumbs" ref={thumbsRef}>
                     {images.map((img, i) => {
                         const src = typeof img === 'object' ? img.src : img;
-                        const isPicture = slideType(src, img) === 'image';
+                        const isPicture = !failed[i] && slideType(src, img) === 'image';
                         return (
                             <li key={i}>
                                 <button
                                     type="button"
                                     className="carousel-thumb"
-                                    onClick={() => goTo(i)}
+                                    onClick={(e) => goTo(i, e.detail !== 0)}
                                     aria-label={`Show image ${i + 1} of ${count}`}
                                     aria-current={i === index ? 'true' : undefined}
                                 >

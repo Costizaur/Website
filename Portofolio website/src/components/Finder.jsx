@@ -37,6 +37,7 @@ const Finder = ({ categories, category, focusIndex, onSelectCategory, onOpenItem
                                 type="button"
                                 className="finder-tab"
                                 style={{ '--folder': c.color }}
+                                title={c.title}
                                 aria-current={c.id === category.id ? 'true' : undefined}
                                 onClick={() => onSelectCategory(c)}
                             >
@@ -61,7 +62,7 @@ const Finder = ({ categories, category, focusIndex, onSelectCategory, onOpenItem
                             const isColor = typeof item.src === 'string' && item.src.startsWith('#');
                             return (
                                 <li key={item.title || index}>
-                                    <button type="button" className="file-row" onClick={() => onOpenItem(index)}>
+                                    <button type="button" className="file-row" title={item.title} onClick={(e) => onOpenItem(index, e)}>
                                         {/* App icon if the project has one, else a plain tile in the folder colour */}
                                         {item.icon ? (
                                             <img src={item.icon} alt="" className="file-icon" />

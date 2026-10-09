@@ -74,7 +74,15 @@
     height: 100%;
     border-radius: var(--r-s);
     font-weight: 600;
+    text-align: center;
     color: rgba(255, 255, 255, 0.8);
+}
+
+.slide-blank.is-missing {
+    border: 1px dashed var(--line-strong);
+    font-size: var(--fs-small);
+    font-weight: 500;
+    color: var(--muted);
 }
 
 /* Arrows */
@@ -107,13 +115,19 @@
 
 /* Thumbnails */
 .carousel-thumbs {
+    position: relative;
     flex: none;
     display: flex;
     gap: var(--sp-2);
     padding: 3px;
     margin: -3px;
     overflow-x: auto;
+    overscroll-behavior-x: contain;
     scrollbar-width: none;
+}
+
+.carousel-thumbs li {
+    flex: none;
 }
 
 .carousel-thumbs::-webkit-scrollbar {

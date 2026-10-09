@@ -5,6 +5,7 @@ import { ArrowRight } from '@phosphor-icons/react';
 import Folder from './Folder';
 import ProjectWindow from './ProjectWindow';
 import Featured from './Featured';
+import { withStressData } from '../dev/stressData';
 import './Projects.css';
 
 // Import assets (Images/Videos)
@@ -240,6 +241,10 @@ const projects = [
 ];
 
 
+// In development, ?data=worst (or empty, one, many) swaps in stress-test folders.
+// The production build always uses the real projects above.
+const folders = import.meta.env.DEV ? withStressData(projects) : projects;
+
 const Projects = () => {
   // The open window: which folder it shows and which project inside it (null means the file list)
   const [win, setWin] = useState(null);
@@ -253,7 +258,13 @@ const Projects = () => {
   // Open the Finder window on a category
   const openFolder = (e, project) => {
     const folder = e.currentTarget.closest('.desk-folder');
-    setWin({ categoryId: project.id, itemIndex: null, origin: originOf({ currentTarget: folder || e.currentTarget }) });
+    // A click fired from the keyboard has detail 0; those open instantly, with no animation
+    setWin({
+      categoryId: project.id,
+      itemIndex: null,
+      origin: originOf({ currentTarget: folder || e.currentTarget }),
+      instant: e.detail === 0
+    });
   };
 
   // Jump straight from the featured card to Muster's case study
@@ -262,7 +273,8 @@ const Projects = () => {
     setWin({
       categoryId: games.id,
       itemIndex: games.images.findIndex(item => item.title === 'Muster'),
-      origin: originOf(e)
+      origin: originOf(e),
+      instant: e.detail === 0
     });
   };
 
@@ -281,7 +293,7 @@ const Projects = () => {
 
         {/* The desk: one folder per category, with its projects peeking out */}
         <ul className="desk">
-          {projects.map(project => (
+          {folders.map(project => (
             <li key={project.id} className="desk-folder folder-host" style={{ '--folder': project.color }}>
               <Folder
                 color={project.color}
@@ -314,7 +326,7 @@ const Projects = () => {
       {/* Finder window, with the project detail inside the same frame */}
       {win && (
         <ProjectWindow
-          categories={projects}
+          categories={folders}
           win={win}
           onNavigate={setWin}
           onClose={() => setWin(null)}

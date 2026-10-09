@@ -32,6 +32,8 @@ const Modal = ({ category, item }) => {
     const tags = item.tags || category.tags || [];
     const tools = item.tools || tags;
     const images = item.extraImages && item.extraImages.length > 0 ? item.extraImages : [item.src];
+    // Long names step down in size so they do not fill the whole column
+    const nameSize = item.title.length > 60 ? 'is-very-long' : item.title.length > 24 ? 'is-long' : '';
 
     // --- UNFOLD LOGIC ---
     // Select appropriate video based on device (Mobile/Desktop)
@@ -69,7 +71,7 @@ const Modal = ({ category, item }) => {
 
             {/* --- DETAILS --- */}
             <div className="project-info">
-                <h3 className="project-name display">{item.title}</h3>
+                <h3 className={`project-name display ${nameSize}`}>{item.title}</h3>
 
                 {tags.length > 0 && (
                     <ul className="project-tags" aria-label="Tags">
@@ -90,7 +92,7 @@ const Modal = ({ category, item }) => {
                 <div className="project-actions">
                     {item.gameLink && (
                         <a href={item.gameLink} target="_blank" rel="noopener noreferrer" className="btn">
-                            <Play size={14} weight="fill" aria-hidden="true" /> Play {item.title}
+                            <Play size={14} weight="fill" aria-hidden="true" /> <span className="btn-label">Play {item.title}</span>
                         </a>
                     )}
                     {item.designLink && (

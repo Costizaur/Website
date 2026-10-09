@@ -5,7 +5,8 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // The games in public/ are finished builds from other tools, and .vite is a cache
+  globalIgnores(['dist', 'public', '.vite']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [

@@ -1,44 +1,22 @@
 import React from 'react';
+import Stage from './components/Stage';
 
-// Import all page sections
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import Marquee from './components/Marquee';
-import About from './components/About';
-import Projects from './components/Projects';
-import Contact from './components/Contact';
-import Footer from './components/Footer';
-import DataToggle from './dev/DataToggle';
+// The address after the # is used for folders and projects, so the skip link moves
+// focus itself instead of jumping to an anchor
+const skipToContent = (e) => {
+  e.preventDefault();
+  document.getElementById('main').focus();
+};
 
 function App() {
   return (
     <div className="app">
-      <a href="#main" className="skip-link">Skip to content</a>
+      <a href="#main" className="skip-link" onClick={skipToContent}>Skip to content</a>
 
-      {/* Navigation Bar */}
-      <Navbar />
-
-      <main id="main">
-        {/* Main Hero Section (Top of page) */}
-        <Hero />
-
-        {/* Skills ticker tape */}
-        <Marquee />
-
-        {/* Portfolio Projects Section */}
-        <Projects />
-
-        {/* About Me Section */}
-        <About />
-
-        {/* Contact Section */}
-        <Contact />
+      {/* The whole site is one stage: the desk of folders, the folder worlds and the project pages */}
+      <main id="main" tabIndex={-1}>
+        <Stage />
       </main>
-
-      <Footer />
-
-      {/* Development only: stress-test data switch, visible with ?data=worst */}
-      {import.meta.env.DEV && <DataToggle />}
     </div>
   );
 }

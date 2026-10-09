@@ -11,8 +11,11 @@
     "dev:lan": "vite --config vite.lan.config.js"
   },
   "dependencies": {
+    "@fontsource-variable/archivo": "^5.3.0",
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",
     "@fontsource-variable/geist": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource/lilita-one": "^5.3.0",
     "@phosphor-icons/react": "^2.1.10",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

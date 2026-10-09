@@ -1,0 +1,154 @@
+/* The process notes are printed on a sheet of paper: dark ink, no boxes.
+   The paper keeps its colour in light and in dark, like a real sheet would. */
+.paper {
+    --paper: #dcdad5;
+    --paper-ink: #1d1a14;
+    position: relative;
+    overflow: hidden;
+    border-radius: calc(var(--u) * 0.6);
+    color: var(--paper-ink);
+    box-shadow: 0 calc(var(--u) * 0.2) calc(var(--u) * 0.5) rgba(0, 0, 0, 0.14), 0 calc(var(--u) * 1.6) calc(var(--u) * 3.4) rgba(0, 0, 0, 0.26);
+    transition: box-shadow 300ms ease;
+}
+
+/* Until it is open there is no sheet yet, only the ball lying on the page */
+.paper:not([data-step='open']) {
+    box-shadow: none;
+}
+
+/* The recording of the paper opening. Its last frame is the flat sheet the notes sit on.
+   It was filmed on black, which the blend drops out so the ball lies on the backdrop itself. */
+.paper-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    mix-blend-mode: screen;
+}
+
+/* Without the recording (reduced motion, or a browser that cannot play it) the sheet is plain paper */
+.paper[data-plain] {
+    background: var(--paper);
+}
+
+/* On a bright backdrop there is nothing dark to blend into, so the ball gets a dark tray */
+@media (prefers-color-scheme: light) {
+    .page[data-bright] .paper:not([data-plain]) {
+        background: #000;
+    }
+
+    .page[data-bright] .paper-video {
+        mix-blend-mode: normal;
+    }
+}
+
+.paper ::selection {
+    background: var(--paper-ink);
+    color: var(--paper);
+}
+
+.paper-sheet {
+    position: relative;
+    padding: calc(var(--u) * 3.6) calc(var(--u) * 4.2) calc(var(--u) * 4);
+    transition: opacity 350ms var(--ease-out), transform 350ms var(--ease-out);
+}
+
+/* The ink arrives once the paper is flat */
+.paper:not([data-step='open']) .paper-sheet {
+    opacity: 0;
+    transform: translateY(calc(var(--u) * 0.5));
+    visibility: hidden;
+}
+
+.paper-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: calc(var(--u) * 3.4) calc(var(--u) * 5);
+}
+
+.paper-note h4 {
+    padding-bottom: calc(var(--u) * 0.8);
+    margin-bottom: calc(var(--u) * 1);
+    border-bottom: 2px solid currentColor;
+    font-family: var(--w-font);
+    font-weight: var(--w-weight);
+    letter-spacing: var(--w-track);
+    text-transform: var(--w-case);
+    font-stretch: var(--w-stretch);
+    font-size: calc(var(--u) * 2.2 * var(--w-scale));
+    line-height: 1.05;
+}
+
+.paper-note ul {
+    display: grid;
+    gap: calc(var(--u) * 0.7);
+}
+
+.paper-note li {
+    position: relative;
+    padding-left: 1.1em;
+    font-size: max(0.9375rem, calc(var(--u) * 1.15));
+    line-height: 1.45;
+    text-wrap: pretty;
+    overflow-wrap: anywhere;
+}
+
+/* An ink pip instead of a bullet */
+.paper-note li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.52em;
+    width: 0.36em;
+    height: 0.36em;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.paper-plain {
+    max-width: 62ch;
+    font-size: max(1rem, calc(var(--u) * 1.25));
+    line-height: 1.6;
+}
+
+@media (max-width: 899px) {
+    .paper {
+        border-radius: 0.5rem;
+    }
+
+    .paper-sheet {
+        padding: 1.9rem 1.4rem 2.1rem;
+    }
+
+    .paper-grid {
+        gap: 2rem 2.25rem;
+    }
+
+    .paper-note h4 {
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.7rem;
+        font-size: calc(1.5rem * var(--w-scale));
+    }
+
+    .paper-note ul {
+        gap: 0.5rem;
+    }
+
+    .paper-note li {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 599px) {
+    .paper-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .paper,
+    .paper-sheet {
+        transition: none;
+    }
+}

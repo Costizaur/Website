@@ -1,203 +1,235 @@
-/* About: portrait on the left, the story and two short lists on the right. No boxes. */
-.about-grid {
+/* About: the words on the left, the photo lying beside them like a print */
+.about {
     display: grid;
-    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
-    grid-template-areas:
-        "photo heading"
-        "photo body";
-    grid-template-rows: auto 1fr;
-    column-gap: clamp(2rem, 6vw, 5.5rem);
+    grid-template-columns: minmax(0, 1fr) 26cqw;
+    gap: calc(var(--u) * 5) 8cqw;
+    align-items: start;
 }
 
-.about-heading { grid-area: heading; }
-.about-body { grid-area: body; }
+.about-text {
+    display: grid;
+    gap: calc(var(--u) * 1.2);
+    max-width: 64ch;
+    margin-top: calc(var(--u) * 1.8);
+    font-size: max(1rem, calc(var(--u) * 1.25));
+    line-height: 1.6;
+    color: var(--ink-soft);
+    text-wrap: pretty;
+}
 
-/* Photo stays in view while the text beside it scrolls */
+/* Status: a green light, what I am looking for, and the way to reach me */
+.about-status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: calc(var(--u) * 1.4) calc(var(--u) * 1.2);
+    margin-top: calc(var(--u) * 3);
+    font-size: max(1rem, calc(var(--u) * 1.3));
+    line-height: 1.4;
+}
+
+.about-status > span:nth-child(2) {
+    flex: 1 1 18em;
+    max-width: 30em;
+}
+
+.status-dot {
+    flex: none;
+    width: 0.7em;
+    height: 0.7em;
+    border-radius: 50%;
+    background: #22b573;
+    box-shadow: 0 0 0 0.3em color-mix(in srgb, #22b573 22%, transparent);
+}
+
 .about-photo {
-    grid-area: photo;
-    position: sticky;
-    top: 6.5rem;
-    align-self: start;
-    aspect-ratio: 4 / 5;
-    border-radius: var(--r-l);
-    overflow: hidden;
-    background: var(--surface-1);
-    box-shadow: 0 0 0 1px var(--line);
+    margin-top: calc(var(--u) * 0.6);
+    padding: calc(var(--u) * 1) calc(var(--u) * 1) 0;
+    border-radius: calc(var(--u) * 1.4);
+    background: var(--sheet);
+    color: var(--sheet-ink);
+    rotate: 2.2deg;
+    box-shadow: inset 0 0 0 1px var(--sheet-edge), 0 calc(var(--u) * 0.2) calc(var(--u) * 0.5) var(--shade-near), 0 calc(var(--u) * 1.4) calc(var(--u) * 2.8) var(--shade-far);
 }
 
 .about-photo img {
     width: 100%;
-    height: 100%;
+    height: auto;
+    aspect-ratio: 4 / 5;
     object-fit: cover;
-    object-position: 50% 20%;
+    object-position: 50% 18%;
+    border-radius: calc(var(--u) * 0.8);
+    background: #111216;
 }
 
-.about-tag {
-    position: absolute;
-    left: var(--sp-4);
-    bottom: var(--sp-5);
-    padding: 0.45rem 0.85rem;
-    border-radius: var(--r-s);
-    background: var(--gold);
-    color: var(--gold-ink);
-    font-family: var(--font-display);
-    font-size: 1rem;
+.about-photo figcaption {
+    padding: calc(var(--u) * 0.9) calc(var(--u) * 0.3) calc(var(--u) * 1.1);
+    font-family: var(--font-desk);
     font-weight: 800;
-    line-height: 1.2;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    box-shadow: 0 4px 0 var(--gold-edge), 0 12px 24px rgba(0, 0, 0, 0.4);
-    transform: rotate(-5deg);
+    font-stretch: 110%;
+    font-size: max(0.9375rem, calc(var(--u) * 1.3));
+    letter-spacing: -0.015em;
 }
 
-.about-lead {
-    max-width: 22ch;
-    margin-bottom: var(--sp-5);
-    font-family: var(--font-display);
-    font-size: var(--fs-h3);
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    text-wrap: balance;
+.about-lists {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: calc(var(--u) * 3) 8cqw;
+    padding-top: calc(var(--u) * 3.5);
+    border-top: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
 }
 
-.about-body .lead + .lead {
-    margin-top: var(--sp-4);
+/* Each discipline is a small folder in its colour, and opens that folder */
+.disc-list {
+    display: grid;
+    gap: calc(var(--u) * 0.3);
 }
 
-/* Status line: dot, sentence, link */
-.about-status {
+.disc {
+    --fw: calc(var(--u) * 4.4);
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: var(--sp-1) var(--sp-3);
-    margin-top: var(--sp-6);
-    padding-block: var(--sp-4);
-    border-block: 1px solid var(--line);
-    color: var(--muted);
+    gap: calc(var(--u) * 1.5);
+    padding: calc(var(--u) * 0.9) calc(var(--u) * 1.3);
+    margin-inline: calc(var(--u) * -1.3);
+    border-radius: calc(var(--u) * 1.2);
+    transition: background-color 160ms ease, transform var(--press);
 }
 
-.about-status b {
-    font-weight: 600;
-    color: var(--bone);
-}
-
-.about-status .link-arrow {
-    min-height: 2.75rem;
-    white-space: nowrap;
-}
-
-/* Two short lists */
-.about-lists {
-    display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    gap: var(--sp-6) clamp(1.5rem, 4vw, 3.5rem);
-    margin-top: var(--sp-6);
-}
-
-.about-label {
-    margin-bottom: var(--sp-4);
-    font-size: var(--fs-small);
-    font-weight: 600;
-    color: var(--muted);
-}
-
-.disc-list {
-    display: grid;
-    gap: var(--sp-4);
-}
-
-.disc-list li {
-    display: grid;
-    grid-template-columns: 8px minmax(0, 1fr);
-    column-gap: var(--sp-3);
-    align-items: baseline;
-}
-
-/* The folder colour for this discipline */
-.disc-list li::before {
-    content: '';
-    width: 8px;
-    height: 8px;
-    border-radius: 2px;
-    background: var(--folder);
-    transform: translateY(-1px);
+.disc:active {
+    transform: scale(0.99);
 }
 
 .disc-name {
-    font-family: var(--font-display);
-    font-size: 1.1875rem;
-    font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
+    display: block;
+    font-size: max(1rem, calc(var(--u) * 1.4));
+    font-weight: 600;
+    line-height: 1.25;
 }
 
 .disc-note {
-    grid-column: 2;
-    font-size: var(--fs-small);
-    color: var(--muted);
+    display: block;
+    font-size: max(0.875rem, calc(var(--u) * 1.1));
+    color: var(--ink-soft);
 }
 
-/* Toolkit keycaps */
-.keycaps {
+.disc-go {
+    opacity: 0.45;
+    transition: transform 200ms var(--ease-out), opacity 160ms ease;
+}
+
+.toolkit {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.6rem 0.5rem;
+    gap: calc(var(--u) * 0.7);
 }
 
-.keycap {
-    padding: 0.4rem 0.75rem;
-    border-radius: var(--r-s);
-    font-size: var(--fs-small);
-    font-weight: 500;
-    line-height: 1.3;
-    background: linear-gradient(var(--surface-3), var(--surface-2));
-    box-shadow: 0 3px 0 #050505, inset 0 1px 0 rgba(255, 255, 255, 0.07), inset 0 0 0 1px var(--line);
+.toolkit li {
+    padding: 0.35em 0.85em;
+    border-radius: 99px;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 24%, transparent);
+    font-size: max(0.875rem, calc(var(--u) * 1.1));
+    line-height: 1.35;
 }
 
-/* Tablet and phone: heading, photo, then the text */
+@media (hover: hover) and (pointer: fine) {
+    .disc:hover {
+        background: color-mix(in srgb, var(--ink) 7%, transparent);
+    }
+
+    .disc:hover .disc-go {
+        opacity: 1;
+        transform: translateX(calc(var(--u) * 0.3));
+    }
+}
+
 @media (max-width: 899px) {
-    .about-grid {
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-areas:
-            "heading"
-            "photo"
-            "body";
-        grid-template-rows: auto;
+    .about {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 15rem);
+        gap: 2.5rem 2rem;
     }
 
-    .about-photo {
-        position: relative;
-        top: auto;
-        aspect-ratio: 5 / 4;
-        max-width: 34rem;
-        margin-bottom: var(--sp-6);
-    }
-
-    .about-photo img {
-        object-position: 50% 12%;
-    }
-}
-
-@media (max-width: 560px) {
-    .about-photo {
-        aspect-ratio: 1;
+    .about-text {
+        gap: 0.9rem;
+        margin-top: 1.25rem;
+        font-size: 1rem;
     }
 
     .about-status {
-        grid-template-columns: auto minmax(0, 1fr);
-        align-items: baseline;
+        gap: 1rem 0.9rem;
+        margin-top: 1.75rem;
+        font-size: 1.0625rem;
     }
 
-    .about-status .status-dot {
-        transform: translateY(-2px);
+    .about-photo {
+        padding: 0.7rem 0.7rem 0;
+        border-radius: 1.1rem;
     }
 
-    .about-status .link-arrow {
-        grid-column: 2;
+    .about-photo img {
+        border-radius: 0.6rem;
+    }
+
+    .about-photo figcaption {
+        padding: 0.65rem 0.2rem 0.8rem;
+        font-size: 1rem;
+    }
+
+    .about-lists {
+        gap: 2.25rem 2rem;
+        padding-top: 2.25rem;
+    }
+
+    .disc {
+        --fw: 2.9rem;
+        gap: 1rem;
+        padding: 0.7rem 0.8rem;
+        margin-inline: -0.8rem;
+        border-radius: 0.9rem;
+    }
+
+    .disc-name {
+        font-size: 1.0625rem;
+    }
+
+    .disc-note {
+        font-size: 0.9375rem;
+    }
+
+    .toolkit {
+        gap: 0.45rem;
+    }
+
+    .toolkit li {
+        font-size: 0.9375rem;
+    }
+}
+
+/* One column: the words, then the print, then the lists */
+@media (max-width: 599px) {
+    .about {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .about-photo {
+        width: min(100%, 15rem);
+        rotate: -2deg;
     }
 
     .about-lists {
         grid-template-columns: minmax(0, 1fr);
+    }
+
+    .about-status .key-btn {
+        flex: 1 1 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .disc,
+    .disc-go {
+        transition: none;
     }
 }

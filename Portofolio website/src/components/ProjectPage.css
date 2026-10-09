@@ -1,0 +1,673 @@
+/* ================= Project, full screen =================
+   Each project brings its own backdrop (--p-bg, --p-fg) and keeps the typeface and
+   colour of the folder it came from. The page scrolls: the first screen is the
+   summary, and everything else about the project is below it. */
+.page {
+    /* --pb and --pf (and --pbd, --pfd for the dark setting) arrive from the project */
+    --p-bg: var(--pb, #111216);
+    --p-fg: var(--pf, #f4f4f6);
+    --p-soft: color-mix(in srgb, var(--p-fg) 74%, transparent);
+    --p-line: color-mix(in srgb, var(--p-fg) 22%, transparent);
+    position: fixed;
+    inset: 0;
+    z-index: 7;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--p-bg);
+    color: var(--p-fg);
+    visibility: hidden;
+    pointer-events: none;
+    will-change: clip-path, opacity;
+    scrollbar-color: color-mix(in srgb, var(--p-fg) 40%, transparent) transparent;
+}
+
+/* Bright backdrops have a dark counterpart; the others are dark already and stay as they are */
+@media (prefers-color-scheme: dark) {
+    .page {
+        --p-bg: var(--pbd, #111216);
+        --p-fg: var(--pfd, #f4f4f6);
+    }
+}
+
+.page ::selection {
+    background: var(--wc);
+    color: var(--wi);
+}
+
+.page :focus-visible {
+    outline-width: max(2px, calc(var(--u) * 0.2));
+    outline-offset: calc(var(--u) * 0.3);
+}
+
+/* Going to the next or previous project: the new contents settle in */
+.page[data-swap] .pg-body {
+    animation: pg-swap 320ms var(--ease-out);
+}
+
+@keyframes pg-swap {
+    from {
+        opacity: 0;
+        transform: translateY(calc(var(--u) * 1.2));
+    }
+}
+
+/* ---- First screen ---- */
+.pg-hero {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+}
+
+.pg-hero > .frame {
+    display: flex;
+    flex-direction: column;
+}
+
+.pg-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: calc(var(--u) * 2);
+    padding: calc(var(--u) * 2.2) calc(var(--u) * 3.5) 0;
+}
+
+.pg-crumbs {
+    flex-wrap: wrap;
+    min-width: 0;
+}
+
+.pg-close {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: calc(var(--u) * 3.8);
+    height: calc(var(--u) * 3.8);
+    border-radius: 50%;
+    background: color-mix(in srgb, currentColor 15%, transparent);
+    font-size: calc(var(--u) * 1.5);
+    transition: transform var(--press), background-color 150ms ease;
+}
+
+.pg-main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 38cqw minmax(0, 1fr);
+    gap: 5cqw;
+    align-items: center;
+    padding: calc(var(--u) * 2.5) calc(var(--u) * 3.5) calc(var(--u) * 3);
+}
+
+.pg-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: calc(var(--u) * 1.5);
+    min-width: 0;
+}
+
+.pg-icon {
+    width: calc(var(--u) * 5);
+    height: calc(var(--u) * 5);
+    border-radius: 22%;
+    box-shadow: 0 calc(var(--u) * 0.6) calc(var(--u) * 1.4) rgba(0, 0, 0, 0.28);
+}
+
+.pg-title {
+    font-size: calc(var(--u) * 7.2 * var(--w-scale) * var(--p-title-scale, 1));
+    line-height: 0.98;
+    color: var(--p-title, inherit);
+    text-shadow: var(--p-title-shadow, none);
+    text-wrap: balance;
+    outline: none;
+}
+
+.pg-pitch {
+    max-width: calc(var(--u) * 36);
+    font-size: max(1rem, calc(var(--u) * 1.5));
+    line-height: 1.5;
+    text-wrap: pretty;
+}
+
+.pg-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--u) * 1) calc(var(--u) * 2.6);
+    font-size: max(0.8125rem, calc(var(--u) * 1.05));
+    line-height: 1.35;
+}
+
+.pg-facts b {
+    display: block;
+    font-size: max(1.0625rem, calc(var(--u) * 1.5));
+    font-weight: 700;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+
+.pg-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--u) * 1);
+    margin-top: calc(var(--u) * 0.3);
+}
+
+/* Buttons take the folder colour in light and in dark */
+.pg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--u) * 0.6);
+    padding: calc(var(--u) * 1.1) calc(var(--u) * 2);
+    border-radius: calc(var(--u) * 1);
+    background: var(--wc);
+    color: var(--wi);
+    font-weight: 700;
+    font-size: max(0.9375rem, calc(var(--u) * 1.3));
+    line-height: 1;
+    white-space: nowrap;
+    transition: transform var(--press);
+}
+
+.pg-btn.is-ghost {
+    background: transparent;
+    color: inherit;
+    box-shadow: inset 0 0 0 max(1.5px, calc(var(--u) * 0.15)) color-mix(in srgb, currentColor 50%, transparent);
+}
+
+.pg-media {
+    min-width: 0;
+}
+
+/* The picture that travels here from the sheet */
+.pg-shot {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    object-position: var(--pos, 50% 50%);
+    border-radius: calc(var(--u) * 1.2);
+    transform-origin: 0 0;
+    box-shadow: 0 calc(var(--u) * 2) calc(var(--u) * 4) rgba(0, 0, 0, 0.35);
+    background: #111216;
+    will-change: transform;
+    transition: opacity 130ms ease, filter 130ms ease;
+}
+
+.pg-shot.is-swap {
+    opacity: 0.2;
+    filter: blur(calc(var(--u) * 0.3));
+}
+
+.pg-thumbs {
+    display: flex;
+    gap: calc(var(--u) * 1);
+    min-height: calc(var(--u) * 6.1);
+    margin-top: calc(var(--u) * 1.3);
+}
+
+.pg-thumb {
+    flex: 0 1 calc(var(--u) * 10.7);
+    min-width: 0;
+    aspect-ratio: 16 / 9;
+    border-radius: calc(var(--u) * 0.7);
+    overflow: hidden;
+    opacity: 0.55;
+    transition: opacity 150ms ease, transform var(--press);
+}
+
+.pg-thumb[aria-pressed='true'] {
+    opacity: 1;
+    box-shadow: 0 0 0 calc(var(--u) * 0.22) var(--wc);
+}
+
+.pg-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--pos, 50% 50%);
+}
+
+.pg-close:active,
+.pg-btn:active,
+.pg-thumb:active {
+    transform: scale(0.97);
+}
+
+/* ---- The rest of the page ---- */
+/* The same column as the first screen. It is a plain box on purpose: the unfolding paper
+   blends into the backdrop, and that only works with nothing layered in between. */
+.pg-wrap {
+    display: grid;
+    gap: calc(var(--u) * 8);
+    width: min(100%, calc(var(--u) * 120));
+    margin-inline: auto;
+    padding: calc(var(--u) * 5) calc(var(--u) * 3.5) calc(var(--u) * 6);
+}
+
+.pg-wrap > * {
+    min-width: 0;
+}
+
+.pg-rest section {
+    scroll-margin-top: calc(var(--u) * 3);
+    outline: none;
+}
+
+/* Headings below the fold speak in the world's typeface */
+.pg-h {
+    margin-bottom: calc(var(--u) * 2.2);
+    font-family: var(--w-font);
+    font-weight: var(--w-weight);
+    letter-spacing: var(--w-track);
+    text-transform: var(--w-case);
+    font-stretch: var(--w-stretch);
+    font-size: calc(var(--u) * 3.4 * var(--w-scale));
+    line-height: 1.02;
+    color: var(--p-title, inherit);
+}
+
+/* The write-up, with the facts about the project in a narrow column beside it */
+.pg-story {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 32%);
+    gap: calc(var(--u) * 3) 7.5%;
+    align-items: start;
+    padding-top: calc(var(--u) * 5);
+    border-top: 1px solid var(--p-line);
+}
+
+.pg-lead {
+    max-width: 34em;
+    font-size: max(1.1875rem, calc(var(--u) * 1.9));
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    text-wrap: pretty;
+}
+
+.pg-long {
+    max-width: 68ch;
+    margin-top: calc(var(--u) * 2);
+    font-size: max(1rem, calc(var(--u) * 1.25));
+    line-height: 1.6;
+    color: var(--p-soft);
+    text-wrap: pretty;
+}
+
+.pg-meta {
+    display: grid;
+    gap: calc(var(--u) * 2.2);
+    font-size: max(0.9375rem, calc(var(--u) * 1.15));
+    line-height: 1.5;
+}
+
+.pg-meta dt {
+    margin-bottom: calc(var(--u) * 0.6);
+    font-size: max(0.8125rem, calc(var(--u) * 1));
+    font-weight: 600;
+    color: var(--p-soft);
+}
+
+.pg-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--u) * 0.6);
+}
+
+.pg-tags li {
+    padding: 0.28em 0.7em;
+    border-radius: 99px;
+    box-shadow: inset 0 0 0 1px var(--p-line);
+    font-size: max(0.8125rem, calc(var(--u) * 1));
+    line-height: 1.3;
+    white-space: nowrap;
+}
+
+.pg-links {
+    display: grid;
+    gap: calc(var(--u) * 0.5);
+    justify-items: start;
+}
+
+.pg-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--p-line);
+    text-underline-offset: 0.25em;
+    text-decoration-thickness: 0.08em;
+    transition: text-decoration-color 150ms ease;
+}
+
+/* Every screenshot, whole. The first screen crops them to fit; here they keep their shape. */
+.pg-shots {
+    columns: 2;
+    column-gap: calc(var(--u) * 2);
+}
+
+.pg-shots[data-count='1'] {
+    columns: 1;
+}
+
+.pg-shots li {
+    break-inside: avoid;
+    margin-bottom: calc(var(--u) * 2);
+}
+
+.pg-shots img {
+    width: 100%;
+    height: auto;
+    border-radius: calc(var(--u) * 1);
+    background: color-mix(in srgb, var(--p-fg) 8%, transparent);
+    box-shadow: 0 calc(var(--u) * 0.8) calc(var(--u) * 2.4) rgba(0, 0, 0, 0.28);
+}
+
+/* ---- The way onwards ---- */
+.pg-onward {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    gap: calc(var(--u) * 2);
+    padding-top: calc(var(--u) * 3);
+    border-top: 1px solid var(--p-line);
+}
+
+.pg-hop {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--u) * 1.3);
+    min-width: 0;
+    padding: calc(var(--u) * 1.2) calc(var(--u) * 1.6);
+    margin-inline: calc(var(--u) * -1.6);
+    border-radius: calc(var(--u) * 1.4);
+    text-align: left;
+    font-size: calc(var(--u) * 1.6);
+    transition: background-color 160ms ease, transform var(--press);
+}
+
+.pg-hop.is-next {
+    margin-left: auto;
+    text-align: right;
+}
+
+.pg-hop img {
+    width: calc(var(--u) * 4.4);
+    height: calc(var(--u) * 4.4);
+    border-radius: 22%;
+}
+
+.pg-hop svg {
+    transition: transform 200ms var(--ease-out);
+}
+
+.pg-hop-way {
+    display: block;
+    font-size: max(0.8125rem, calc(var(--u) * 1.05));
+    font-weight: 500;
+    color: var(--p-soft);
+}
+
+.pg-hop-name {
+    display: block;
+    font-family: var(--w-font);
+    font-weight: var(--w-weight);
+    letter-spacing: var(--w-track);
+    text-transform: var(--w-case);
+    font-stretch: var(--w-stretch);
+    font-size: calc(var(--u) * 2.6 * var(--w-scale));
+    line-height: 1.1;
+}
+
+.pg-hop:active {
+    transform: scale(0.98);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .pg-thumb:hover {
+        opacity: 1;
+    }
+
+    .pg-close:hover {
+        background: color-mix(in srgb, currentColor 24%, transparent);
+    }
+
+    .pg-btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .pg-btn:hover:active,
+    .pg-thumb:hover:active {
+        transform: scale(0.97);
+    }
+
+    .pg-links a:hover {
+        text-decoration-color: currentColor;
+    }
+
+    .pg-hop:hover {
+        background: color-mix(in srgb, var(--p-fg) 9%, transparent);
+    }
+
+    .pg-hop.is-next:hover svg {
+        transform: translateX(calc(var(--u) * 0.3));
+    }
+
+    .pg-hop.is-previous:hover svg {
+        transform: translateX(calc(var(--u) * -0.3));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .page[data-swap] .pg-body {
+        animation: none;
+    }
+
+    .pg-shot,
+    .pg-thumb,
+    .pg-btn,
+    .pg-close,
+    .pg-hop,
+    .pg-hop svg {
+        transition: none;
+    }
+}
+
+/* ================= Phones and narrow windows =================
+   The page is one scrolling column, with the screenshot first. */
+@media (max-width: 899px) {
+    .pg-hero {
+        min-height: 0;
+    }
+
+    .pg-bar {
+        padding: calc(var(--top) + 0.6rem) var(--pad) 0;
+    }
+
+    .pg-crumbs {
+        font-size: 0.875rem;
+    }
+
+    .pg-close {
+        width: 2.75rem;
+        height: 2.75rem;
+        font-size: 1.15rem;
+    }
+
+    .pg-main {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.5rem;
+        padding: 1rem var(--pad) 2.5rem;
+    }
+
+    .pg-media {
+        order: -1;
+    }
+
+    .pg-shot {
+        border-radius: 0.9rem;
+    }
+
+    /* The small pictures become a strip you can swipe along */
+    .pg-thumbs {
+        gap: 0.6rem;
+        min-height: 0;
+        margin: 0.9rem calc(var(--pad) * -1) 0;
+        padding: 0.25rem var(--pad);
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .pg-thumbs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .pg-thumbs:empty {
+        display: none;
+    }
+
+    .pg-thumb {
+        flex: 0 0 5.75rem;
+        border-radius: 0.5rem;
+    }
+
+    .pg-copy {
+        gap: 1rem;
+    }
+
+    .pg-icon {
+        width: 3.25rem;
+        height: 3.25rem;
+    }
+
+    .pg-title {
+        font-size: calc(min(13vw, 5.25rem) * var(--w-scale) * var(--p-title-scale, 1));
+    }
+
+    .pg-pitch {
+        max-width: 36rem;
+        font-size: 1.0625rem;
+    }
+
+    .pg-facts {
+        gap: 0.9rem 1.75rem;
+        font-size: 0.875rem;
+    }
+
+    .pg-facts b {
+        font-size: 1.125rem;
+    }
+
+    .pg-actions {
+        width: 100%;
+        gap: 0.75rem;
+        margin-top: 0.25rem;
+    }
+
+    /* Buttons a thumb can hit, side by side when they fit and stacked when they do not */
+    .pg-btn {
+        flex: 1 1 auto;
+        justify-content: center;
+        min-height: 3rem;
+        padding: 0.8rem 1.25rem;
+        border-radius: 0.85rem;
+        font-size: 1rem;
+    }
+
+    .pg-wrap {
+        gap: 3.5rem;
+        padding: 0.5rem var(--pad) calc(3rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .pg-story {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 2rem;
+        padding-top: 2.5rem;
+    }
+
+    .pg-lead {
+        font-size: 1.25rem;
+    }
+
+    .pg-long {
+        margin-top: 1.25rem;
+        font-size: 1rem;
+    }
+
+    .pg-meta {
+        gap: 1.5rem;
+        font-size: 1rem;
+    }
+
+    .pg-meta dt {
+        margin-bottom: 0.4rem;
+        font-size: 0.875rem;
+    }
+
+    .pg-tags {
+        gap: 0.4rem;
+    }
+
+    .pg-tags li {
+        font-size: 0.875rem;
+    }
+
+    .pg-links {
+        gap: 0;
+    }
+
+    .pg-links a {
+        min-height: 2.75rem;
+    }
+
+    .pg-h {
+        margin-bottom: 1.25rem;
+        font-size: calc(2.1rem * var(--w-scale));
+    }
+
+    .pg-shots,
+    .pg-shots[data-count='1'] {
+        columns: 1;
+    }
+
+    .pg-shots li {
+        margin-bottom: 1rem;
+    }
+
+    .pg-shots img {
+        border-radius: 0.7rem;
+    }
+
+    .pg-onward {
+        gap: 0.75rem;
+        padding-top: 1.25rem;
+    }
+
+    .pg-hop {
+        gap: 0.75rem;
+        padding: 0.75rem;
+        margin-inline: -0.75rem;
+        border-radius: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .pg-hop img {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
+
+    .pg-hop-way {
+        font-size: 0.8125rem;
+    }
+
+    .pg-hop-name {
+        font-size: calc(1.35rem * var(--w-scale));
+    }
+}
+
+@media (max-width: 599px) {
+    /* The neighbour's icon gives way to its name */
+    .pg-hop img {
+        display: none;
+    }
+}

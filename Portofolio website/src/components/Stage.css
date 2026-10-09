@@ -1,0 +1,967 @@
+/* ================= The stage =================
+   One unit, --u, sizes everything: a hundredth of the width of a 16:10 sheet fitted into
+   the window. The design was drawn on such a sheet, so at 16:10 this is the drawing itself;
+   on wider or taller windows the layout spreads out while type and pieces keep their size. */
+.stage {
+    --u: clamp(10px, min(1vw, 100vh / 57), 20px);
+    --u: clamp(10px, min(1vw, 100dvh / 57), 20px);
+
+    /* The open world. --wc and --wi (the folder colour and the ink on it) and --wd and --wdi
+       (their deep, dark-mode pair) arrive from the folder that is open. */
+    --w-bg: var(--wc, #ffc53d);
+    --w-ink: var(--wi, #20160a);
+    /* The round back button: ink with the folder colour inside */
+    --w-btn: var(--w-ink);
+    --w-btn-ink: var(--w-bg);
+    --w-font: var(--font-desk);
+    --w-weight: 900;
+    --w-track: -0.02em;
+    --w-case: none;
+    --w-stretch: 100%;
+    --w-scale: 1;
+
+    /* The width of a folder on the desk. The folder drawing and its label hang off it. */
+    --fw: calc(var(--u) * 19);
+
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: max(100vh, calc(var(--u) * 57));
+    min-height: max(100dvh, calc(var(--u) * 57));
+    background-color: var(--stage);
+    background-image: radial-gradient(circle, var(--dot) calc(var(--u) * 0.11), transparent calc(var(--u) * 0.14));
+    background-size: calc(var(--u) * 2.6) calc(var(--u) * 2.6);
+    color: var(--ink);
+}
+
+/* In the dark a world is a deep version of its folder colour with light text, and the
+   bright folder colour is kept for buttons */
+@media (prefers-color-scheme: dark) {
+    .stage {
+        --w-bg: var(--wd, #3a2a08);
+        --w-ink: var(--wdi, #ffe9b0);
+        --w-btn: var(--wc, #ffc53d);
+        --w-btn-ink: var(--wi, #20160a);
+    }
+}
+
+.stage[data-world='uiux'] { --w-font: 'Bricolage Grotesque Variable', 'Arial Narrow', sans-serif; --w-weight: 800; --w-stretch: 80%; }
+.stage[data-world='web'] { --w-font: 'JetBrains Mono Variable', ui-monospace, Menlo, monospace; --w-weight: 600; --w-track: -0.05em; --w-scale: 0.8; }
+.stage[data-world='games'] { --w-font: 'Lilita One', 'Arial Black', sans-serif; --w-weight: 400; --w-track: 0.01em; --w-case: uppercase; }
+.stage[data-world='apps'] { --w-font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, var(--font-text); --w-weight: 700; --w-track: -0.035em; }
+
+/* The measure the motion code reads --u from */
+.u-probe {
+    position: absolute;
+    width: calc(var(--u) * 100);
+    height: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* The page column: as wide as the window, up to a limit on very wide screens */
+.frame {
+    position: relative;
+    width: min(100%, calc(var(--u) * 120));
+    height: 100%;
+    margin-inline: auto;
+    container-type: inline-size;
+}
+
+.stage svg {
+    display: block;
+    flex: none;
+}
+
+/* ================= Home ================= */
+.home {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.home > .frame {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Fades and sinks back a little as a folder opens */
+.h-top {
+    transform-origin: 50% 110%;
+    will-change: transform, opacity;
+}
+
+.h-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: calc(var(--u) * 2);
+    padding: calc(var(--u) * 2.2) calc(var(--u) * 3.5) 0;
+    font-size: max(0.875rem, calc(var(--u) * 1.2));
+    font-weight: 500;
+}
+
+.h-brand {
+    font-size: max(0.9375rem, calc(var(--u) * 1.3));
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.h-links {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--u) * 2.6);
+}
+
+.h-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    padding-block: 0.5em;
+    white-space: nowrap;
+}
+
+.h-links a:not(.h-play) {
+    text-decoration: underline transparent;
+    text-underline-offset: 0.3em;
+    text-decoration-thickness: 0.09em;
+    transition: text-decoration-color 160ms ease;
+}
+
+.h-play {
+    padding: calc(var(--u) * 0.65) calc(var(--u) * 1.4);
+    border-radius: calc(var(--u) * 0.8);
+    background: var(--key);
+    color: var(--key-ink);
+    font-weight: 600;
+    transition: transform var(--press);
+}
+
+.h-play:active {
+    transform: scale(0.97);
+}
+
+/* The name runs across the top; its size follows the width of the page */
+.h-name {
+    margin: calc(var(--u) * 4) calc(var(--u) * 3.5) 0;
+    font-family: var(--font-desk);
+    font-weight: 900;
+    font-stretch: 125%;
+    font-size: 6.5cqw;
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.h-name span {
+    display: inline-block;
+}
+
+.h-sub {
+    margin: calc(var(--u) * 2.3) calc(var(--u) * 3.6) 0;
+    max-width: calc(var(--u) * 56);
+    font-size: max(1rem, calc(var(--u) * 1.55));
+    line-height: 1.45;
+    text-wrap: pretty;
+}
+
+/* The desk: the rest of the screen, with the four folders in a row across it */
+.desk {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: calc(var(--u) * 27);
+    padding: calc(var(--u) * 2) calc(var(--u) * 3.5);
+}
+
+.desk-slot {
+    flex: none;
+    width: var(--fw);
+    height: calc(var(--u) * 22.6);
+}
+
+/* ================= Folders ================= */
+.folders {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+}
+
+/* Each folder sits at the top left corner and is moved into place by the motion code */
+.fold {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--fw);
+    transform-origin: 0 0;
+    pointer-events: auto;
+    text-align: left;
+    will-change: transform;
+}
+
+/* The plate behind the open folder in the sidebar */
+.fold::before {
+    content: '';
+    position: absolute;
+    inset: calc(var(--fw) * -0.142) calc(var(--fw) * -0.153) auto;
+    /* A set height, so a folder whose name wraps onto two lines gets the same plate */
+    height: calc(var(--fw) * 1.72);
+    border-radius: calc(var(--fw) * 0.2);
+    background: var(--plate);
+    opacity: 0;
+    transition: opacity 240ms ease;
+}
+
+.fold-in {
+    display: block;
+    position: relative;
+    transform-origin: 50% 60%;
+    transition: transform 240ms var(--ease-out);
+}
+
+.fold-name {
+    display: block;
+    position: relative;
+    margin-top: calc(var(--u) * 1.5);
+    font-family: var(--font-desk);
+    font-weight: 800;
+    font-stretch: 110%;
+    font-size: max(1rem, calc(var(--u) * 1.6));
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+}
+
+.fold-count {
+    display: block;
+    position: relative;
+    margin-top: calc(var(--u) * 0.25);
+    font-size: max(0.8125rem, calc(var(--u) * 1.15));
+    color: var(--ink-soft);
+}
+
+/* The short name under a sidebar folder. It is drawn large because the folder is scaled down. */
+.fold-short {
+    position: absolute;
+    left: calc(var(--fw) * -0.158);
+    right: calc(var(--fw) * -0.158);
+    top: calc(var(--fw) * 153 / 156);
+    text-align: center;
+    font-size: max(2.3rem, calc(var(--fw) * 0.163));
+    font-weight: 600;
+    color: var(--w-ink);
+    opacity: 0;
+}
+
+.fold:active .fold-in {
+    transform: scale(0.97);
+}
+
+/* The ring follows the folder into a world, where the ink colour changes */
+.stage:not([data-view='home']) .fold:focus-visible {
+    outline-color: var(--w-ink);
+}
+
+.fold:focus-visible {
+    outline-width: calc(var(--u) * 0.25);
+    outline-offset: calc(var(--u) * 0.9);
+    border-radius: calc(var(--u) * 1.4);
+}
+
+/* Open: the flap leans forward and the papers rise and fan out */
+.fold.is-fan .folder-front,
+.fold.is-active .folder-front,
+.stage[data-view='home'] .fold:focus-visible .folder-front {
+    transform: perspective(600px) rotateX(-24deg);
+}
+
+.fold.is-active .folder-front {
+    transform: perspective(600px) rotateX(-40deg);
+}
+
+.fold.is-fan .folder[data-papers='3'] .folder-paper:nth-child(2),
+.stage[data-view='home'] .fold:focus-visible .folder[data-papers='3'] .folder-paper:nth-child(2) { --x: -52; --y: -10; --r: -13deg; }
+.fold.is-fan .folder[data-papers='3'] .folder-paper:nth-child(3),
+.stage[data-view='home'] .fold:focus-visible .folder[data-papers='3'] .folder-paper:nth-child(3) { --y: -22; }
+.fold.is-fan .folder[data-papers='3'] .folder-paper:nth-child(4),
+.stage[data-view='home'] .fold:focus-visible .folder[data-papers='3'] .folder-paper:nth-child(4) { --x: 52; --y: -10; --r: 13deg; }
+.fold.is-fan .folder[data-papers='2'] .folder-paper:nth-child(2),
+.stage[data-view='home'] .fold:focus-visible .folder[data-papers='2'] .folder-paper:nth-child(2) { --x: -33; --y: -16; --r: -10deg; }
+.fold.is-fan .folder[data-papers='2'] .folder-paper:nth-child(3),
+.stage[data-view='home'] .fold:focus-visible .folder[data-papers='2'] .folder-paper:nth-child(3) { --x: 33; --y: -16; --r: 10deg; }
+.fold.is-fan .folder[data-papers='1'] .folder-paper:nth-child(2),
+.stage[data-view='home'] .fold:focus-visible .folder[data-papers='1'] .folder-paper:nth-child(2) { --y: -20; --r: -4deg; }
+
+/* The papers have left the open folder: they are the sheets on the table now */
+.fold.is-active .folder-paper {
+    opacity: 0;
+    --y: -30;
+}
+
+.stage:not([data-view='home']) .fold.is-active::before {
+    opacity: 1;
+}
+
+.stage:not([data-view='home']) .fold.is-active .fold-in {
+    transform: scale(1.12);
+}
+
+/* ================= The colour that pours out of a folder ================= */
+.under,
+.flood {
+    position: absolute;
+    inset: 0;
+    visibility: hidden;
+}
+
+.under {
+    z-index: 2;
+}
+
+.flood {
+    z-index: 3;
+    background-color: var(--w-bg);
+    will-change: clip-path;
+}
+
+/* Each world has its own pattern, drawn in its ink colour */
+.stage[data-world='uiux'] .flood {
+    background-image: radial-gradient(circle, color-mix(in srgb, var(--w-ink) 17%, transparent) calc(var(--u) * 0.13), transparent calc(var(--u) * 0.16));
+    background-size: calc(var(--u) * 2.2) calc(var(--u) * 2.2);
+}
+
+.stage[data-world='web'] .flood {
+    background-image: repeating-linear-gradient(color-mix(in srgb, var(--w-ink) 8%, transparent) 0 calc(var(--u) * 0.1), transparent calc(var(--u) * 0.1) calc(var(--u) * 2.6));
+}
+
+.stage[data-world='games'] .flood {
+    background-image:
+        radial-gradient(circle, color-mix(in srgb, var(--w-ink) 8%, transparent) calc(var(--u) * 1.1), transparent calc(var(--u) * 1.15)),
+        radial-gradient(circle, color-mix(in srgb, var(--w-ink) 8%, transparent) calc(var(--u) * 1.1), transparent calc(var(--u) * 1.15));
+    background-size: calc(var(--u) * 8) calc(var(--u) * 8);
+    background-position: 0 0, calc(var(--u) * 4) calc(var(--u) * 4);
+}
+
+.stage[data-world='apps'] .flood {
+    background-image: radial-gradient(calc(var(--u) * 60) calc(var(--u) * 40) at 82% 8%, rgba(255, 255, 255, 0.4), transparent 70%);
+}
+
+@media (prefers-color-scheme: dark) {
+    .stage[data-world='apps'] .flood {
+        background-image: radial-gradient(calc(var(--u) * 60) calc(var(--u) * 40) at 82% 8%, color-mix(in srgb, var(--wc) 26%, transparent), transparent 70%);
+    }
+}
+
+/* ================= World: back button and header ================= */
+.world {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    color: var(--w-ink);
+    pointer-events: none;
+    visibility: hidden;
+}
+
+.world ::selection,
+.cards-layer ::selection {
+    background: var(--w-ink);
+    color: var(--w-bg);
+}
+
+.w-back {
+    position: absolute;
+    left: calc(var(--u) * 3.7);
+    top: calc(var(--u) * 4.3);
+    display: grid;
+    place-items: center;
+    width: calc(var(--u) * 4.4);
+    height: calc(var(--u) * 4.4);
+    border-radius: 50%;
+    background: var(--w-btn);
+    color: var(--w-btn-ink);
+    font-size: calc(var(--u) * 1.9);
+    pointer-events: auto;
+    transition: transform var(--press);
+}
+
+.w-back:active {
+    transform: scale(0.94);
+}
+
+.w-back:focus-visible {
+    outline-color: var(--w-ink);
+}
+
+/* The places the folders move to: a column down the left side */
+.rail {
+    position: absolute;
+    left: calc(var(--u) * 3);
+    top: calc(var(--u) * 15);
+    display: grid;
+    gap: calc(var(--u) * 4.44);
+}
+
+/* A folder in the sidebar is the desk folder at about a third of its size */
+.rail-slot {
+    width: calc(var(--fw) * 6 / 19);
+    height: calc(var(--fw) * 6 / 19 * 142 / 156);
+}
+
+/* The header sits in the same layer as the sheets, so on a phone they scroll as one */
+.w-head {
+    position: absolute;
+    left: calc(var(--u) * 13.5);
+    top: calc(var(--u) * 4.4);
+    right: calc(var(--u) * 3.5);
+    color: var(--w-ink);
+}
+
+.w-crumbs,
+.pg-crumbs {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--u) * 0.7);
+    font-size: max(0.8125rem, calc(var(--u) * 1.15));
+    font-weight: 500;
+}
+
+.w-crumbs svg,
+.pg-crumbs svg {
+    opacity: 0.6;
+}
+
+.w-crumbs button,
+.pg-crumbs button {
+    pointer-events: auto;
+    opacity: 0.72;
+    text-decoration: underline;
+    text-underline-offset: 0.22em;
+    text-decoration-thickness: 0.07em;
+    transition: opacity 150ms ease;
+}
+
+/* The title rises into view from behind this edge */
+.w-title-clip {
+    overflow: hidden;
+    padding-bottom: calc(var(--u) * 0.7);
+    margin-top: calc(var(--u) * 0.8);
+}
+
+.w-title,
+.card-title,
+.pg-title {
+    font-family: var(--w-font);
+    font-weight: var(--w-weight);
+    letter-spacing: var(--w-track);
+    text-transform: var(--w-case);
+    font-stretch: var(--w-stretch);
+}
+
+.w-title {
+    font-size: calc(var(--u) * 6.8 * var(--w-scale));
+    line-height: 1;
+    will-change: transform;
+}
+
+.w-blurb {
+    max-width: calc(var(--u) * 48);
+    margin-top: calc(var(--u) * 0.5);
+    font-size: max(1rem, calc(var(--u) * 1.45));
+    line-height: 1.45;
+    text-wrap: pretty;
+}
+
+/* ================= Project sheets ================= */
+.cards-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    pointer-events: none;
+}
+
+.cards {
+    visibility: hidden;
+}
+
+/* The copy of the last folder's sheets brings its header along; only the sheets are shown */
+.cards-out .w-head {
+    visibility: hidden;
+}
+
+/* The sheets fill the space to the right of the sidebar and below the header */
+.cards-grid {
+    position: absolute;
+    left: calc(var(--u) * 13.5);
+    right: calc(var(--u) * 5.5);
+    top: calc(var(--u) * 21);
+    bottom: calc(var(--u) * 4.5);
+    display: grid;
+    align-content: center;
+    align-items: start;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: calc(var(--u) * 2.1) 2.6%;
+}
+
+.cards-grid[data-count='2'] {
+    grid-template-columns: repeat(2, minmax(0, 42%));
+    column-gap: 3.7%;
+}
+
+.cards-grid[data-count='1'] {
+    grid-template-columns: minmax(0, 81.5%);
+}
+
+.card {
+    margin-top: calc(var(--u) * var(--drop, 0));
+    text-align: left;
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+.card-in {
+    display: block;
+    padding: calc(var(--u) * 1);
+    border-radius: calc(var(--u) * 1.4);
+    background: var(--sheet);
+    color: var(--sheet-ink);
+    rotate: var(--tilt, 0deg);
+    box-shadow: inset 0 0 0 1px var(--sheet-edge), 0 calc(var(--u) * 0.2) calc(var(--u) * 0.5) var(--shade-near), 0 calc(var(--u) * 1.4) calc(var(--u) * 2.8) var(--shade-far);
+    transition: transform 220ms var(--ease-out), rotate 220ms var(--ease-out), box-shadow 220ms var(--ease-out);
+}
+
+.card-shot {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    object-position: var(--pos, 50% 50%);
+    border-radius: calc(var(--u) * 0.8);
+    background: #111216;
+}
+
+.card-body {
+    display: block;
+    padding: calc(var(--u) * 1) calc(var(--u) * 0.3) calc(var(--u) * 0.3);
+}
+
+.card-meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: calc(var(--u) * 0.9);
+    align-items: center;
+}
+
+.card-icon {
+    width: calc(var(--u) * 3.4);
+    height: calc(var(--u) * 3.4);
+    border-radius: 22%;
+}
+
+.card-title {
+    display: block;
+    font-size: calc(var(--u) * 1.95 * var(--w-scale));
+    line-height: 1.05;
+    text-wrap: balance;
+}
+
+.card-type {
+    display: block;
+    margin-top: calc(var(--u) * 0.2);
+    font-size: max(0.75rem, calc(var(--u) * 1.02));
+    color: var(--sheet-soft);
+}
+
+.card-line {
+    display: block;
+    margin-top: calc(var(--u) * 0.8);
+    font-size: max(0.8125rem, calc(var(--u) * 1.14));
+    line-height: 1.4;
+    color: var(--sheet-body);
+    text-wrap: pretty;
+}
+
+.card-go {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--u) * 0.5);
+    margin-top: calc(var(--u) * 0.8);
+    font-size: max(0.8125rem, calc(var(--u) * 1.1));
+    font-weight: 600;
+}
+
+.card-go svg {
+    transition: transform 200ms var(--ease-out);
+}
+
+/* A folder with one project gets one wide sheet: picture on the left, words on the right */
+.card.is-wide .card-in {
+    display: grid;
+    grid-template-columns: 56% 1fr;
+    gap: calc(var(--u) * 1.4);
+    align-items: center;
+}
+
+.card.is-wide .card-title {
+    font-size: calc(var(--u) * 3 * var(--w-scale));
+}
+
+.card.is-wide .card-line {
+    font-size: max(0.875rem, calc(var(--u) * 1.3));
+}
+
+.card:active .card-in {
+    transform: scale(0.985);
+}
+
+.card:focus-visible {
+    outline: none;
+}
+
+.card:focus-visible .card-in {
+    outline: calc(var(--u) * 0.25) solid var(--w-ink);
+    outline-offset: calc(var(--u) * 0.4);
+}
+
+/* The last folder's sheets drop away while the next folder's fly in */
+.cards-out .card {
+    transition: opacity 180ms ease, translate 180ms ease;
+}
+
+.cards-out[data-leaving] .card {
+    opacity: 0 !important;
+    translate: 0 calc(var(--u) * 1.6);
+}
+
+/* ================= Pointer-only states ================= */
+@media (hover: hover) and (pointer: fine) {
+    .stage[data-view='home'] .fold:hover .folder-front {
+        transform: perspective(600px) rotateX(-24deg);
+    }
+
+    .stage[data-view='home'] .fold:hover .folder[data-papers='3'] .folder-paper:nth-child(2) { --x: -52; --y: -10; --r: -13deg; }
+    .stage[data-view='home'] .fold:hover .folder[data-papers='3'] .folder-paper:nth-child(3) { --y: -22; }
+    .stage[data-view='home'] .fold:hover .folder[data-papers='3'] .folder-paper:nth-child(4) { --x: 52; --y: -10; --r: 13deg; }
+    .stage[data-view='home'] .fold:hover .folder[data-papers='2'] .folder-paper:nth-child(2) { --x: -33; --y: -16; --r: -10deg; }
+    .stage[data-view='home'] .fold:hover .folder[data-papers='2'] .folder-paper:nth-child(3) { --x: 33; --y: -16; --r: 10deg; }
+    .stage[data-view='home'] .fold:hover .folder[data-papers='1'] .folder-paper:nth-child(2) { --y: -20; --r: -4deg; }
+
+    .stage:not([data-view='home']) .fold:not(.is-active):hover .fold-in {
+        transform: scale(1.1);
+    }
+
+    .card:hover .card-in {
+        transform: translateY(calc(var(--u) * -0.7));
+        rotate: 0deg;
+        box-shadow: inset 0 0 0 1px var(--sheet-edge), 0 calc(var(--u) * 0.3) calc(var(--u) * 0.7) var(--shade-near), 0 calc(var(--u) * 2.4) calc(var(--u) * 4) var(--shade-far);
+    }
+
+    .card:hover .card-go svg {
+        transform: translateX(calc(var(--u) * 0.3));
+    }
+
+    .w-crumbs button:hover,
+    .pg-crumbs button:hover {
+        opacity: 1;
+    }
+
+    .h-links a:not(.h-play):hover {
+        text-decoration-color: currentColor;
+    }
+
+    .h-play:hover {
+        transform: translateY(-1px);
+    }
+
+    .h-play:hover:active {
+        transform: scale(0.97);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fold-in,
+    .fold::before,
+    .card-in,
+    .card-go svg,
+    .cards-out .card,
+    .h-play,
+    .w-back {
+        transition: none;
+    }
+}
+
+/* ================= Phones and narrow windows =================
+   Below 900px the stage stops being one fixed screen. It becomes as long as its contents and
+   the window scrolls over it: the folders stand in a grid, and inside a world they line up
+   as tabs along the top with the sheets in a column underneath. The motion code is the same;
+   it simply finds everything in different places. */
+@media (max-width: 899px) {
+    .stage {
+        --u: clamp(9px, 2.6vw, 11px);
+        /* Side padding; never less than the phone's safe area in landscape */
+        --pad: max(1.25rem, env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+        --top: env(safe-area-inset-top, 0px);
+        /* Two folders across, as wide as the screen allows */
+        --fw: min(calc((100vw - 2 * var(--pad) - 1.25rem) / 2), 15rem);
+        display: grid;
+        min-height: 100vh;
+        min-height: 100svh;
+    }
+
+    /* ---- Home ---- */
+    .home {
+        position: relative;
+        inset: auto;
+        grid-area: 1 / 1;
+    }
+
+    .h-nav {
+        gap: 1rem;
+        padding: calc(var(--top) + 0.4rem) var(--pad) 0;
+        font-size: 0.9375rem;
+    }
+
+    .h-brand {
+        font-size: 1rem;
+    }
+
+    .h-links {
+        gap: clamp(0.9rem, 4vw, 1.5rem);
+    }
+
+    /* Links are at least a fingertip tall */
+    .h-links a {
+        min-height: 2.75rem;
+    }
+
+    .h-play {
+        min-height: 0;
+        padding: 0.65rem 1rem;
+        border-radius: 0.7rem;
+    }
+
+    .h-name {
+        margin: 1.25rem var(--pad) 0;
+        font-size: 6.9cqw;
+    }
+
+    .h-sub {
+        margin: 1rem var(--pad) 0;
+        max-width: 36rem;
+        font-size: 1.0625rem;
+    }
+
+    .desk {
+        display: grid;
+        grid-template-columns: repeat(2, var(--fw));
+        justify-content: center;
+        align-content: center;
+        gap: 1.75rem max(1.25rem, min(5vw, 2.5rem));
+        min-height: 0;
+        padding: 2rem var(--pad) calc(2rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .desk-slot {
+        height: calc(var(--fw) * 142 / 156 + 4rem);
+    }
+
+    .fold-name {
+        margin-top: 0.9rem;
+        font-size: clamp(0.875rem, calc(var(--fw) * 0.1), 1.0625rem);
+    }
+
+    .fold-count {
+        margin-top: 0.1rem;
+        font-size: 0.8125rem;
+    }
+
+    /* ---- World: back arrow and the folders as tabs along the top ---- */
+    .world {
+        inset: 0 0 auto;
+        height: calc(var(--top) + 6.75rem);
+    }
+
+    .w-back {
+        left: var(--pad);
+        top: calc(var(--top) + 0.9rem);
+        width: 2.75rem;
+        height: 2.75rem;
+        font-size: 1.2rem;
+    }
+
+    .rail {
+        left: calc(var(--pad) + 2.75rem + 1.25rem);
+        right: calc(var(--pad) + 0.5rem);
+        top: calc(var(--top) + 0.85rem);
+        display: flex;
+        justify-content: space-between;
+        gap: 0;
+        max-width: 22rem;
+    }
+
+    /* A tab is big enough to tap even when the folders on the desk are small */
+    .rail-slot {
+        width: max(3.1rem, calc(var(--fw) * 6 / 19));
+        height: calc(max(3.1rem, calc(var(--fw) * 6 / 19)) * 142 / 156);
+    }
+
+    .fold-short {
+        font-size: calc(var(--fw) * 0.215);
+    }
+
+    /* ---- Header and sheets: one column that scrolls with the window ---- */
+    .cards-layer {
+        padding-top: calc(var(--top) + 7rem);
+    }
+
+    .cards {
+        position: relative;
+        inset: auto;
+        grid-area: 1 / 1;
+    }
+
+    .cards-layer > .frame {
+        height: auto;
+    }
+
+    .w-head {
+        position: static;
+        padding: 0 var(--pad);
+    }
+
+    .w-crumbs {
+        font-size: 0.875rem;
+    }
+
+    .w-title-clip {
+        margin-top: 0.35rem;
+        padding-bottom: 0.4rem;
+    }
+
+    .w-title {
+        font-size: calc(min(11.6vw, 4.75rem) * var(--w-scale));
+        text-wrap: balance;
+    }
+
+    .w-blurb {
+        max-width: 36rem;
+        margin-top: 0.4rem;
+        font-size: 1.0625rem;
+    }
+
+    .cards-grid,
+    .cards-grid[data-count='2'] {
+        position: static;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.25rem;
+        padding: 1.75rem var(--pad) calc(2.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .cards-grid[data-count='1'] {
+        position: static;
+        grid-template-columns: minmax(0, 1fr);
+        padding: 1.75rem var(--pad) calc(2.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .card {
+        margin-top: 0;
+    }
+
+    .card-in {
+        padding: 0.7rem;
+        border-radius: 1.1rem;
+    }
+
+    .card-shot {
+        border-radius: 0.6rem;
+    }
+
+    .card-body {
+        padding: 0.8rem 0.3rem 0.4rem;
+    }
+
+    .card-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+
+    .card-title {
+        font-size: calc(1.3rem * var(--w-scale));
+    }
+
+    .card-type {
+        font-size: 0.8125rem;
+    }
+
+    .card-line {
+        margin-top: 0.7rem;
+        font-size: 0.9375rem;
+    }
+
+    .card-go {
+        margin-top: 0.7rem;
+        font-size: 0.9375rem;
+    }
+
+    .card.is-wide .card-title {
+        font-size: calc(1.75rem * var(--w-scale));
+    }
+
+    .card.is-wide .card-line {
+        font-size: 1rem;
+    }
+}
+
+/* A phone on its side is wide and short: the four folders go back into one row */
+@media (max-width: 899px) and (orientation: landscape) {
+    .stage {
+        --fw: min(calc((100vw - 2 * var(--pad) - 3.5rem) / 4), 9.5rem);
+    }
+
+    .desk {
+        grid-template-columns: repeat(4, var(--fw));
+        justify-content: space-between;
+        column-gap: 0;
+    }
+}
+
+/* Phones held upright: the name on two lines, one sheet per row */
+@media (max-width: 599px) {
+    /* A narrow menu drops what you do not need: the name is in big letters right below,
+       and the link to the page you are already on leads nowhere */
+    .h-brand,
+    .h-links li:has([aria-current='page']) {
+        display: none;
+    }
+
+    .h-links {
+        flex: 1;
+    }
+
+    .h-links-end {
+        margin-left: auto;
+    }
+
+    .h-name {
+        font-size: 11.3cqw;
+        white-space: normal;
+    }
+
+    .h-name span {
+        display: block;
+    }
+
+    .w-crumbs {
+        display: none;
+    }
+
+    .cards-grid,
+    .cards-grid[data-count='2'] {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .card.is-wide .card-in {
+        display: block;
+    }
+}

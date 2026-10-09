@@ -1,12 +1,5 @@
-import React, { useState } from 'react';
-import { ArrowRight } from '@phosphor-icons/react';
-
-// Import sub-components
-import Folder from './Folder';
-import ProjectWindow from './ProjectWindow';
-import Featured from './Featured';
-import { withStressData } from '../dev/stressData';
-import './Projects.css';
+// Every folder and project on the site. This is the single source for the content:
+// the copy below is what the folders, the sheets and the project pages all read from.
 
 // Import assets (Images/Videos)
 import calorieApp from '../assets/calorie-app.png';
@@ -29,6 +22,7 @@ import duckShootController from '../assets/duck-shoot-controller.jpg';
 import portfolioHero from '../assets/portfolio-hero.jpg';
 import portfolioAbout from '../assets/portfolio-about.jpg';
 import portfolioWork from '../assets/portfolio-work.jpg';
+import portfolioProject from '../assets/portfolio-project.jpg';
 import financeDashboard from '../assets/finance-dashboard.png';
 import musterMenu from '../assets/muster-menu.jpg';
 import musterPhase from '../assets/muster-muster-phase.jpg';
@@ -100,7 +94,7 @@ const projects = [
         ]
       },
       {
-        title: 'Finance Dashboard (Design)',
+        title: 'Finance Dashboard',
         icon: iconFinanceDesign,
         src: financeDashboard,
         description: 'A premium, modern dark-mode financial dashboard prototype designed in Figma. Features detailed holdings charts, asset allocation graphs, and custom UI components.',
@@ -123,9 +117,11 @@ const projects = [
         title: 'Portfolio Website',
         icon: iconPortfolio,
         src: portfolioHero,
-        extraImages: [portfolioHero, portfolioAbout, portfolioWork],
-        description: 'My custom developer portfolio website built using React, CSS, and interactive components like macOS-style windows and animations.',
-        longDescription: 'This site is coded with reusable React components, custom responsive CSS animations, and macOS desktop mimicking file navigations.'
+        extraImages: [portfolioHero, portfolioWork, portfolioProject, portfolioAbout],
+        description: 'This site. Four folders sit on a desk and each one opens into its own world, with its own colour, typeface and pattern. A project grows out of its sheet until it fills the screen, and going back runs the same path in reverse.',
+        longDescription: 'Built in React with plain CSS and no animation library. The motion runs on two reversible clocks and a spring, so you can turn it around halfway, and it only ever moves transform, opacity and clip-path. The colours follow your system light or dark setting, phones get their own layout where the folders become a row of tabs, and the keyboard and reduced motion skip the animation.',
+        tags: ['React', 'CSS', 'Motion', 'Responsive'],
+        tools: ['React', 'Vite', 'CSS', 'JavaScript']
       },
       {
         title: 'Live Finance Dashboard',
@@ -240,100 +236,149 @@ const projects = [
   */
 ];
 
+// --- HOW EACH FOLDER AND PROJECT PRESENTS ITSELF ---
+// The folder worlds need a few things the list above does not have: a short name, an ink
+// colour and a one-line blurb for each folder, and for each project the line on its sheet,
+// the facts and buttons on its page, and its own backdrop. They are matched to the entries
+// above by folder id and by project title.
 
-// In development, ?data=worst (or empty, one, many) swaps in stress-test folders.
-// The production build always uses the real projects above.
-const folders = import.meta.env.DEV ? withStressData(projects) : projects;
-
-const Projects = () => {
-  // The open window: which folder it shows and which project inside it (null means the file list)
-  const [win, setWin] = useState(null);
-
-  // Remember where the click happened, so the window can grow out of that spot
-  const originOf = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-  };
-
-  // Open the Finder window on a category
-  const openFolder = (e, project) => {
-    const folder = e.currentTarget.closest('.desk-folder');
-    // A click fired from the keyboard has detail 0; those open instantly, with no animation
-    setWin({
-      categoryId: project.id,
-      itemIndex: null,
-      origin: originOf({ currentTarget: folder || e.currentTarget }),
-      instant: e.detail === 0
-    });
-  };
-
-  // Jump straight from the featured card to Muster's case study
-  const games = projects.find(p => p.id === 3);
-  const openMusterCaseStudy = (e) => {
-    setWin({
-      categoryId: games.id,
-      itemIndex: games.images.findIndex(item => item.title === 'Muster'),
-      origin: originOf(e),
-      instant: e.detail === 0
-    });
-  };
-
-  return (
-    <section id="projects" className="section projects-section">
-      <div className="container">
-        <h2 className="h2 display">Selected work<span className="pip">.</span></h2>
-
-        {/* Featured, playable project */}
-        <Featured onCaseStudy={openMusterCaseStudy} category={games} />
-
-        <div className="folders-head">
-          <h3 className="folders-title">Browse the folders</h3>
-          <p className="folders-hint">Click a folder to peek inside. Open it to see the projects.</p>
-        </div>
-
-        {/* The desk: one folder per category, with its projects peeking out */}
-        <ul className="desk">
-          {folders.map(project => (
-            <li key={project.id} className="desk-folder folder-host" style={{ '--folder': project.color }}>
-              <Folder
-                color={project.color}
-                items={project.folderImages || project.images.map(item => item.icon || item.src)}
-              />
-
-              <h4 className="desk-title">{project.title}</h4>
-              <p className="desk-count">
-                {project.images.length} {project.images.length === 1 ? 'project' : 'projects'}
-              </p>
-
-              {/* What's inside the folder, listed like files */}
-              <ul className="desk-files">
-                {project.images.map(item => (
-                  <li key={item.title}>{item.title}</li>
-                ))}
-              </ul>
-
-              <button type="button" className="desk-open link-arrow" onClick={(e) => openFolder(e, project)}>
-                <span className="desk-open-label">
-                  Open folder<span className="visually-hidden">: {project.title}</span>
-                </span>
-                <ArrowRight size={16} weight="bold" aria-hidden="true" />
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Finder window, with the project detail inside the same frame */}
-      {win && (
-        <ProjectWindow
-          categories={folders}
-          win={win}
-          onNavigate={setWin}
-          onClose={() => setWin(null)}
-        />
-      )}
-    </section>
-  );
+// `ink` is the text colour on the folder colour. `deep` and `deepInk` are the dark-mode world:
+// a deep version of the folder colour with light text on it.
+const WORLD_LOOK = {
+  1: {
+    key: 'uiux', short: 'UI/UX', ink: '#2b0d09', deep: '#3a1612', deepInk: '#ffd9d3',
+    blurb: 'Research, prototypes and usability tests, from the first interview to the final Figma file.'
+  },
+  2: {
+    key: 'web', short: 'Web', ink: '#06163a', deep: '#0f2147', deepInk: '#d6e4ff',
+    blurb: 'Things I designed and then coded myself, in React, JavaScript and Python.'
+  },
+  3: {
+    key: 'games', short: 'Games', ink: '#20160a', deep: '#3a2a08', deepInk: '#ffe9b0',
+    blurb: 'Games built around clear decisions, honest feedback and fair balance. All three play in your browser.'
+  },
+  4: {
+    key: 'apps', short: 'Apps', ink: '#05281a', deep: '#0b3524', deepInk: '#c9f7e2',
+    blurb: 'Native tools I built to fix everyday annoyances.'
+  }
 };
 
-export default Projects;
+// `action` is the main button: a link (`href`) or a jump to a part of the page (`to`).
+// `more` is the second button and always jumps down the page.
+// `backdrop.dark` is only needed where the normal backdrop is light or bright.
+const PROJECT_LOOK = {
+  'ShiftPro': {
+    slug: 'shiftpro',
+    type: 'Figma, user research',
+    line: 'A shift-swap app for Primark staff, tested with 12 people.',
+    pitch: 'At Primark the schedule is a printed sheet in a hallway. ShiftPro lets staff check their shifts anywhere, swap them and read company news.',
+    facts: [['12', 'usability testers'], ['3', 'prototype rounds'], ['Figma', 'design and prototype']],
+    action: { label: 'Open the prototype', href: 'designLink' },
+    more: { label: 'Read the process', to: 'notes' },
+    notesTitle: 'The process',
+    shotPosition: '0% 50%',
+    backdrop: { bg: '#f4f6fb', fg: '#0e1630', dark: { bg: '#0d1224', fg: '#e3e9fb' } }
+  },
+  'Calorie App': {
+    slug: 'calorie-app',
+    type: 'Figma, gamification',
+    line: 'A calorie tracker made stickier with missions, badges and rankings.',
+    pitch: 'A prototype that turns calorie logging into a habit: a missions tab, badges, a ranking, and a watch companion for logging on the go.',
+    facts: [['Survey', 'Google Forms research'], ['Kept', 'badges and rankings'], ['Cut', 'mini-games']],
+    action: { label: 'Open the prototype', href: 'designLink' },
+    more: { label: 'Read the process', to: 'notes' },
+    notesTitle: 'The process',
+    backdrop: { bg: '#060606', fg: '#f1f5ee' }
+  },
+  'Finance Dashboard': {
+    slug: 'finance-dashboard',
+    type: 'Figma, dashboard UI',
+    line: 'A dark-mode finance dashboard designed in Figma.',
+    pitch: 'High-fidelity mockups of a finance tracker, with holdings charts, asset allocation graphs and custom components.',
+    facts: [['Holdings', 'detailed charts'], ['Allocation', 'asset graphs'], ['Figma', 'custom components']],
+    action: { label: 'See the screens', to: 'screens' },
+    backdrop: { bg: '#0b1020', fg: '#e8ecf8' }
+  },
+  'Portfolio Website': {
+    slug: 'portfolio-website',
+    type: 'React, CSS',
+    line: 'This site, designed and coded in React.',
+    pitch: 'Reusable React components, hand-written CSS animation and the folder idea you just clicked through.',
+    facts: [['React', 'reusable components'], ['CSS', 'hand-written animation'], ['Vite', 'built for GitHub Pages']],
+    action: { label: 'See it on GitHub', href: 'https://github.com/Costizaur' },
+    backdrop: { bg: '#111110', fg: '#f3efe6' }
+  },
+  'Live Finance Dashboard': {
+    slug: 'live-finance-dashboard',
+    type: 'Python, Streamlit',
+    line: 'A live dashboard in Python and Streamlit, fed by a Google Sheet.',
+    pitch: 'Connects to a live Google Sheet, cleans the data and turns multi-month momentum into signals you can read at a glance.',
+    facts: [['Python', 'Streamlit and Plotly'], ['Live', 'Google Sheets data'], ['Deployed', 'on Streamlit Cloud']],
+    action: { label: 'Open the live app', href: 'liveLink' },
+    titleScale: 0.8,
+    backdrop: { bg: '#0e1117', fg: '#e6e9ef' }
+  },
+  'Muster': {
+    slug: 'muster',
+    type: 'Unity, systems design',
+    line: 'A 5-minute dice strategy duel for two players.',
+    pitch: 'Roll three dice, spend them to grow your economy and recruit an army, then line up in secret and hold the line.',
+    facts: [['5 min', 'for a full match'], ['24,000', 'bot matches for balance'], ['Unity', 'and C#']],
+    action: { label: 'Play Muster', href: 'gameLink' },
+    more: { label: 'Read the case study', to: 'notes' },
+    notesTitle: 'The case study',
+    backdrop: {
+      bg: 'linear-gradient(160deg, #70421f 0%, #4a2a14 55%, #2a170c 100%)', fg: '#fff3d6',
+      title: '#ffc53d', titleShadow: '0 calc(var(--u) * 0.5) 0 #1c0f07'
+    }
+  },
+  'River Racer': {
+    slug: 'river-racer',
+    type: 'p5.js, phone controls',
+    line: 'A racing game where your phone is the paddle.',
+    pitch: 'Scan a QR code, hold both sides to paddle, let go of one to turn, and race a friend down the river.',
+    facts: [['2', 'players, one screen'], ['2', 'buttons to learn'], ['p5.js', 'and WebRTC']],
+    action: { label: 'Play River Racer', href: 'gameLink' },
+    backdrop: { bg: 'linear-gradient(180deg, #0f7f93, #0a5d6d)', fg: '#f2fffd' }
+  },
+  'Duck Shoot': {
+    slug: 'duck-shoot',
+    type: 'p5.js, motion controls',
+    line: 'A light-gun tribute played with your phone.',
+    pitch: 'Point your phone at the screen like a remote, press the big red Fire button and hit enough ducks to clear the round.',
+    facts: [['4', 'phones at once'], ['3', 'shots per duck'], ['p5.js', 'and WebRTC']],
+    action: { label: 'Play Duck Shoot', href: 'gameLink' },
+    backdrop: { bg: '#5c94fc', fg: '#08153f', dark: { bg: '#101c46', fg: '#dfe7ff' } }
+  },
+  'Earshot': {
+    slug: 'earshot',
+    type: 'Swift, Core Audio',
+    line: 'A macOS menu bar app that gives every app its own speaker.',
+    pitch: 'Chrome on the monitor speakers, everything else on the laptop, without ever changing the system output.',
+    facts: [['7 to 14 ms', 'to switch a route'], ['Swift', 'and Core Audio'], ['No driver', 'nothing to install']],
+    action: { label: 'Read the case study', to: 'story' },
+    backdrop: { bg: 'radial-gradient(90% 90% at 20% 80%, #0f3a3a 0%, #0a1517 70%)', fg: '#e6f4f1' }
+  }
+};
+
+// The folders as the site uses them: each one a world, with its projects inside
+export const worlds = projects.map(folder => ({
+  ...folder,
+  ...WORLD_LOOK[folder.id],
+  projects: folder.images.map(item => {
+    const look = PROJECT_LOOK[item.title];
+    // A button's link can name the field above that holds the address
+    const href = look.action.href && (item[look.action.href] || look.action.href);
+    return {
+      ...item,
+      ...look,
+      action: { ...look.action, href },
+      // A project whose main button leaves the site still gets a way down the page
+      more: look.more || (href ? { label: 'About the project', to: 'story' } : undefined),
+      // Project fields override the folder's, as they always have
+      tags: item.tags || folder.tags || [],
+      tools: item.tools || item.tags || folder.tags || [],
+      shots: item.extraImages && item.extraImages.length > 0 ? item.extraImages : [item.src]
+    };
+  })
+}));

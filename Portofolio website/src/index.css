@@ -1,72 +1,60 @@
-/* Design tokens. The site is a game table: warm ink surface, bone pieces, one gold piece. */
+/* Design tokens. The home screen is a pale desk with four coloured folders on it;
+   each folder opens into a world of its own colour. Everything follows the system's
+   light or dark setting, with no switch on the page. */
 :root {
-  color-scheme: dark;
+  color-scheme: light dark;
 
-  /* Colour */
-  --ink: #0c0b0a;
-  --surface-1: #151311;
-  --surface-2: #1f1c19;
-  --surface-3: #2a2622;
-  --line: rgba(243, 239, 230, 0.1);
-  --line-strong: rgba(243, 239, 230, 0.2);
-  --bone: #f3efe6;
-  --muted: #a39e94;
-  --placeholder: #8f8a80;
-  --gold: #ffc53d;
-  --gold-edge: #c58f0e;
-  --gold-ink: #1a1405;
+  /* The desk and the text on it */
+  --stage: #e9eaee;
+  --ink: #111216;
+  --ink-soft: #50535f;
+  --dot: rgba(17, 18, 22, 0.09);
+  /* The main button on the desk is the ink colour turned around */
+  --key: #111216;
+  --key-ink: #f4f4f6;
+  /* Project sheets */
+  --sheet: #ffffff;
+  --sheet-ink: #14151a;
+  --sheet-soft: #5a5d6a;
+  --sheet-body: #2d2f38;
+  /* The two layers of a sheet's shadow: a tight one and a wide one */
+  --shade-near: rgba(0, 0, 0, 0.1);
+  --shade-far: rgba(0, 0, 0, 0.18);
+  /* A hairline around a sheet; only needed where sheet and world are both dark */
+  --sheet-edge: transparent;
+  /* The plate behind the open folder in the sidebar */
+  --plate: rgba(255, 255, 255, 0.5);
+  /* A message that went through, and one that did not */
+  --ok: #0b6b43;
+  --bad: #b3261e;
 
-  /* Type: Bricolage Grotesque for display, Geist for everything else */
-  --font-display: 'Bricolage Grotesque Variable', 'Arial Narrow', sans-serif;
+  /* Type: Archivo on the desk, Geist for reading. Each world sets its own display face. */
+  --font-desk: 'Archivo Variable', 'Arial Black', sans-serif;
   --font-text: 'Geist Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --fs-hero: clamp(4.5rem, 24.6vw, 8rem);
-  --fs-h2: clamp(2.75rem, 1.6rem + 5vw, 5.5rem);
-  --fs-h3: clamp(1.625rem, 1.3rem + 1.2vw, 2.125rem);
-  --fs-title: 1.5rem;
-  --fs-lead: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
-  --fs-body: 1rem;
-  --fs-small: 0.875rem;
-
-  /* Spacing, 4px base */
-  --sp-1: 0.25rem;
-  --sp-2: 0.5rem;
-  --sp-3: 0.75rem;
-  --sp-4: 1rem;
-  --sp-5: 1.5rem;
-  --sp-6: 2rem;
-  --sp-7: 3rem;
-  --sp-8: 4rem;
-  --sp-9: 6rem;
-  --sp-10: 8rem;
-  /* Side padding; never less than the phone's safe area in landscape */
-  --gutter: max(clamp(1.25rem, 5vw, 3rem), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
-  --tape-h: 3.5rem;
-  --section-pad: clamp(5rem, 3rem + 7vw, 8rem);
-
-  /* Radius: small controls, buttons and tiles, panels and windows */
-  --r-s: 8px;
-  --r-m: 14px;
-  --r-l: 24px;
-
-  /* Layers */
-  --z-nav: 100;
-  --z-grain: 900;
 
   /* Motion */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-  --press: 120ms var(--ease-out);
+  --press: 140ms var(--ease-out);
 }
 
-@media (min-width: 900px) {
+@media (prefers-color-scheme: dark) {
   :root {
-    --fs-hero: clamp(5.5rem, 10.5vw, 9.5rem);
-  }
-}
-
-@media (max-width: 640px) {
-  :root {
-    --tape-h: 3rem;
+    --stage: #101116;
+    --ink: #ecedf2;
+    --ink-soft: #a3a6b4;
+    --dot: rgba(236, 237, 242, 0.07);
+    --key: #ecedf2;
+    --key-ink: #111216;
+    --sheet: #1b1d25;
+    --sheet-ink: #ecedf2;
+    --sheet-soft: #a0a3b2;
+    --sheet-body: #cdcfda;
+    --shade-near: rgba(0, 0, 0, 0.3);
+    --shade-far: rgba(0, 0, 0, 0.45);
+    --sheet-edge: rgba(255, 255, 255, 0.09);
+    --plate: rgba(255, 255, 255, 0.14);
+    --ok: #5fe3ad;
+    --bad: #ff9288;
   }
 }
 
@@ -79,41 +67,27 @@
 }
 
 html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 5rem;
-  scrollbar-gutter: stable;
-  scrollbar-color: var(--surface-3) var(--ink);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   /* No grey flash on tap; every control has its own pressed state */
   -webkit-tap-highlight-color: transparent;
+  scrollbar-color: color-mix(in srgb, var(--ink) 35%, transparent) transparent;
 }
 
 body {
   font-family: var(--font-text);
-  font-size: var(--fs-body);
-  line-height: 1.6;
-  background-color: var(--ink);
-  color: var(--bone);
+  font-size: 1rem;
+  line-height: 1.55;
+  background-color: var(--stage);
+  color: var(--ink);
   overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Film grain over everything, for a printed, tactile feel */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: var(--z-grain);
-  opacity: 0.045;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
 ::selection {
-  background: var(--gold);
-  color: var(--gold-ink);
+  background: var(--ink);
+  color: var(--stage);
 }
 
 a {
@@ -146,62 +120,32 @@ button {
   -webkit-touch-callout: none;
 }
 
+/* Never under 16px: a smaller field makes iPhones zoom the page in on focus */
 input,
 textarea {
   font: inherit;
-  caret-color: var(--gold);
+  font-size: max(1rem, 16px);
 }
 
+/* The ring takes the colour of the text around it, so it shows on every world and backdrop */
 :focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 3px solid currentColor;
   outline-offset: 3px;
 }
 
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--ink);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--surface-3);
-  border-radius: 5px;
-  border: 2px solid var(--ink);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--muted);
-}
-
-/* The page behind an open window does not scroll */
-html:has(dialog[open]) {
-  overflow: hidden;
-}
-
-/* --- Layout --- */
-
-.container {
-  width: min(100% - var(--gutter) * 2, 1200px);
-  margin-inline: auto;
-}
-
-.section {
-  padding-block: var(--section-pad);
-  position: relative;
+main:focus {
+  outline: none;
 }
 
 .skip-link {
   position: fixed;
-  top: var(--sp-3);
-  left: var(--sp-3);
-  z-index: calc(var(--z-nav) + 1);
-  padding: var(--sp-3) var(--sp-4);
-  border-radius: var(--r-s);
-  background: var(--gold);
-  color: var(--gold-ink);
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: var(--key);
+  color: var(--key-ink);
   font-weight: 600;
   transform: translateY(-200%);
 }
@@ -217,168 +161,4 @@ html:has(dialog[open]) {
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
-}
-
-/* --- Type --- */
-
-.display {
-  font-family: var(--font-display);
-  font-stretch: 80%;
-  font-weight: 800;
-  line-height: 0.95;
-  letter-spacing: -0.015em;
-  text-wrap: balance;
-}
-
-.h2 {
-  font-size: var(--fs-h2);
-  margin-bottom: var(--sp-7);
-}
-
-/* The gold full stop that closes every big heading, like a pip on a die */
-.pip {
-  color: var(--gold);
-}
-
-.lead {
-  font-size: var(--fs-lead);
-  line-height: 1.55;
-  color: var(--muted);
-  max-width: 60ch;
-  text-wrap: pretty;
-}
-
-/* Small label for a category, with its folder colour as a square */
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  padding: 0.3rem 0.65rem;
-  border-radius: var(--r-s);
-  font-size: var(--fs-small);
-  font-weight: 600;
-  line-height: 1.3;
-  color: var(--chip-color, var(--bone));
-  background: color-mix(in srgb, var(--chip-color, var(--bone)) 12%, transparent);
-  white-space: nowrap;
-}
-
-.chip::before {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-  background: currentColor;
-}
-
-/* Plain tag for skills and tools */
-.tag {
-  display: inline-block;
-  padding: 0.25rem 0.6rem;
-  border-radius: var(--r-s);
-  border: 1px solid var(--line);
-  font-size: var(--fs-small);
-  line-height: 1.3;
-  color: var(--muted);
-  white-space: nowrap;
-  /* A tag longer than its row is cut with an ellipsis instead of overflowing */
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* --- Buttons: chunky game pieces that press down --- */
-
-.btn {
-  --btn-bg: var(--gold);
-  --btn-fg: var(--gold-ink);
-  --btn-edge: var(--gold-edge);
-  --btn-depth: 5px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  min-height: 3.25rem;
-  padding: 0.75rem 1.6rem;
-  border-radius: var(--r-m);
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.0625rem;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  background: var(--btn-bg);
-  color: var(--btn-fg);
-  box-shadow: 0 var(--btn-depth) 0 var(--btn-edge);
-  margin-bottom: var(--btn-depth);
-  transition: transform var(--press), box-shadow var(--press), background-color 0.2s ease;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-}
-
-.btn:active {
-  transform: translateY(calc(var(--btn-depth) - 1px));
-  box-shadow: 0 1px 0 var(--btn-edge);
-}
-
-.btn-secondary {
-  --btn-bg: var(--surface-2);
-  --btn-fg: var(--bone);
-  --btn-edge: #000;
-  box-shadow: 0 var(--btn-depth) 0 var(--btn-edge), inset 0 0 0 1px var(--line);
-}
-
-.btn-secondary:active {
-  box-shadow: 0 1px 0 var(--btn-edge), inset 0 0 0 1px var(--line);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 calc(var(--btn-depth) + 1px) 0 var(--btn-edge);
-    background: color-mix(in srgb, var(--btn-bg), white 10%);
-  }
-
-  .btn-secondary:hover {
-    box-shadow: 0 calc(var(--btn-depth) + 1px) 0 var(--btn-edge), inset 0 0 0 1px var(--line-strong);
-  }
-
-  .btn:hover:active {
-    transform: translateY(calc(var(--btn-depth) - 1px));
-    box-shadow: 0 1px 0 var(--btn-edge);
-  }
-
-  .btn-secondary:hover:active {
-    box-shadow: 0 1px 0 var(--btn-edge), inset 0 0 0 1px var(--line);
-  }
-}
-
-/* Text link with an arrow that leans forward on hover */
-.link-arrow {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--sp-2);
-  font-weight: 600;
-  color: var(--bone);
-}
-
-.link-arrow svg {
-  transition: transform 0.2s var(--ease-out);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .link-arrow:hover svg {
-    transform: translateX(3px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  .link-arrow svg {
-    transition: none;
-  }
 }

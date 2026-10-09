@@ -4,6 +4,7 @@ import './Contact.css';
 
 const EMAIL = 'sarghiuta.costin@gmail.com';
 
+// The parts marked data-rise come in one after another as the page opens
 const Contact = () => {
     const [copied, setCopied] = useState(false);
     // Form state: 'idle' | 'sending' | 'sent' | 'error'
@@ -45,83 +46,82 @@ const Contact = () => {
     };
 
     return (
-        <section id="contact" className="section contact-section">
-            <div className="container">
-                <h2 className="h2 display contact-title">Let's make something playable<span className="pip">.</span></h2>
+        <div className="contact">
+            {/* Left Column: Contact Details */}
+            <div className="contact-words">
+                <h1 className="info-title" id="contact-title" tabIndex={-1} data-rise>
+                    <span>Let's make</span> <span>something</span> <span>playable.</span>
+                </h1>
 
-                <div className="contact-wrapper">
+                <p className="info-lead" data-rise>
+                    I'm open to internships and junior roles. Have a project, a role, or just want to talk games and interfaces? Send me a message.
+                </p>
 
-                    {/* Left Column: Contact Details */}
-                    <div className="contact-info">
-                        <p className="lead contact-text">
-                            I'm open to internships and junior roles. Have a project, a role, or just want to talk games and interfaces? Send me a message.
-                        </p>
+                <div className="contact-ways" data-rise>
+                    <button type="button" className={`email-card ${copied ? 'is-copied' : ''}`} onClick={copyEmail}>
+                        <span className="email-label">Email</span>
+                        <span className="email-value">{EMAIL}</span>
+                        <span className="email-action" aria-live="polite">
+                            {copied ? (
+                                <span key="copied" className="swap-in"><Check size="1em" weight="bold" aria-hidden="true" /> Copied</span>
+                            ) : (
+                                <span key="copy" className="swap-in"><Copy size="1em" weight="bold" aria-hidden="true" /> Copy</span>
+                            )}
+                        </span>
+                    </button>
+                    <a href={`mailto:${EMAIL}`} className="mail-app-link">
+                        or open your mail app <ArrowUpRight size="0.9em" weight="bold" aria-hidden="true" />
+                    </a>
 
-                        <button type="button" className={`email-card ${copied ? 'is-copied' : ''}`} onClick={copyEmail}>
-                            <span className="email-label">Email</span>
-                            <span className="email-value">{EMAIL}</span>
-                            <span className="email-action" aria-live="polite">
-                                {copied ? (
-                                    <span key="copied" className="swap-in"><Check size={16} weight="bold" aria-hidden="true" /> Copied</span>
-                                ) : (
-                                    <span key="copy" className="swap-in"><Copy size={16} weight="bold" aria-hidden="true" /> Copy</span>
-                                )}
-                            </span>
-                        </button>
-                        <a href={`mailto:${EMAIL}`} className="mail-app-link">
-                            or open your mail app <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
-                        </a>
-
-                        <ul className="social-links">
-                            <li>
-                                <a href="https://www.linkedin.com/in/costin-sarghiuta-b01788217/?locale=en_US" target="_blank" rel="noopener noreferrer">
-                                    <LinkedinLogo size={18} weight="fill" aria-hidden="true" /> LinkedIn
-                                    <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
-                                </a>
-                            </li>
-                            <li>
-                                <a href="https://github.com/Costizaur" target="_blank" rel="noopener noreferrer">
-                                    <GithubLogo size={18} weight="fill" aria-hidden="true" /> GitHub
-                                    <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* Right Column: Contact Form */}
-                    {/* Uses Web3Forms API to send emails without server code */}
-                    <form className="contact-form" action="https://api.web3forms.com/submit" method="POST" onSubmit={sendMessage}>
-                        {/* Hidden key for the API service */}
-                        <input type="hidden" name="access_key" value="6bcd15d9-36a9-42dd-bfc1-b7bb9f107117" />
-
-                        <div className="form-row">
-                            <div className="form-group">
-                                <label htmlFor="name">Name</label>
-                                <input type="text" id="name" name="name" placeholder="Your name" autoComplete="name" required />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="email">Email</label>
-                                <input type="email" id="email" name="email" placeholder="you@email.com" autoComplete="email" required />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="message">Message</label>
-                            <textarea id="message" name="message" rows="5" placeholder="Tell me about your project or role" required></textarea>
-                        </div>
-
-                        <div className="form-footer">
-                            <button type="submit" className="btn" disabled={status === 'sending'}>
-                                {status === 'sending' ? 'Sending…' : <>Send message <ArrowRight size={16} weight="bold" aria-hidden="true" /></>}
-                            </button>
-                            <p className={`form-status is-${status}`} role="status">
-                                {status === 'sent' && <><Check size={16} weight="bold" aria-hidden="true" /> Message sent. Thank you!</>}
-                                {status === 'error' && <>That did not send. Please try again, or email me directly.</>}
-                            </p>
-                        </div>
-                    </form>
+                    <ul className="social-links">
+                        <li>
+                            <a href="https://www.linkedin.com/in/costin-sarghiuta-b01788217/?locale=en_US" target="_blank" rel="noopener noreferrer">
+                                <LinkedinLogo size="1.2em" weight="fill" aria-hidden="true" /> LinkedIn
+                                <ArrowUpRight size="0.9em" weight="bold" aria-hidden="true" />
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://github.com/Costizaur" target="_blank" rel="noopener noreferrer">
+                                <GithubLogo size="1.2em" weight="fill" aria-hidden="true" /> GitHub
+                                <ArrowUpRight size="0.9em" weight="bold" aria-hidden="true" />
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </section>
+
+            {/* Right Column: Contact Form, on a sheet like the project sheets */}
+            {/* Uses Web3Forms API to send emails without server code */}
+            <form className="contact-form" action="https://api.web3forms.com/submit" method="POST" onSubmit={sendMessage} data-rise>
+                {/* Hidden key for the API service */}
+                <input type="hidden" name="access_key" value="6bcd15d9-36a9-42dd-bfc1-b7bb9f107117" />
+
+                <div className="form-row">
+                    <div className="form-group">
+                        <label htmlFor="name">Name</label>
+                        <input type="text" id="name" name="name" placeholder="Your name" autoComplete="name" required />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="you@email.com" autoComplete="email" required />
+                    </div>
+                </div>
+                <div className="form-group">
+                    <label htmlFor="message">Message</label>
+                    <textarea id="message" name="message" rows="5" placeholder="Tell me about your project or role" enterKeyHint="enter" required></textarea>
+                </div>
+
+                <div className="form-footer">
+                    <button type="submit" className="key-btn" disabled={status === 'sending'}>
+                        {status === 'sending' ? 'Sending…' : <>Send message <ArrowRight size="1em" weight="bold" aria-hidden="true" /></>}
+                    </button>
+                    <p className={`form-status is-${status}`} role="status">
+                        {status === 'sent' && <><Check size="1em" weight="bold" aria-hidden="true" /> Message sent. Thank you!</>}
+                        {status === 'error' && <>That did not send. Please try again, or email me directly.</>}
+                    </p>
+                </div>
+            </form>
+        </div>
     );
 };
 

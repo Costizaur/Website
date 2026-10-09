@@ -1,9 +1,9 @@
 import { worlds } from '../data/projects';
 
 // The address after the # says where you are: '#games' is a folder, '#games/muster' a
-// project inside it, and '#about' and '#contact' are the two pages. Anything else is the
-// home screen. Plain hash links need no server rules, so they work on GitHub Pages.
-const PAGES = ['about', 'contact'];
+// project inside it, and '#about', '#contact' and '#cv' are the three pages. Anything else
+// is the home screen. Plain hash links need no server rules, so they work on GitHub Pages.
+const PAGES = ['about', 'contact', 'cv'];
 const NOWHERE = { world: null, project: null, info: null };
 
 export const readRoute = (hash = window.location.hash) => {

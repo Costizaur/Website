@@ -1,13 +1,13 @@
 import React from 'react';
-import { ArrowUpRight } from '@phosphor-icons/react';
 
 const PLACES = [
     ['work', 'Work', '#'],
     ['about', 'About', '#about'],
-    ['contact', 'Contact', '#contact']
+    ['contact', 'Contact', '#contact'],
+    ['cv', 'CV', '#cv']
 ];
 
-// The menu. It sits on the desk and again on the About and Contact pages, in the same spot,
+// The menu. It sits on the desk and again on the About, Contact and CV pages, in the same spot,
 // so it seems to stay put while the page changes around it. `current` is where it is now;
 // `onGo(place, event)` is told which link was clicked.
 const SiteNav = ({ current, onGo }) => (
@@ -21,11 +21,6 @@ const SiteNav = ({ current, onGo }) => (
                     </a>
                 </li>
             ))}
-            <li>
-                <a href="/cv.pdf" target="_blank" rel="noopener noreferrer">
-                    CV <ArrowUpRight size="0.85em" weight="bold" aria-hidden="true" />
-                </a>
-            </li>
             <li className="h-links-end">
                 <a className="h-play" href="/muster/index.html" target="_blank" rel="noopener noreferrer">Play Muster</a>
             </li>

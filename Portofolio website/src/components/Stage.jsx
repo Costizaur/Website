@@ -13,7 +13,7 @@ import './Stage.css';
 
 const SITE_TITLE = document.title;
 const HOME = { world: null, project: null, info: null };
-const PAGE_TITLES = { about: 'About', contact: 'Contact' };
+const PAGE_TITLES = { about: 'About', contact: 'Contact', cv: 'CV' };
 // The two theme-color tags in index.html, light and dark, with the desk colour each starts with
 const THEME_TAGS = [...document.querySelectorAll('meta[name="theme-color"]')].map(tag => ({ tag, desk: tag.content, dark: (tag.getAttribute('media') || '').includes('dark') }));
 
@@ -182,7 +182,7 @@ const Stage = () => {
     const colours = world ? { '--wc': world.color, '--wi': world.ink, '--wd': world.deep, '--wdi': world.deepInk } : undefined;
 
     return (
-        <div className="stage" ref={root} data-view={ui.view} data-world={world ? world.key : undefined} style={colours}>
+        <div className="stage" ref={root} data-view={ui.view} data-world={world ? world.key : undefined} data-page={ui.info || undefined} style={colours}>
             <i className="u-probe" aria-hidden="true"></i>
 
             {/* On a phone the page itself stands still and everything up to the sheets scrolls

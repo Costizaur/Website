@@ -1,0 +1,715 @@
+/* ================= The CV =================
+   On the site it is a page of the desk, like About and Contact: the name and a few lines on
+   the left, the photo beside them, and every section on a sheet of its own.
+
+   Printed, the same page is one A4 sheet without the desk under it, and that print is the
+   PDF the Download button hands over (public/cv.pdf). To make the PDF again after the text
+   (data/cv.js) or the print layout below changes, with the site running (npm run dev), from
+   this project's folder:
+     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --no-pdf-header-footer \
+       --virtual-time-budget=8000 --print-to-pdf=public/cv.pdf "http://localhost:5173/#cv"
+   It has to come out as one page. If a change pushes it onto a second one, shorten the text. */
+
+@media screen {
+    .cv {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 27cqw;
+        gap: calc(var(--u) * 2.6) 4.5cqw;
+        align-items: start;
+    }
+
+    .cv-col {
+        display: grid;
+        gap: calc(var(--u) * 2.6);
+        min-width: 0;
+    }
+
+    /* ---- The name and the lines under it ---- */
+    .cv-role {
+        margin-top: calc(var(--u) * 2.4);
+        font-size: max(1.0625rem, calc(var(--u) * 1.55));
+        font-weight: 500;
+        line-height: 1.35;
+    }
+
+    .cv-profile {
+        max-width: 64ch;
+        margin-top: calc(var(--u) * 1.4);
+        font-size: max(1rem, calc(var(--u) * 1.25));
+        line-height: 1.6;
+        color: var(--ink-soft);
+        text-wrap: pretty;
+    }
+
+    .cv-get {
+        margin-top: calc(var(--u) * 2.4);
+    }
+
+    /* ---- Sheets ---- */
+    .cv-sheets {
+        display: grid;
+        gap: calc(var(--u) * 1.6);
+    }
+
+    .cv-sheet {
+        padding: calc(var(--u) * 2) calc(var(--u) * 2.2) calc(var(--u) * 2.2);
+        border-radius: calc(var(--u) * 1.4);
+        background: var(--sheet);
+        color: var(--sheet-body);
+        box-shadow: inset 0 0 0 1px var(--sheet-edge), 0 calc(var(--u) * 0.2) calc(var(--u) * 0.5) var(--shade-near), 0 calc(var(--u) * 1) calc(var(--u) * 2.2) var(--shade-far);
+    }
+
+    /* A section's name, in the voice of the folder names, with its folder in front of it */
+    .cv-label {
+        display: flex;
+        align-items: center;
+        gap: calc(var(--u) * 1);
+        margin-bottom: calc(var(--u) * 1.3);
+        font-family: var(--font-desk);
+        font-weight: 800;
+        font-stretch: 110%;
+        font-size: max(1.0625rem, calc(var(--u) * 1.6));
+        line-height: 1.15;
+        letter-spacing: -0.015em;
+        color: var(--sheet-ink);
+    }
+
+    .cv-label .folder {
+        --fw: max(1.6rem, calc(var(--u) * 2.5));
+        margin-top: calc(var(--fw) * -0.14);
+        filter: drop-shadow(0 calc(var(--fu) * 6) calc(var(--fu) * 8) rgba(17, 18, 22, 0.16));
+    }
+
+    /* ---- What is on a sheet ---- */
+    .cv-entry + .cv-entry {
+        margin-top: calc(var(--u) * 1.8);
+    }
+
+    .cv-entry-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: calc(var(--u) * 2);
+    }
+
+    .cv-entry h3 {
+        font-size: max(1rem, calc(var(--u) * 1.45));
+        font-weight: 650;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
+        color: var(--sheet-ink);
+    }
+
+    .cv-when {
+        flex: none;
+        font-size: max(0.8125rem, calc(var(--u) * 1.1));
+        color: var(--sheet-soft);
+        white-space: nowrap;
+    }
+
+    .cv-sub {
+        margin-top: calc(var(--u) * 0.15);
+        font-size: max(0.8125rem, calc(var(--u) * 1.1));
+        line-height: 1.4;
+        color: var(--sheet-soft);
+    }
+
+    .cv-points {
+        display: grid;
+        gap: calc(var(--u) * 0.45);
+        margin-top: calc(var(--u) * 0.8);
+        font-size: max(0.9375rem, calc(var(--u) * 1.2));
+        line-height: 1.5;
+        text-wrap: pretty;
+    }
+
+    /* The dot sits in the line itself, in the section's folder colour */
+    .cv-points li {
+        --dot-in: max(1.1rem, calc(var(--u) * 1.5));
+        padding-left: var(--dot-in);
+        text-indent: calc(var(--dot-in) * -1);
+    }
+
+    .cv-points li::before {
+        content: '';
+        display: inline-block;
+        width: 0.38em;
+        height: 0.38em;
+        margin-right: calc(var(--dot-in) - 0.38em);
+        border-radius: 50%;
+        background: var(--folder, var(--sheet-soft));
+        vertical-align: 0.2em;
+    }
+
+    .cv-points b,
+    .cv-levels b {
+        font-weight: 650;
+        color: var(--sheet-ink);
+    }
+
+    /* ---- The narrow column ---- */
+    .cv-photo {
+        justify-self: center;
+        width: min(100%, calc(var(--u) * 24));
+    }
+
+    .cv-contact {
+        display: grid;
+        gap: calc(var(--u) * 0.7);
+        font-size: max(0.9375rem, calc(var(--u) * 1.2));
+        font-weight: 500;
+        line-height: 1.35;
+        color: var(--sheet-ink);
+    }
+
+    .cv-contact li,
+    .cv-contact a {
+        display: flex;
+        align-items: center;
+        gap: calc(var(--u) * 0.8);
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .cv-contact a {
+        text-decoration: underline transparent;
+        text-underline-offset: 0.25em;
+        text-decoration-thickness: 0.08em;
+        transition: text-decoration-color 160ms ease;
+    }
+
+    .cv-contact svg {
+        flex: none;
+    }
+
+    /* The link to this site is only for the paper */
+    .cv-site {
+        display: none !important;
+    }
+
+    .cv-group + .cv-group {
+        margin-top: calc(var(--u) * 1.4);
+    }
+
+    .cv-group h3 {
+        margin-bottom: calc(var(--u) * 0.7);
+        font-size: max(0.875rem, calc(var(--u) * 1.15));
+        font-weight: 650;
+        line-height: 1.3;
+        color: var(--sheet-ink);
+    }
+
+    /* The pills of the About page's toolkit */
+    .cv-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: calc(var(--u) * 0.6);
+    }
+
+    .cv-chips li {
+        padding: 0.3em 0.8em;
+        border-radius: 99px;
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sheet-ink) 22%, transparent);
+        font-size: max(0.8125rem, calc(var(--u) * 1.05));
+        line-height: 1.35;
+        color: var(--sheet-ink);
+    }
+
+    .cv-levels li {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: calc(var(--u) * 1.5);
+        padding: calc(var(--u) * 0.6) 0;
+        font-size: max(0.9375rem, calc(var(--u) * 1.2));
+        line-height: 1.35;
+    }
+
+    .cv-levels li + li {
+        border-top: 1px solid color-mix(in srgb, var(--sheet-ink) 12%, transparent);
+    }
+
+    .cv-levels span {
+        font-size: max(0.8125rem, calc(var(--u) * 1.1));
+        color: var(--sheet-soft);
+    }
+}
+
+@media screen and (hover: hover) and (pointer: fine) {
+    .cv-contact a:hover {
+        text-decoration-color: currentColor;
+    }
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+    .cv-contact a {
+        transition: none;
+    }
+}
+
+/* Phones and narrow windows: a narrower side column, and sizes that stop following the screen */
+@media screen and (max-width: 899px), screen and (max-height: 520px) {
+    .cv {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 16rem);
+        gap: 1.75rem 1.5rem;
+    }
+
+    .cv-col {
+        gap: 1.75rem;
+    }
+
+    .cv-role {
+        margin-top: 1.4rem;
+        font-size: 1.125rem;
+    }
+
+    .cv-profile {
+        margin-top: 0.9rem;
+        font-size: 1rem;
+    }
+
+    .cv-get {
+        margin-top: 1.5rem;
+    }
+
+    .cv-sheets {
+        gap: 1rem;
+    }
+
+    .cv-sheet {
+        padding: 1.2rem 1.15rem 1.3rem;
+        border-radius: 1.1rem;
+    }
+
+    .cv-label {
+        gap: 0.65rem;
+        margin-bottom: 0.85rem;
+        font-size: 1.125rem;
+    }
+
+    .cv-entry + .cv-entry {
+        margin-top: 1.15rem;
+    }
+
+    /* A long title lets its date drop onto the next line */
+    .cv-entry-head {
+        flex-wrap: wrap;
+        gap: 0.1rem 0.9rem;
+    }
+
+    .cv-entry h3 {
+        font-size: 1.0625rem;
+    }
+
+    .cv-when,
+    .cv-sub {
+        font-size: 0.875rem;
+    }
+
+    .cv-points {
+        gap: 0.4rem;
+        margin-top: 0.6rem;
+        font-size: 0.9375rem;
+    }
+
+    .cv-contact {
+        gap: 0.6rem;
+        font-size: 0.9375rem;
+    }
+
+    .cv-contact li,
+    .cv-contact a {
+        gap: 0.6rem;
+    }
+
+    /* Links are at least a fingertip tall */
+    .cv-contact a {
+        min-height: 2.75rem;
+        margin-block: -0.55rem;
+    }
+
+    .cv-group + .cv-group {
+        margin-top: 1rem;
+    }
+
+    .cv-group h3 {
+        margin-bottom: 0.5rem;
+        font-size: 0.9375rem;
+    }
+
+    .cv-chips {
+        gap: 0.4rem;
+    }
+
+    .cv-chips li {
+        font-size: 0.875rem;
+    }
+
+    .cv-levels li {
+        padding: 0.5rem 0;
+        font-size: 0.9375rem;
+    }
+
+    .cv-levels span {
+        font-size: 0.875rem;
+    }
+}
+
+/* One column: the words, the photo, the sheets, then the lists */
+@media screen and (max-width: 599px) {
+    .cv {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .cv-col {
+        display: contents;
+    }
+
+    .cv-who {
+        order: 1;
+    }
+
+    .cv-photo {
+        order: 2;
+        justify-self: start;
+        width: min(100%, 13rem);
+    }
+
+    .cv-main > .cv-sheets {
+        order: 3;
+    }
+
+    .cv-side > .cv-sheets {
+        order: 4;
+    }
+
+    .cv-get .key-btn {
+        width: 100%;
+    }
+}
+
+/* ================= On paper =================
+   One A4 sheet. Everything else on the stage is put away, the desk is left out, and the
+   sheets become outlined boxes on white. Sizes are in millimetres and points, fitted by
+   hand so the page is exactly full. */
+@media print {
+    @page {
+        size: A4;
+        margin: 0;
+    }
+
+    :root:has(.stage[data-page='cv']),
+    :root:has(.stage[data-page='cv']) body {
+        overflow: visible !important;
+        background: #fff !important;
+    }
+
+    :root:has(.stage[data-page='cv']) .skip-link,
+    .stage[data-page='cv'] > :not(.info),
+    .stage[data-page='cv'] .info .h-nav,
+    .stage[data-page='cv'] .cv-get {
+        display: none !important;
+    }
+
+    .stage[data-page='cv'] {
+        display: block;
+        height: auto;
+        min-height: 0;
+        overflow: visible;
+        background: none;
+    }
+
+    .stage[data-page='cv'] .info {
+        position: static;
+        overflow: visible;
+        visibility: visible !important;
+        clip-path: none !important;
+        background: none;
+    }
+
+    .stage[data-page='cv'] .info > .frame {
+        width: auto;
+        height: auto;
+        min-height: 0;
+        padding: 0;
+        container-type: normal;
+    }
+
+    .stage[data-page='cv'] .info-body {
+        padding: 0;
+        animation: none;
+    }
+
+    .stage[data-page='cv'] [data-rise] {
+        opacity: 1 !important;
+        transform: none !important;
+    }
+
+    /* ---- The page ---- */
+    .cv {
+        /* Paper is read in the light, whatever the screen is set to */
+        --ink: #111216;
+        --key: #111216;
+        --key-ink: #f4f4f6;
+        --sheet-ink: #14151a;
+        --sheet-soft: #5a5d6a;
+        --sheet-body: #2d2f38;
+        --edge: rgba(17, 18, 22, 0.17);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 49.5mm;
+        gap: 4mm;
+        align-content: start;
+        width: 210mm;
+        height: 297mm;
+        padding: 9mm 9mm 8.5mm;
+        overflow: hidden;
+        background: #fff;
+        font-size: 7.9pt;
+        line-height: 1.4;
+        color: var(--sheet-body);
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .cv-col,
+    .cv-sheets {
+        display: grid;
+        align-content: start;
+        gap: 2.6mm;
+    }
+
+    /* ---- The name, the line under it and the profile ---- */
+    .cv-who {
+        padding: 1mm 0.5mm 1mm;
+        color: var(--ink);
+    }
+
+    .cv .cv-name {
+        font-size: 30pt;
+        line-height: 0.95;
+        white-space: nowrap;
+    }
+
+    .cv .cv-name span {
+        display: inline;
+    }
+
+    .cv-role {
+        margin-top: 2.3mm;
+        font-size: 10pt;
+        font-weight: 500;
+        line-height: 1.35;
+    }
+
+    .cv-profile {
+        margin-top: 2.2mm;
+        font-size: 8.4pt;
+        line-height: 1.45;
+        text-wrap: pretty;
+    }
+
+    /* ---- Sheets: outlined, with no shadow (a blurred one prints as a grey box in Preview) ---- */
+    .cv-sheet {
+        padding: 3.15mm 4.4mm 3.35mm;
+        border: 0.25mm solid var(--edge);
+        border-radius: 3.1mm;
+        break-inside: avoid;
+    }
+
+    .cv-side .cv-sheet {
+        padding: 3.15mm 3.5mm 3.45mm;
+    }
+
+    .cv-label {
+        display: flex;
+        align-items: center;
+        gap: 1.9mm;
+        margin-bottom: 1.9mm;
+        font-family: var(--font-desk);
+        font-weight: 800;
+        font-stretch: 110%;
+        font-size: 10.2pt;
+        line-height: 1.15;
+        letter-spacing: -0.015em;
+        color: var(--sheet-ink);
+    }
+
+    .cv-label .folder {
+        --fw: 5.6mm;
+        margin-top: calc(var(--fu) * -22);
+        filter: none;
+    }
+
+    .cv-label .folder-front {
+        box-shadow: none;
+    }
+
+    .cv-entry + .cv-entry {
+        margin-top: 2.3mm;
+    }
+
+    .cv-entry-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 4mm;
+    }
+
+    .cv-entry h3 {
+        font-size: 9.6pt;
+        font-weight: 650;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
+        color: var(--sheet-ink);
+    }
+
+    .cv-when {
+        flex: none;
+        font-size: 7.9pt;
+        color: var(--sheet-soft);
+        white-space: nowrap;
+    }
+
+    .cv-sub {
+        font-size: 7.9pt;
+        color: var(--sheet-soft);
+    }
+
+    .cv-points {
+        margin-top: 0.8mm;
+    }
+
+    /* The dot sits in the line itself, not placed over it, so the text of the PDF keeps its order */
+    .cv-points li {
+        padding-left: 3.1mm;
+        text-indent: -3.1mm;
+    }
+
+    .cv-points li + li {
+        margin-top: 0.35mm;
+    }
+
+    .cv-points li::before {
+        content: '';
+        display: inline-block;
+        width: 0.95mm;
+        height: 0.95mm;
+        margin-right: 2.15mm;
+        border-radius: 50%;
+        background: var(--folder, var(--sheet-soft));
+        vertical-align: 0.2em;
+    }
+
+    .cv-points b,
+    .cv-levels b {
+        font-weight: 650;
+        color: var(--sheet-ink);
+    }
+
+    /* ---- The photo: the print from the About page ---- */
+    .cv .cv-photo {
+        justify-self: center;
+        width: 35.5mm;
+        margin: 0.4mm 0 1.2mm;
+        padding: 1.9mm 1.9mm 0;
+        border: 0.25mm solid var(--edge);
+        border-radius: 2.9mm;
+        background: #fff;
+        color: var(--sheet-ink);
+        rotate: 2.2deg;
+        box-shadow: 0 0.4mm 0 rgba(17, 18, 22, 0.07), 0 1mm 0 rgba(17, 18, 22, 0.04);
+    }
+
+    .cv .cv-photo img {
+        border-radius: 1.8mm;
+    }
+
+    .cv .cv-photo figcaption {
+        padding: 1.5mm 0.6mm 1.8mm;
+        font-size: 8.8pt;
+        line-height: 1.2;
+    }
+
+    /* ---- The narrow column ---- */
+    .cv-contact {
+        display: grid;
+        gap: 1mm;
+        font-weight: 500;
+        color: var(--sheet-ink);
+    }
+
+    .cv-contact li,
+    .cv-contact a {
+        display: flex;
+        align-items: center;
+        gap: 1.6mm;
+        white-space: nowrap;
+    }
+
+    .cv-contact svg {
+        flex: none;
+        width: 3.2mm;
+        height: 3.2mm;
+    }
+
+    /* The main button on the desk: ink with the desk colour on it */
+    .cv-site a {
+        justify-content: space-between;
+        width: 100%;
+        margin-top: 0.9mm;
+        padding: 1.5mm 2.4mm;
+        border-radius: 1.8mm;
+        background: var(--key);
+        color: var(--key-ink);
+        font-weight: 600;
+    }
+
+    .cv-site svg {
+        width: 2.7mm;
+        height: 2.7mm;
+    }
+
+    .cv-group + .cv-group {
+        margin-top: 2mm;
+    }
+
+    .cv-group h3 {
+        margin-bottom: 1mm;
+        font-size: 7.8pt;
+        font-weight: 650;
+        color: var(--sheet-ink);
+    }
+
+    .cv-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.05mm;
+    }
+
+    .cv-chips li {
+        padding: 0.45mm 1.7mm 0.5mm;
+        border: 0.22mm solid rgba(17, 18, 22, 0.24);
+        border-radius: 99px;
+        font-size: 7.2pt;
+        line-height: 1.35;
+        white-space: nowrap;
+        color: var(--sheet-ink);
+    }
+
+    .cv-levels li {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 3mm;
+        padding: 0.7mm 0;
+    }
+
+    .cv-levels li + li {
+        border-top: 0.2mm solid rgba(17, 18, 22, 0.12);
+    }
+
+    .cv-levels span {
+        font-size: 7.9pt;
+        color: var(--sheet-soft);
+    }
+}

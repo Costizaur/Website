@@ -189,9 +189,12 @@
         document.querySelector("#unity-container").className = "unity-mobile";
         canvas.className = "unity-mobile";
 
-        // Phones have 3x screens; rendering that many pixels makes the game crawl. 1.5x still looks sharp.
-        config.devicePixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
-
+        // Phones have 3x screens. The interface is drawn at the screen's own pixels (1.5x looked pixelated on an
+        // iPhone 14); the 3D table behind it is drawn at 80% of that by the game's quality setting.
+        // ?dpr=1.5 (1 to 3) lowers the cap, for comparing sharpness against frame rate on a real phone.
+        var dprCap = parseFloat((/[?&]dpr=([\d.]+)/.exec(location.search) || [])[1]);
+        dprCap = dprCap >= 1 && dprCap <= 3 ? dprCap : 3;
+        config.devicePixelRatio = Math.min(window.devicePixelRatio || 1, dprCap);
 
       } else {
         // Desktop: fill the browser window too (same layout as mobile, without the footer).
@@ -201,35 +204,98 @@
 
       document.querySelector("#unity-loading-bar").style.display = "block";
 
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
-          // Unity reports 0–0.9 while downloading, then the rest while it starts the game.
-          document.querySelector("#unity-loading-status").textContent =
-            progress < 0.9 ? "Downloading… " + Math.round(progress / 0.9 * 100) + "%" : "Starting the game…";
-              }).then((unityInstance) => {
-                document.querySelector("#unity-loading-bar").style.display = "none";
-                document.querySelector("#unity-fullscreen-button").onclick = () => {
-                  unityInstance.SetFullscreen(1);
-                };
-
-              }).catch((message) => {
-                alert(message);
-              });
+      function startUnity() {
+        var script = document.createElement("script");
+        script.src = loaderUrl;
+        script.onload = () => {
+          createUnityInstance(canvas, config, (progress) => {
+            document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
+            // Unity reports 0–0.9 while downloading, then the rest while it starts the game.
+            document.querySelector("#unity-loading-status").textContent =
+              progress < 0.9 ? "Downloading… " + Math.round(progress / 0.9 * 100) + "%" : "Starting the game…";
+          }).then((unityInstance) => {
+            document.querySelector("#unity-loading-bar").style.display = "none";
+            document.querySelector("#unity-fullscreen-button").onclick = () => {
+              unityInstance.SetFullscreen(1);
             };
+          }).catch((message) => {
+            alert(message);
+          });
+        };
+        document.body.appendChild(script);
+      }
 
-      document.body.appendChild(script);
+      // A phone turned sideways while Unity starts can leave the loading screen stuck. Muster is played in landscape,
+      // so on a phone held upright ask for the turn first and start loading once the turn has settled.
+      var upright = function () { return innerHeight > innerWidth; };
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) && upright()) {
+        var statusEl = document.querySelector("#unity-loading-status");
+        var barEl = document.querySelector("#unity-progress-bar-empty");
+        barEl.style.display = "none";
+        statusEl.textContent = "Turn your phone sideways to start";
+        statusEl.style.cssText = "margin-top: 0; color: #FFF6E5; font-size: 18px; font-weight: 600;";
+        var settle = null;
+        var onTurn = function () {
+          clearTimeout(settle);
+          if (upright()) return;
+          settle = setTimeout(function () {
+            if (upright()) return;
+            removeEventListener("resize", onTurn);
+            barEl.style.display = "";
+            statusEl.style.cssText = "";
+            statusEl.textContent = "Downloading…";
+            startUnity();
+          }, 500);
+        };
+        addEventListener("resize", onTurn);
+      } else {
+        startUnity();
+      }
 
-      // ?fps=1 shows the frame rate, for checking performance on phones.
+      // ?fps=1 shows the frame rate and how long the game itself works per frame ("game", average and worst of the
+      // last second), for checking performance on phones. A low fps with a small "game" number means the browser is
+      // holding the game back (iPhone Low Power Mode caps pages at 30 fps); a large one means the game is too slow.
       if (/[?&]fps=1/.test(location.search)) {
         var fps = document.createElement("div"); fps.id = "fps"; document.body.appendChild(fps);
-        var frames = 0, last = performance.now();
+        // ?fps=1&report=1 also sends the numbers to the server that served this page (they show up in its request
+        // log as "perf-log?..."), so a test on a phone can be read on the computer. Local testing only.
+        var report = /[?&]report=1/.test(location.search);
+        var sendReport = function (query) {
+          if (report) try { fetch("perf-log?" + query, { cache: "no-store" }).catch(function () {}); } catch (e) {}
+        };
+        if (report) {
+          // How fast this browser runs plain JavaScript right now (3 million square roots). A phone with its
+          // just-in-time compiler switched off (Lockdown Mode) needs about ten times longer than one with it on.
+          var benchStart = performance.now(), benchX = 0;
+          for (var benchI = 0; benchI < 3000000; benchI++) benchX = (benchX + Math.sqrt(benchI) * 1.0001) % 1000003;
+          sendReport("bench_ms=" + Math.round(performance.now() - benchStart) + "&dpr=" + window.devicePixelRatio +
+            "&view=" + innerWidth + "x" + innerHeight);
+        }
+        var reportTick = 0;
+        var nativeRaf = window.requestAnimationFrame.bind(window);
+        var frames = 0, last = performance.now(), work = 0, worst = 0, calls = 0;
+        window.musterFrameLog = [];
+        window.requestAnimationFrame = function (callback) {
+          return nativeRaf(function (now) {
+            var start = performance.now();
+            callback(now);
+            var took = performance.now() - start;
+            // Unity asks for two callbacks per frame; one of them does nothing and would halve the average.
+            if (took > 0.5) { work += took; calls++; }
+            if (took > worst) worst = took;
+            if (window.musterFrameLog.length < 20000) window.musterFrameLog.push([Math.round(start), Math.round(took * 10) / 10]);
+          });
+        };
         (function tick(now) {
           frames++;
-          if (now - last >= 1000) { fps.textContent = Math.round(frames * 1000 / (now - last)) + " fps"; frames = 0; last = now; }
-          requestAnimationFrame(tick);
+          if (now - last >= 1000) {
+            fps.textContent = Math.round(frames * 1000 / (now - last)) + " fps · game " +
+              (calls ? Math.round(work / calls) : 0) + " ms (worst " + Math.round(worst) + ")";
+            if (++reportTick % 2 == 0) sendReport("fps=" + Math.round(frames * 1000 / (now - last)) + "&game_ms=" +
+              (calls ? Math.round(work / calls) : 0) + "&worst_ms=" + Math.round(worst) + "&canvas=" + canvas.width + "x" + canvas.height);
+            frames = 0; last = now; work = 0; worst = 0; calls = 0;
+          }
+          nativeRaf(tick);
         })(last);
       }
 

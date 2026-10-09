@@ -1,0 +1,649 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>Costin Folder Worlds</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,500..900&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Lilita+One&display=swap">
+<style>
+/* Layout: one working prototype on a 16:10 stage, with short notes underneath. */
+:root {
+  --bg: #f2f3f6;
+  --panel: #ffffff;
+  --fg: #14151a;
+  --muted: #5a5d6a;
+  --line: #d9dbe3;
+  --accent: #2a4bdb;
+  --font-display: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  --font-text: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #101116; --panel: #191b22; --fg: #ecedf2; --muted: #9a9dab; --line: #2c2f3a; --accent: #8fa6ff; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #101116; --panel: #191b22; --fg: #ecedf2; --muted: #9a9dab; --line: #2c2f3a; --accent: #8fa6ff; color-scheme: dark; }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-text); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; touch-action: manipulation; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.page-wrap { width: min(100%, 1320px); margin-inline: auto; padding-inline: 20px; padding-block: 36px 72px; display: grid; gap: 26px; }
+.page-wrap > * { min-width: 0; }
+.intro { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 32px; }
+.intro h1 { font-family: var(--font-display); font-stretch: 80%; font-weight: 800; font-size: clamp(2.1rem, 1.4rem + 3vw, 3.4rem); line-height: 1; letter-spacing: -0.01em; }
+.intro p { color: var(--muted); max-width: 60ch; margin-top: 12px; }
+.fs-btn { font-weight: 600; font-size: 0.9rem; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); white-space: nowrap; }
+.stage-scroll { overflow-x: auto; border-radius: 16px; }
+.stage-full { display: grid; place-items: center; }
+.stage-full:fullscreen { background: #000; }
+.stage-full:fullscreen .stage { width: min(100vw, 160vh); min-width: 0; border-radius: 0; }
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px 28px; }
+.notes h3 { font-size: 0.8rem; font-family: var(--font-mono); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+
+/* ================= The stage ================= */
+.stage {
+  --w-color: #ffc53d; --w-ink: #20160a;
+  --w-font: 'Archivo', 'Arial Black', sans-serif; --w-weight: 900; --w-track: -0.02em; --w-case: none; --w-stretch: 100%; --w-scale: 1;
+  container-type: inline-size; aspect-ratio: 16 / 10; width: 100%; min-width: 720px; border-radius: 16px; overflow: hidden; position: relative; isolation: isolate;
+  background-color: #e9eaee; background-image: radial-gradient(circle, rgba(17, 18, 22, 0.09) 0.11cqw, transparent 0.14cqw); background-size: 2.6cqw 2.6cqw;
+  color: #111216; font-family: 'Geist', system-ui, sans-serif; user-select: none; -webkit-user-select: none;
+}
+.stage ::selection { background: #111216; color: #e9eaee; }
+.stage button:focus-visible, .stage a:focus-visible { outline: 0.25cqw solid currentColor; outline-offset: 0.3cqw; }
+.stage[data-world="uiux"] { --w-font: 'Bricolage Grotesque', 'Arial Narrow', sans-serif; --w-weight: 800; --w-track: -0.02em; --w-stretch: 80%; }
+.stage[data-world="web"] { --w-font: 'JetBrains Mono', ui-monospace, monospace; --w-weight: 600; --w-track: -0.05em; --w-scale: 0.8; }
+.stage[data-world="games"] { --w-font: 'Lilita One', 'Arial Black', sans-serif; --w-weight: 400; --w-track: 0.01em; --w-case: uppercase; }
+.stage[data-world="apps"] { --w-font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, 'Geist', sans-serif; --w-weight: 700; --w-track: -0.035em; }
+
+/* Home */
+.home { position: absolute; inset: 0; z-index: 1; transform-origin: 50% 40%; }
+.h-nav { display: flex; justify-content: space-between; align-items: center; padding: 2.2cqw 3.5cqw 0; font-size: 1.2cqw; font-weight: 500; }
+.h-nav b { font-size: 1.3cqw; font-weight: 600; }
+.h-links { display: flex; align-items: center; gap: 2.6cqw; }
+.h-play { background: #111216; color: #f4f4f6; font-weight: 600; padding: 0.65cqw 1.4cqw; border-radius: 0.8cqw; transition: transform 140ms var(--ease-out); }
+.h-name { position: absolute; left: 3.5cqw; top: 9.4cqw; font-family: 'Archivo', 'Arial Black', sans-serif; font-weight: 900; font-stretch: 125%; font-size: 6.5cqw; line-height: 0.95; letter-spacing: -0.025em; text-transform: uppercase; white-space: nowrap; }
+.h-sub { position: absolute; left: 3.6cqw; top: 17.9cqw; font-size: 1.55cqw; line-height: 1.45; max-width: 56cqw; }
+
+/* Folders: the same drawing as the current site, every measure hanging off --u */
+.folders { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.fold { position: absolute; left: 0; top: 0; width: 19cqw; transform-origin: 0 0; pointer-events: auto; text-align: left; will-change: transform; --fw: 19cqw; --u: calc(var(--fw) / 156); }
+.fold::before { content: ''; position: absolute; inset: -2.7cqw -2.9cqw -7.4cqw; border-radius: 3.8cqw; background: rgba(255, 255, 255, 0.5); opacity: 0; transition: opacity 240ms ease; }
+.fold-in { display: block; position: relative; transform-origin: 50% 60%; transition: transform 240ms var(--ease-out); }
+.folder { position: relative; display: block; width: var(--fw); height: calc(var(--u) * 142); filter: drop-shadow(0 1.1cqw 1.2cqw rgba(17, 18, 22, 0.2)); }
+.folder-back { position: absolute; left: 0; top: calc(var(--u) * 30); width: 100%; height: calc(var(--u) * 112); border-radius: 0 calc(var(--u) * 12) calc(var(--u) * 12) calc(var(--u) * 12); background: color-mix(in srgb, var(--folder) 68%, #000); }
+.folder-back::before { content: ''; position: absolute; left: 0; bottom: calc(100% - 1px); width: calc(var(--u) * 60); height: calc(var(--u) * 16); border-radius: calc(var(--u) * 8) calc(var(--u) * 8) 0 0; background: inherit; }
+.folder-paper { --x: 0; --y: 0; --r: 0deg; position: absolute; top: calc(var(--u) * 6); left: 50%; width: calc(var(--u) * 56); height: calc(var(--u) * 56); margin-left: calc(var(--u) * -28); border-radius: 22%; object-fit: cover; box-shadow: 0 0.4cqw 1cqw rgba(0, 0, 0, 0.3); transform: translate(calc(var(--u) * var(--x)), calc(var(--u) * var(--y))) rotate(var(--r)); transition: transform 220ms var(--ease-out), opacity 160ms ease; }
+.folder[data-papers="3"] .folder-paper:nth-child(2) { --x: -43; --y: 9; --r: -8deg; }
+.folder[data-papers="3"] .folder-paper:nth-child(4) { --x: 43; --y: 9; --r: 8deg; }
+.folder[data-papers="2"] .folder-paper:nth-child(2) { --x: -25; --y: 4; --r: -6deg; }
+.folder[data-papers="2"] .folder-paper:nth-child(3) { --x: 25; --y: 4; --r: 6deg; }
+.folder-front { position: absolute; left: 0; top: calc(var(--u) * 50); width: 100%; height: calc(var(--u) * 92); border-radius: calc(var(--u) * 12); background: linear-gradient(color-mix(in srgb, var(--folder), #fff 14%), var(--folder)); box-shadow: inset 0 0.15cqw 0 rgba(255, 255, 255, 0.35), 0 -0.3cqw 0.8cqw rgba(0, 0, 0, 0.2); transform-origin: bottom; transition: transform 240ms var(--ease-out); }
+.fold-name { display: block; font-family: 'Archivo', sans-serif; font-weight: 800; font-stretch: 110%; font-size: 1.6cqw; line-height: 1.15; letter-spacing: -0.015em; margin-top: 1.5cqw; }
+.fold-count { display: block; font-size: 1.15cqw; color: #50535f; margin-top: 0.25cqw; }
+.fold-short { position: absolute; left: -3cqw; right: -3cqw; top: calc(var(--u) * 153); text-align: center; font-size: 3.1cqw; font-weight: 600; color: var(--w-ink); opacity: 0; }
+.fold:active .fold-in { transform: scale(0.97); }
+/* Open: the flap leans forward and the papers rise and fan out */
+.fold.is-fan .folder-front, .fold.is-active .folder-front { transform: perspective(600px) rotateX(-24deg); }
+.fold.is-active .folder-front { transform: perspective(600px) rotateX(-40deg); }
+.fold.is-fan .folder[data-papers="3"] .folder-paper:nth-child(2) { --x: -52; --y: -10; --r: -13deg; }
+.fold.is-fan .folder[data-papers="3"] .folder-paper:nth-child(3) { --y: -22; }
+.fold.is-fan .folder[data-papers="3"] .folder-paper:nth-child(4) { --x: 52; --y: -10; --r: 13deg; }
+.fold.is-fan .folder[data-papers="2"] .folder-paper:nth-child(2) { --x: -33; --y: -16; --r: -10deg; }
+.fold.is-fan .folder[data-papers="2"] .folder-paper:nth-child(3) { --x: 33; --y: -16; --r: 10deg; }
+.fold.is-fan .folder[data-papers="1"] .folder-paper:nth-child(2) { --y: -20; --r: -4deg; }
+/* The papers have left the open folder: they are the sheets on the table now */
+.fold.is-active .folder-paper { opacity: 0; --y: -30; }
+.stage:not([data-view="home"]) .fold.is-active::before { opacity: 1; }
+.stage:not([data-view="home"]) .fold.is-active .fold-in { transform: scale(1.12); }
+
+/* The colour that pours out of a folder */
+.under, .flood { position: absolute; inset: 0; }
+.under { z-index: 2; visibility: hidden; }
+.flood { z-index: 3; background-color: var(--w-color); visibility: hidden; will-change: clip-path; }
+.stage[data-world="uiux"] .flood { background-image: radial-gradient(circle, rgba(43, 13, 9, 0.17) 0.13cqw, transparent 0.16cqw); background-size: 2.2cqw 2.2cqw; }
+.stage[data-world="web"] .flood { background-image: repeating-linear-gradient(rgba(6, 22, 58, 0.08) 0 0.1cqw, transparent 0.1cqw 2.6cqw); }
+.stage[data-world="games"] .flood { background-image: radial-gradient(circle, rgba(32, 22, 10, 0.08) 1.1cqw, transparent 1.15cqw), radial-gradient(circle, rgba(32, 22, 10, 0.08) 1.1cqw, transparent 1.15cqw); background-size: 8cqw 8cqw; background-position: 0 0, 4cqw 4cqw; }
+.stage[data-world="apps"] .flood { background-image: radial-gradient(60cqw 40cqw at 82% 8%, rgba(255, 255, 255, 0.4), transparent 70%); }
+
+/* World: header and the back button */
+.world { position: absolute; inset: 0; z-index: 4; color: var(--w-ink); pointer-events: none; visibility: hidden; }
+.w-back { position: absolute; left: 3.7cqw; top: 4.3cqw; width: 4.4cqw; height: 4.4cqw; border-radius: 50%; background: var(--w-ink); color: var(--w-color); display: grid; place-items: center; pointer-events: auto; }
+.stage svg { fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; display: block; }
+.w-back svg { width: 1.9cqw; height: 1.9cqw; }
+.w-head { position: absolute; left: 13.5cqw; top: 4.4cqw; right: 3.5cqw; }
+.w-crumbs, .pg-crumbs { display: flex; align-items: center; gap: 0.7cqw; font-size: 1.15cqw; font-weight: 500; }
+.w-crumbs svg, .pg-crumbs svg { width: 0.9cqw; height: 0.9cqw; opacity: 0.6; }
+.w-crumbs button, .pg-crumbs button { pointer-events: auto; opacity: 0.72; text-decoration: underline; text-underline-offset: 0.25cqw; text-decoration-thickness: 0.08cqw; }
+.w-title-clip { overflow: hidden; padding-bottom: 0.7cqw; margin-top: 0.8cqw; }
+.w-title, .card-title, .pg-title { font-family: var(--w-font); font-weight: var(--w-weight); letter-spacing: var(--w-track); text-transform: var(--w-case); font-stretch: var(--w-stretch); }
+.w-title { font-size: calc(6.8cqw * var(--w-scale)); line-height: 1; }
+.w-blurb { font-size: 1.45cqw; line-height: 1.45; max-width: 48cqw; margin-top: 0.5cqw; }
+
+/* Project sheets */
+.cards, .cards-out { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
+.card { position: absolute; left: 0; top: 0; width: var(--cw); text-align: left; will-change: transform, opacity; opacity: 0; }
+.card-in { display: block; background: #ffffff; color: #14151a; border-radius: 1.4cqw; padding: 1cqw; rotate: var(--r); box-shadow: 0 0.2cqw 0.5cqw rgba(0, 0, 0, 0.1), 0 1.4cqw 2.8cqw rgba(0, 0, 0, 0.18); transition: transform 220ms var(--ease-out), rotate 220ms var(--ease-out), box-shadow 220ms var(--ease-out); }
+.card-shot { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: var(--pos, 50% 50%); border-radius: 0.8cqw; background: #111216; }
+.card-body { display: block; padding: 1cqw 0.3cqw 0.3cqw; }
+.card-meta { display: grid; grid-template-columns: auto 1fr; gap: 0.9cqw; align-items: center; }
+.card-icon { width: 3.4cqw; height: 3.4cqw; border-radius: 22%; display: block; }
+.card-title { display: block; font-size: calc(1.95cqw * var(--w-scale)); line-height: 1.05; }
+.card-type { display: block; font-size: 1.02cqw; color: #5a5d6a; margin-top: 0.2cqw; }
+.card-line { display: block; font-size: 1.14cqw; line-height: 1.4; margin-top: 0.8cqw; color: #2d2f38; }
+.card-go { display: inline-flex; align-items: center; gap: 0.5cqw; margin-top: 0.8cqw; font-size: 1.1cqw; font-weight: 600; }
+.card-go svg { width: 1.1cqw; height: 1.1cqw; transition: transform 200ms var(--ease-out); }
+.card.is-wide .card-in { display: grid; grid-template-columns: 36cqw 1fr; gap: 1.4cqw; align-items: center; }
+.card.is-wide .card-title { font-size: calc(3cqw * var(--w-scale)); }
+.card.is-wide .card-line { font-size: 1.3cqw; }
+.card:active .card-in { transform: scale(0.985); }
+.cards-out .card { transition: opacity 180ms ease, translate 180ms ease; }
+.cards-out.is-leaving .card { opacity: 0 !important; translate: 0 1.6cqw; }
+
+/* Project, full screen */
+.page { position: absolute; inset: 0; z-index: 7; background: var(--p-bg, #111216); color: var(--p-fg, #f4f4f6); visibility: hidden; will-change: clip-path, opacity; }
+.page.is-on { visibility: visible; }
+.pg-bar { display: flex; justify-content: space-between; align-items: center; padding: 2.2cqw 3.5cqw 0; }
+.pg-close { width: 3.8cqw; height: 3.8cqw; border-radius: 50%; background: color-mix(in srgb, var(--p-fg) 15%, transparent); display: grid; place-items: center; transition: transform 140ms var(--ease-out); }
+.pg-close svg { width: 1.5cqw; height: 1.5cqw; }
+.pg-main { position: absolute; left: 3.5cqw; right: 3.5cqw; top: 8.5cqw; bottom: 3cqw; display: grid; grid-template-columns: 38cqw 1fr; gap: 5cqw; align-items: center; }
+.pg-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 1.5cqw; min-width: 0; }
+.pg-icon { width: 5cqw; height: 5cqw; border-radius: 22%; box-shadow: 0 0.6cqw 1.4cqw rgba(0, 0, 0, 0.28); display: block; }
+.pg-title { font-size: calc(7.2cqw * var(--w-scale) * var(--pg-scale, 1)); line-height: 0.98; color: var(--p-title, inherit); text-shadow: var(--p-title-shadow, none); outline: none; }
+.pg-pitch { font-size: 1.5cqw; line-height: 1.5; max-width: 36cqw; }
+.pg-facts { display: flex; gap: 2.6cqw; list-style: none; font-size: 1.05cqw; line-height: 1.35; }
+.pg-facts b { display: block; font-size: 1.5cqw; font-weight: 700; line-height: 1.2; }
+.pg-actions { display: flex; gap: 1cqw; margin-top: 0.3cqw; }
+.pg-btn { display: inline-flex; align-items: center; gap: 0.6cqw; background: var(--w-color); color: var(--w-ink); font-weight: 700; font-size: 1.3cqw; line-height: 1; padding: 1.1cqw 2cqw; border-radius: 1cqw; transition: transform 140ms var(--ease-out); white-space: nowrap; }
+.pg-btn svg { width: 1.2cqw; height: 1.2cqw; }
+.pg-btn.ghost { background: transparent; color: var(--p-fg); box-shadow: inset 0 0 0 0.15cqw color-mix(in srgb, var(--p-fg) 50%, transparent); }
+.pg-media { min-width: 0; }
+.pg-shot { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; object-position: var(--pos, 50% 50%); border-radius: 1.2cqw; transform-origin: 0 0; box-shadow: 0 2cqw 4cqw rgba(0, 0, 0, 0.35); background: #111216; will-change: transform; transition: opacity 130ms ease, filter 130ms ease; }
+.pg-shot.is-swap { opacity: 0.2; filter: blur(0.3cqw); }
+.pg-thumbs { display: flex; gap: 1cqw; margin-top: 1.3cqw; min-height: 6.1cqw; }
+.pg-thumb { width: 10.7cqw; aspect-ratio: 16 / 9; border-radius: 0.7cqw; overflow: hidden; opacity: 0.55; transition: opacity 150ms ease, transform 140ms var(--ease-out); }
+.pg-thumb[aria-pressed="true"] { opacity: 1; box-shadow: 0 0 0 0.22cqw var(--w-color); }
+.pg-thumb img { width: 100%; height: 100%; object-fit: cover; object-position: var(--pos, 50% 50%); display: block; }
+.h-play:active, .w-back:active, .pg-close:active, .pg-btn:active, .pg-thumb:active { transform: scale(0.97); }
+
+@media (hover: hover) and (pointer: fine) {
+  .stage[data-view="home"] .fold:hover .folder-front { transform: perspective(600px) rotateX(-24deg); }
+  .stage[data-view="home"] .fold:hover .folder[data-papers="3"] .folder-paper:nth-child(2) { --x: -52; --y: -10; --r: -13deg; }
+  .stage[data-view="home"] .fold:hover .folder[data-papers="3"] .folder-paper:nth-child(3) { --y: -22; }
+  .stage[data-view="home"] .fold:hover .folder[data-papers="3"] .folder-paper:nth-child(4) { --x: 52; --y: -10; --r: 13deg; }
+  .stage[data-view="home"] .fold:hover .folder[data-papers="2"] .folder-paper:nth-child(2) { --x: -33; --y: -16; --r: -10deg; }
+  .stage[data-view="home"] .fold:hover .folder[data-papers="2"] .folder-paper:nth-child(3) { --x: 33; --y: -16; --r: 10deg; }
+  .stage[data-view="home"] .fold:hover .folder[data-papers="1"] .folder-paper:nth-child(2) { --y: -20; --r: -4deg; }
+  .stage:not([data-view="home"]) .fold:not(.is-active):hover .fold-in { transform: scale(1.1); }
+  .card:hover .card-in { transform: translateY(-0.7cqw); rotate: 0deg; box-shadow: 0 0.3cqw 0.7cqw rgba(0, 0, 0, 0.12), 0 2.4cqw 4cqw rgba(0, 0, 0, 0.24); }
+  .card:hover .card-go svg { transform: translateX(0.3cqw); }
+  .w-crumbs button:hover, .pg-crumbs button:hover, .pg-thumb:hover { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fold-in, .folder-paper, .folder-front, .card-in, .pg-shot, .cards-out .card { transition: none; }
+}
+</style>
+
+<div class="page-wrap">
+  <header class="intro">
+    <div>
+      <h1>Folder worlds</h1>
+      <p>Your folders, with the Five worlds idea inside them. Click a folder, then click a project. Escape or the arrow goes back. It all runs, so try interrupting it halfway.</p>
+    </div>
+    <button type="button" class="fs-btn" id="fsBtn">Full screen</button>
+  </header>
+
+  <div class="stage-scroll">
+    <div class="stage-full" id="stageFull">
+      <div class="stage" id="stage" data-view="home">
+        <div class="home" id="home">
+          <div class="h-nav"><b>Costin Sarghiuta</b><div class="h-links"><span>Work</span><span>About</span><span>Contact</span><span>CV</span><a class="h-play" href="https://www.costinsarghiuta.com/muster/index.html" target="_blank" rel="noopener">Play Muster</a></div></div>
+          <h2 class="h-name">Costin Sarghiuta</h2>
+          <p class="h-sub">Game designer &amp; UI/UX designer, open to internships and junior roles. Every folder below is its own world. Open one.</p>
+        </div>
+        <div class="under" id="under"></div>
+        <div class="flood" id="flood"></div>
+        <div class="world" id="world">
+          <button type="button" class="w-back" id="wBack" aria-label="Back to all folders"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+          <div class="w-head">
+            <p class="w-crumbs" id="wCrumbs"><button type="button" id="wHome">Projects</button><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span id="wCrumb"></span></p>
+            <div class="w-title-clip"><h2 class="w-title" id="wTitle"></h2></div>
+            <p class="w-blurb" id="wBlurb"></p>
+          </div>
+        </div>
+        <div class="cards-out" id="cardsOut"></div>
+        <div class="cards" id="cards"></div>
+        <div class="folders" id="folders"></div>
+        <div class="page" id="page" aria-live="polite">
+          <div class="pg-bar" id="pgBar">
+            <p class="pg-crumbs"><button type="button" id="pgHome">Projects</button><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><button type="button" id="pgWorld"></button><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span id="pgCrumb"></span></p>
+            <button type="button" class="pg-close" id="pgClose" aria-label="Close project"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+          </div>
+          <div class="pg-main">
+            <div class="pg-copy" id="pgCopy">
+              <img class="pg-icon" id="pgIcon" alt="">
+              <h2 class="pg-title" id="pgTitle" tabindex="-1"></h2>
+              <p class="pg-pitch" id="pgPitch"></p>
+              <ul class="pg-facts" id="pgFacts"></ul>
+              <div class="pg-actions" id="pgActions"></div>
+            </div>
+            <div class="pg-media">
+              <img class="pg-shot" id="pgShot" alt="" draggable="false">
+              <div class="pg-thumbs" id="pgThumbs"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div><h3>The idea</h3><p>The four folders stay, and each one is now a world. Open a folder and its colour pours over the screen, its typeface takes over and the projects fly out of it as sheets. Click a sheet and it grows until it is the whole screen.</p></div>
+    <div><h3>How it moves</h3><p>The folders shrink into a sidebar. Going back runs the same path in reverse, and you can turn it around halfway. Escape goes back at once with no animation, the way your site does now.</p></div>
+    <div><h3>Kept from your site</h3><p>The folder drawing with icons peeking out, the hover fan, the four folder colours, the Finder sidebar and the breadcrumb path. The unfold-the-process paper would sit on the project screen.</p></div>
+    <div><h3>Not in this sketch</h3><p>The phone layout, About, Contact, and the pages behind the case study buttons. Play and prototype buttons open your live site or Figma in a new tab.</p></div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const clamp01 = (x) => x < 0 ? 0 : x > 1 ? 1 : x;
+  const range = (v, a, b) => clamp01((v - a) / (b - a));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const easeOut = (x) => 1 - Math.pow(1 - x, 3);
+  const easeOut5 = (x) => 1 - Math.pow(1 - x, 5);
+  const easeInOut = (x) => x < 0.5 ? 8 * x * x * x * x : 1 - Math.pow(-2 * x + 2, 4) / 2;
+  const easeBack = (x, s = 1.15) => { const y = x - 1; return 1 + (s + 1) * y * y * y + s * y * y; };
+  const ARROW = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  const OUT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg>';
+  const LIVE = 'https://www.costinsarghiuta.com';
+
+  const WORLDS = [
+    { key: 'uiux', title: 'UI/UX Design', short: 'UI/UX', color: '#ff7a6b', ink: '#2b0d09',
+      blurb: 'Research, prototypes and usability tests, from the first interview to the final Figma file.',
+      projects: [
+        { title: 'ShiftPro', icon: 'shiftpro', shot: 'shiftpro.jpg', thumbs: ['shiftpro.jpg', 'shiftpro-research.jpg', 'shiftpro-lofi.jpg', 'shiftpro-hifi.jpg'], type: 'Figma, user research',
+          line: 'A shift-swap app for Primark staff, tested with 12 people.',
+          pitch: 'At Primark the schedule is a printed sheet in a hallway. ShiftPro lets staff check their shifts anywhere, swap them and read company news.',
+          facts: [['12', 'usability testers'], ['3', 'prototype rounds'], ['Figma', 'design and prototype']],
+          cta: ['Open the prototype', 'https://www.figma.com/proto/iy2G6HL5QwJBaxSke646jH/Design-Thinking?page-id=0%3A1&node-id=304-590&scaling=scale-down&content-scaling=fixed&starting-point-node-id=304%3A590'], cta2: 'Read the process', bg: '#f4f6fb', fg: '#0e1630', pos: '0% 50%' },
+        { title: 'Calorie App', icon: 'calorie-app', shot: 'calorie.jpg', thumbs: [], type: 'Figma, gamification',
+          line: 'A calorie tracker made stickier with missions, badges and rankings.',
+          pitch: 'A prototype that turns calorie logging into a habit: a missions tab, badges, a ranking, and a watch companion for logging on the go.',
+          facts: [['Survey', 'Google Forms research'], ['Kept', 'badges and rankings'], ['Cut', 'mini-games']],
+          cta: ['Open the prototype', 'https://www.figma.com/proto/hQbNFs1uEQt65pwNjoC4nO/Untitled?page-id=0%3A1&node-id=1-2&scaling=scale-down&content-scaling=fixed&starting-point-node-id=1%3A2'], bg: '#060606', fg: '#f1f5ee' },
+        { title: 'Finance Dashboard', icon: 'finance-design', shot: 'finance.jpg', thumbs: [], type: 'Figma, dashboard UI',
+          line: 'A dark-mode finance dashboard designed in Figma.',
+          pitch: 'High-fidelity mockups of a finance tracker, with holdings charts, asset allocation graphs and custom components.',
+          facts: [['Holdings', 'detailed charts'], ['Allocation', 'asset graphs'], ['Figma', 'custom components']],
+          cta: ['See the screens', null], bg: '#0b1020', fg: '#e8ecf8' }
+      ] },
+    { key: 'web', title: 'Web Development', short: 'Web', color: '#4d8dff', ink: '#06163a',
+      blurb: 'Things I designed and then coded myself, in React, JavaScript and Python.',
+      projects: [
+        { title: 'Portfolio Website', icon: 'portfolio', shot: 'portfolio.jpg', thumbs: ['portfolio.jpg', 'portfolio-work.jpg', 'portfolio-about.jpg'], type: 'React, CSS',
+          line: 'This site, designed and coded in React.',
+          pitch: 'Reusable React components, hand-written CSS animation and the folder idea you just clicked through.',
+          facts: [['React', 'reusable components'], ['CSS', 'hand-written animation'], ['Vite', 'built for GitHub Pages']],
+          cta: ['See it on GitHub', 'https://github.com/Costizaur'], bg: '#111110', fg: '#f3efe6' },
+        { title: 'Live Finance Dashboard', icon: 'finance-live', shot: 'finance.jpg', thumbs: [], type: 'Python, Streamlit',
+          line: 'A live dashboard in Python and Streamlit, fed by a Google Sheet.',
+          pitch: 'Connects to a live Google Sheet, cleans the data and turns multi-month momentum into signals you can read at a glance.',
+          facts: [['Python', 'Streamlit and Plotly'], ['Live', 'Google Sheets data'], ['Deployed', 'on Streamlit Cloud']],
+          cta: ['Open the live app', 'https://financedashboard-lbekvafqjqn6jsvtrtgn6b.streamlit.app/'], bg: '#0e1117', fg: '#e6e9ef', scale: 0.8 }
+      ] },
+    { key: 'games', title: 'Game Design', short: 'Games', color: '#ffc53d', ink: '#20160a',
+      blurb: 'Games built around clear decisions, honest feedback and fair balance. All three play in your browser.',
+      projects: [
+        { title: 'Muster', icon: 'muster', shot: 'muster.jpg', thumbs: ['muster.jpg', 'muster-battle.jpg', 'muster-lineup.jpg', 'muster-phone.jpg'], type: 'Unity, systems design',
+          line: 'A 5-minute dice strategy duel for two players.',
+          pitch: 'Roll three dice, spend them to grow your economy and recruit an army, then line up in secret and hold the line.',
+          facts: [['5 min', 'for a full match'], ['24,000', 'bot matches for balance'], ['Unity', 'and C#']],
+          cta: ['Play Muster', LIVE + '/muster/index.html'], cta2: 'Read the case study', bg: 'linear-gradient(160deg, #70421f 0%, #4a2a14 55%, #2a170c 100%)', fg: '#fff3d6', titleColor: '#ffc53d', titleShadow: '0 0.5cqw 0 #1c0f07' },
+        { title: 'River Racer', icon: 'river-racer', shot: 'river.jpg', thumbs: ['river.jpg', 'river-lobby.jpg', 'river-controller.jpg', 'river-results.jpg'], type: 'p5.js, phone controls',
+          line: 'A racing game where your phone is the paddle.',
+          pitch: 'Scan a QR code, hold both sides to paddle, let go of one to turn, and race a friend down the river.',
+          facts: [['2', 'players, one screen'], ['2', 'buttons to learn'], ['p5.js', 'and WebRTC']],
+          cta: ['Play River Racer', LIVE + '/game2/index.html'], bg: 'linear-gradient(180deg, #0f7f93, #0a5d6d)', fg: '#f2fffd' },
+        { title: 'Duck Shoot', icon: 'duck-shoot', shot: 'duck.jpg', thumbs: ['duck.jpg', 'duck-title.jpg', 'duck-flyaway.jpg', 'duck-controller.jpg'], type: 'p5.js, motion controls',
+          line: 'A light-gun tribute played with your phone.',
+          pitch: 'Point your phone at the screen like a remote, press the big red Fire button and hit enough ducks to clear the round.',
+          facts: [['4', 'phones at once'], ['3', 'shots per duck'], ['p5.js', 'and WebRTC']],
+          cta: ['Play Duck Shoot', LIVE + '/game/index.html'], bg: '#5c94fc', fg: '#08153f' }
+      ] },
+    { key: 'apps', title: 'Apps', short: 'Apps', color: '#3ddc97', ink: '#05281a',
+      blurb: 'Native tools I built to fix everyday annoyances.',
+      projects: [
+        { title: 'Earshot', icon: 'earshot', shot: 'earshot.jpg', thumbs: ['earshot.jpg', 'earshot-how.jpg', 'earshot-menu.jpg'], type: 'Swift, Core Audio',
+          line: 'A macOS menu bar app that gives every app its own speaker.',
+          pitch: 'Chrome on the monitor speakers, everything else on the laptop, without ever changing the system output.',
+          facts: [['7 to 14 ms', 'to switch a route'], ['Swift', 'and Core Audio'], ['No driver', 'nothing to install']],
+          cta: ['Read the case study', null], bg: 'radial-gradient(90% 90% at 20% 80%, #0f3a3a 0%, #0a1517 70%)', fg: '#e6f4f1' }
+      ] }
+  ];
+  // Where the sheets land, in stage units (hundredths of the stage width)
+  const SLOTS = {
+    3: { w: 25.6, x: [13.5, 41.2, 68.9], y: [26.4, 27.8, 27], r: [-1.5, 1, -0.8] },
+    2: { w: 34, x: [13.5, 50.5], y: [25, 26.2], r: [-1.2, 0.9] },
+    1: { w: 66, x: [13.5], y: [26.6], r: [-0.6] }
+  };
+  const HOME = { x: (i) => 3.5 + i * 24.67, y: 31.6, w: 19, h: 17.3 };
+  const RAIL = { x: 3, y: (i) => 15 + i * 9.9, s: 6 / 19 };
+
+  const stage = $('#stage'), home = $('#home'), flood = $('#flood'), under = $('#under'), world = $('#world');
+  const cards = $('#cards'), cardsOut = $('#cardsOut'), foldersEl = $('#folders'), page = $('#page');
+  const shot = $('#pgShot'), pgBar = $('#pgBar'), pgThumbs = $('#pgThumbs');
+  const copyEls = $$('#pgCopy > *');
+  const headEls = [$('#wCrumbs'), $('#wTitle'), $('#wBlurb')];
+  const backBtn = $('#wBack');
+
+  // Build the four folders
+  foldersEl.innerHTML = WORLDS.map((w, i) => {
+    const n = w.projects.length;
+    const papers = w.projects.map(p => '<img class="folder-paper" src="img/icons/' + p.icon + '.png" alt="" draggable="false">').join('');
+    return '<button type="button" class="fold" data-i="' + i + '" style="--folder:' + w.color + '" aria-label="' + w.title + ', ' + n + (n === 1 ? ' project' : ' projects') + '">' +
+      '<span class="fold-in"><span class="folder" data-papers="' + n + '"><span class="folder-back"></span>' + papers + '<span class="folder-front"></span></span></span>' +
+      '<span class="fold-name">' + w.title + '</span><span class="fold-count">' + n + (n === 1 ? ' project' : ' projects') + '</span>' +
+      '<span class="fold-short" aria-hidden="true">' + w.short + '</span></button>';
+  }).join('');
+  const folds = $$('.fold', foldersEl);
+  const foldParts = folds.map(el => ({ el, name: $('.fold-name', el), count: $('.fold-count', el), short: $('.fold-short', el) }));
+
+  let unit = 1;            // one hundredth of the stage width, in px
+  let view = 'home';       // home, world or project
+  let active = -1;         // open folder
+  let origin = { x: 50, y: 30 };  // where the colour and the sheets come from, in stage units
+  let fromRail = false;
+  let cardEls = [], cardH = [];
+  let rects = null;        // the sheet and its picture at the moment a project opened
+  let lastCard = null;
+
+  // A reversible clock from 0 to 1. Turning it around mid-way just runs the same path backwards.
+  const makeTrack = (duration, onUpdate) => {
+    let value = 0, target = 0, raf = 0, last = 0, done = null;
+    const step = (now) => {
+      const dt = last ? Math.max(0, Math.min(0.05, (now - last) / 1000)) : 0;
+      last = now;
+      const dir = target > value ? 1 : -1;
+      value += dir * dt * (dir > 0 ? 1 : 1.35) / duration;
+      if ((dir > 0 && value >= target) || (dir < 0 && value <= target)) {
+        value = target; raf = 0; onUpdate(value);
+        const cb = done; done = null; if (cb) cb();
+        return;
+      }
+      onUpdate(value);
+      raf = requestAnimationFrame(step);
+    };
+    return {
+      get value() { return value; },
+      set(v) { cancelAnimationFrame(raf); raf = 0; done = null; value = target = v; onUpdate(v); },
+      to(v, cb) {
+        if (reduced) { this.set(v); if (cb) cb(); return; }
+        target = v; done = cb || null;
+        if (value === v) { const end = done; done = null; if (end) end(); return; }
+        if (!raf) { last = 0; raf = requestAnimationFrame(step); }
+      }
+    };
+  };
+  // A spring that keeps its velocity when it is given a new target
+  const makeSpring = (onUpdate) => {
+    let x = 0, v = 0, target = 0, raf = 0, last = 0, k = 160, c = 25, done = null;
+    const step = (now) => {
+      const dt = last ? Math.max(0, Math.min(0.032, (now - last) / 1000)) / 2 : 0;
+      last = now;
+      for (let i = 0; i < 2; i++) { v += (-k * (x - target) - c * v) * dt; x += v * dt; }
+      if (Math.abs(v) < 0.01 && Math.abs(x - target) < 0.001) {
+        x = target; v = 0; raf = 0; onUpdate(x);
+        const cb = done; done = null; if (cb) cb();
+        return;
+      }
+      onUpdate(x);
+      raf = requestAnimationFrame(step);
+    };
+    return {
+      get value() { return x; },
+      set(val) { cancelAnimationFrame(raf); raf = 0; done = null; x = target = val; v = 0; onUpdate(x); },
+      to(val, stiffness, ratio, cb) {
+        if (reduced) { this.set(val); if (cb) cb(); return; }
+        target = val; k = stiffness; c = 2 * Math.sqrt(stiffness) * ratio; done = cb || null;
+        if (!raf) { last = 0; raf = requestAnimationFrame(step); }
+      }
+    };
+  };
+
+  // ---- Folders: from the desk row to the sidebar ----
+  const renderW = (w) => {
+    home.style.opacity = 1 - range(w, 0, 0.4);
+    home.style.transform = 'scale(' + (1 - 0.03 * easeOut(w)) + ')';
+    foldParts.forEach((part, i) => {
+      const delay = active < 0 || i === active ? 0 : 0.05 + 0.04 * Math.abs(i - active);
+      const t = easeInOut(range(w, delay, delay + 0.8));
+      const x = lerp(HOME.x(i), RAIL.x, t), y = lerp(HOME.y, RAIL.y(i), t), s = lerp(1, RAIL.s, t);
+      part.el.style.transform = 'translate(' + (x * unit) + 'px,' + (y * unit) + 'px) scale(' + s + ')';
+      const out = 1 - range(w, 0, 0.25);
+      part.name.style.opacity = out; part.count.style.opacity = out;
+      part.short.style.opacity = range(w, 0.75, 1);
+    });
+  };
+  // ---- Colour, header and sheets coming out of the folder ----
+  const renderF = (f) => {
+    const on = f > 0;
+    flood.style.visibility = on ? 'visible' : 'hidden';
+    world.style.visibility = on ? 'visible' : 'hidden';
+    if (f >= 1) flood.style.clipPath = 'none';
+    else {
+      const ox = origin.x * unit, oy = origin.y * unit, width = stage.clientWidth, height = stage.clientHeight;
+      const far = Math.hypot(Math.max(ox, width - ox), Math.max(oy, height - oy)) * 1.03;
+      flood.style.clipPath = 'circle(' + (easeOut5(range(f, 0, 0.72)) * far) + 'px at ' + ox + 'px ' + oy + 'px)';
+    }
+    headEls.forEach((el, k) => {
+      const o = range(f, 0.32 + k * 0.08, 0.66 + k * 0.08);
+      el.style.opacity = o;
+      el.style.transform = k === 1 ? 'translateY(' + ((1 - easeOut(o)) * 105) + '%)' : 'translateY(' + ((1 - easeOut(o)) * 1.4 * unit) + 'px)';
+    });
+    const back = range(f, 0.5, 0.82);
+    backBtn.style.opacity = back;
+    backBtn.style.scale = lerp(0.7, 1, easeOut(back));
+    const n = cardEls.length;
+    if (!n) return;
+    const slot = SLOTS[n], width = slot.w * unit;
+    cardEls.forEach((el, j) => {
+      const c = range(f, 0.16 + j * 0.09, 0.76 + j * 0.09);
+      const e = easeBack(c);
+      const startX = origin.x * unit, startY = (origin.y - 1.5) * unit;
+      const endX = (slot.x[j] + slot.w / 2) * unit, endY = slot.y[j] * unit + cardH[j] / 2;
+      const cx = lerp(startX, endX, e), cy = lerp(startY, endY, e);
+      const scale = lerp(fromRail ? 0.08 : 6 / slot.w, 1, e);
+      const spin = (j - (n - 1) / 2) * 18 * (1 - easeOut(c));
+      el.style.transform = 'translate(' + (cx - width / 2) + 'px,' + (cy - cardH[j] / 2) + 'px) rotate(' + spin + 'deg) scale(' + scale + ')';
+      el.style.opacity = range(c, 0, 0.18);
+      el.style.pointerEvents = c > 0.9 ? 'auto' : 'none';
+    });
+  };
+  // ---- A sheet growing into the whole screen ----
+  const renderP = (p) => {
+    if (!rects) return;
+    const q = clamp01(p), k = 1 - q, width = stage.clientWidth;
+    const c = rects.card;
+    page.style.clipPath = q >= 1 ? 'none' : 'inset(' + (c.t * k * width) + 'px ' + (c.r * k * width) + 'px ' + (c.b * k * width) + 'px ' + (c.l * k * width) + 'px round ' + (1.4 * k * unit) + 'px)';
+    page.style.opacity = range(p, 0, 0.1);
+    shot.style.transform = 'translate(' + (rects.dx * (1 - p) * width) + 'px,' + (rects.dy * (1 - p) * width) + 'px) scale(' + lerp(rects.s, 1, p) + ')';
+    shot.style.borderRadius = lerp(0.8 / rects.s, 1.2, q) * unit + 'px';
+    copyEls.forEach((el, n) => {
+      const o = range(p, 0.4 + n * 0.07, 0.76 + n * 0.07);
+      el.style.opacity = o;
+      el.style.transform = 'translateY(' + ((1 - easeOut(o)) * 1.5 * unit) + 'px)';
+    });
+    pgBar.style.opacity = range(p, 0.5, 0.85);
+    pgThumbs.style.opacity = range(p, 0.72, 1);
+  };
+
+  const W = makeTrack(0.7, renderW);
+  const F = makeTrack(0.95, renderF);
+  const P = makeSpring(renderP);
+
+  const homeCentre = (i) => ({ x: HOME.x(i) + HOME.w / 2, y: HOME.y + HOME.h * 0.45 });
+  const railCentre = (i) => ({ x: RAIL.x + HOME.w * RAIL.s / 2, y: RAIL.y(i) + HOME.h * RAIL.s * 0.45 });
+  const markFolders = () => folds.forEach((el, i) => el.classList.toggle('is-active', i === active));
+
+  const applyWorld = (i) => {
+    const w = WORLDS[i];
+    stage.dataset.world = w.key;
+    stage.style.setProperty('--w-color', w.color);
+    stage.style.setProperty('--w-ink', w.ink);
+    $('#wCrumb').textContent = w.title;
+    $('#wTitle').textContent = w.title;
+    $('#wBlurb').textContent = w.blurb;
+  };
+  const buildCards = (i) => {
+    const list = WORLDS[i].projects, n = list.length, slot = SLOTS[n];
+    cards.innerHTML = list.map((p, j) =>
+      '<button type="button" class="card' + (n === 1 ? ' is-wide' : '') + '" data-j="' + j + '" style="--cw:' + slot.w + 'cqw;--r:' + slot.r[j] + 'deg;--pos:' + (p.pos || '50% 50%') + '" aria-label="Open ' + p.title + '">' +
+      '<span class="card-in"><img class="card-shot" src="img/' + p.shot + '" alt="" draggable="false">' +
+      '<span class="card-body"><span class="card-meta"><img class="card-icon" src="img/icons/' + p.icon + '.png" alt="" draggable="false"><span><span class="card-title">' + p.title + '</span><span class="card-type">' + p.type + '</span></span></span>' +
+      '<span class="card-line">' + p.line + '</span><span class="card-go">Open project ' + ARROW + '</span></span></span></button>').join('');
+    cardEls = $$('.card', cards);
+    cardH = cardEls.map(el => el.offsetHeight);
+  };
+  const clearWorld = () => { cards.textContent = ''; cardEls = []; active = -1; markFolders(); delete stage.dataset.world; };
+
+  const openWorld = (i, instant) => {
+    if (view === 'project') return;
+    if (view === 'world' && i === active) { closeWorld(instant); return; }
+    if (view === 'world') {
+      // Another folder from the sidebar: the old colour stays underneath while the new one pours over it
+      under.style.background = WORLDS[active].color;
+      under.style.visibility = 'visible';
+      cardsOut.innerHTML = cards.innerHTML;
+      $$('.card', cardsOut).forEach((el, j) => { el.style.transform = cardEls[j].style.transform; el.style.opacity = 1; });
+      cardsOut.classList.remove('is-leaving');
+      void cardsOut.offsetWidth;
+      cardsOut.classList.add('is-leaving');
+      setTimeout(() => { cardsOut.textContent = ''; }, 220);
+      active = i; fromRail = true; origin = railCentre(i);
+      applyWorld(i); buildCards(i); markFolders();
+      F.set(0);
+      const settle = () => { under.style.visibility = 'hidden'; };
+      if (instant) { F.set(1); settle(); } else F.to(1, settle);
+      return;
+    }
+    const resuming = i === active && F.value > 0;
+    active = i; fromRail = false; origin = homeCentre(i);
+    view = 'world'; stage.dataset.view = 'world';
+    if (!resuming) { applyWorld(i); buildCards(i); F.set(0); }
+    markFolders();
+    if (instant) { W.set(1); F.set(1); } else { W.to(1); F.to(1); }
+  };
+  const closeWorld = (instant) => {
+    if (view !== 'world') return;
+    view = 'home'; stage.dataset.view = 'home';
+    fromRail = false; origin = homeCentre(active);
+    under.style.visibility = 'hidden';
+    if (instant) { W.set(0); F.set(0); clearWorld(); return; }
+    W.to(0);
+    F.to(0, () => { if (view === 'home') clearWorld(); });
+  };
+
+  const fillPage = (p, w) => {
+    page.style.setProperty('--p-bg', p.bg);
+    page.style.setProperty('--p-fg', p.fg);
+    page.style.setProperty('--p-title', p.titleColor || 'inherit');
+    page.style.setProperty('--p-title-shadow', p.titleShadow || 'none');
+    page.style.setProperty('--pg-scale', p.scale || 1);
+    page.style.setProperty('--pos', p.pos || '50% 50%');
+    $('#pgWorld').textContent = w.title;
+    $('#pgCrumb').textContent = p.title;
+    $('#pgIcon').src = 'img/icons/' + p.icon + '.png';
+    $('#pgTitle').textContent = p.title;
+    $('#pgPitch').textContent = p.pitch;
+    $('#pgFacts').innerHTML = p.facts.map(f => '<li><b>' + f[0] + '</b>' + f[1] + '</li>').join('');
+    const main = p.cta[1]
+      ? '<a class="pg-btn" href="' + p.cta[1] + '" target="_blank" rel="noopener">' + p.cta[0] + ' ' + OUT + '</a>'
+      : '<span class="pg-btn">' + p.cta[0] + '</span>';
+    $('#pgActions').innerHTML = main + (p.cta2 ? '<span class="pg-btn ghost">' + p.cta2 + '</span>' : '');
+    shot.src = 'img/' + p.shot;
+    shot.alt = p.title + ' screenshot';
+    pgThumbs.innerHTML = p.thumbs.length > 1 ? p.thumbs.map((src, n) =>
+      '<button type="button" class="pg-thumb" data-src="' + src + '" aria-pressed="' + (n === 0) + '" aria-label="Screenshot ' + (n + 1) + '"><img src="img/' + src + '" alt="" draggable="false"></button>').join('') : '';
+  };
+  const openProject = (j, el, instant) => {
+    const w = WORLDS[active], p = w.projects[j];
+    fillPage(p, w);
+    page.classList.add('is-on');
+    shot.style.transform = 'none';
+    const s = stage.getBoundingClientRect();
+    const inner = $('.card-in', el).getBoundingClientRect();
+    const from = $('.card-shot', el).getBoundingClientRect();
+    const dock = shot.getBoundingClientRect();
+    rects = {
+      card: { l: (inner.left - s.left) / s.width, t: (inner.top - s.top) / s.width, r: (s.right - inner.right) / s.width, b: (s.bottom - inner.bottom) / s.width },
+      dx: (from.left - dock.left) / s.width, dy: (from.top - dock.top) / s.width, s: from.width / dock.width
+    };
+    lastCard = el;
+    view = 'project'; stage.dataset.view = 'project';
+    page.style.pointerEvents = 'auto';
+    if (instant) P.set(1); else { renderP(P.value); P.to(1, 150, 0.92); }
+    $('#pgTitle').focus({ preventScroll: true });
+  };
+  const closeProject = (instant) => {
+    if (view !== 'project') return;
+    view = 'world'; stage.dataset.view = 'world';
+    page.style.pointerEvents = 'none';
+    const end = () => { if (view !== 'project') { page.classList.remove('is-on'); rects = null; } };
+    if (instant) { P.set(0); end(); } else P.to(0, 230, 1, end);
+    if (lastCard) lastCard.focus({ preventScroll: true });
+  };
+
+  // ---- Wiring ----
+  folds.forEach((el, i) => el.addEventListener('click', (e) => openWorld(i, e.detail === 0)));
+  cards.addEventListener('click', (e) => {
+    const el = e.target.closest('.card');
+    if (el && view === 'world') openProject(+el.dataset.j, el, e.detail === 0);
+  });
+  $('#wBack').addEventListener('click', (e) => closeWorld(e.detail === 0));
+  $('#wHome').addEventListener('click', (e) => closeWorld(e.detail === 0));
+  $('#pgClose').addEventListener('click', (e) => closeProject(e.detail === 0));
+  $('#pgWorld').addEventListener('click', (e) => closeProject(e.detail === 0));
+  $('#pgHome').addEventListener('click', () => { closeProject(true); closeWorld(false); });
+  pgThumbs.addEventListener('click', (e) => {
+    const btn = e.target.closest('.pg-thumb');
+    if (!btn || btn.getAttribute('aria-pressed') === 'true') return;
+    $$('.pg-thumb', pgThumbs).forEach(other => other.setAttribute('aria-pressed', other === btn));
+    shot.classList.add('is-swap');
+    setTimeout(() => { shot.src = 'img/' + btn.dataset.src; shot.classList.remove('is-swap'); }, reduced ? 0 : 130);
+  });
+  // Escape goes back one level at once: keyboard actions never wait for an animation
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || document.fullscreenElement) return;
+    if (view === 'project') closeProject(true); else if (view === 'world') closeWorld(true);
+  });
+  $('#fsBtn').addEventListener('click', () => {
+    const el = $('#stageFull');
+    if (document.fullscreenElement) { document.exitFullscreen(); return; }
+    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+  });
+
+  // ---- Start, and keep everything in place when the stage changes size ----
+  let started = false;
+  new ResizeObserver(() => {
+    unit = stage.clientWidth / 100;
+    if (!unit) return;
+    cardH = cardEls.map(el => el.offsetHeight);
+    if (!started) {
+      started = true;
+      W.set(0); F.set(0);
+      // A link can open straight into a folder (#w2) or a project (#w2p0)
+      const m = /^w([0-3])(?:p([0-2]))?(?:t(\d{1,3}))?$/.exec(location.hash.slice(1));
+      if (m) {
+        openWorld(+m[1], true);
+        const el = m[2] !== undefined ? cardEls[+m[2]] : null;
+        if (el) openProject(+m[2], el, true);
+        if (m[3] !== undefined) { const t = +m[3] / 100; if (el) P.set(t); else { W.set(t); F.set(t); } }
+      }
+      return;
+    }
+    renderW(W.value); renderF(F.value); renderP(P.value);
+  }).observe(stage);
+})();
+</script>
+</body></html>

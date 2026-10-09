@@ -1,0 +1,712 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>Costin Experimental Directions</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Antonio:wght@400;500;600;700&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Funnel+Display:wght@500;600;700;800&family=Funnel+Sans:wght@400;500;600&family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Martian+Mono:wght@400;500&family=Overpass:wght@400;600;800;900&display=swap">
+<style>
+/* Layout: a quiet review page. One direction on screen at a time, each shown as two 16:10 artboards with notes underneath. */
+:root {
+  --bg: #f2f3f6;
+  --panel: #ffffff;
+  --fg: #14151a;
+  --muted: #5a5d6a;
+  --line: #d9dbe3;
+  --accent: #2a4bdb;
+  --font-display: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  --font-text: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #101116; --panel: #191b22; --fg: #ecedf2; --muted: #9a9dab; --line: #2c2f3a; --accent: #8fa6ff; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #101116; --panel: #191b22; --fg: #ecedf2; --muted: #9a9dab; --line: #2c2f3a; --accent: #8fa6ff; color-scheme: dark; }
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-text); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; touch-action: manipulation; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.page { width: min(100%, 1180px); margin-inline: auto; padding-inline: 20px; padding-block: 40px 72px; display: grid; gap: 32px; }
+.intro h1 { font-family: var(--font-display); font-stretch: 80%; font-weight: 800; font-size: clamp(2.1rem, 1.4rem + 3vw, 3.4rem); line-height: 1; letter-spacing: -0.01em; text-wrap: balance; }
+.intro p { color: var(--muted); max-width: 64ch; margin-top: 14px; }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; padding-block: 10px; background: var(--bg); }
+.tab { display: grid; gap: 2px; text-align: left; padding: 10px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); min-width: 0; flex: 1 1 200px; }
+.tab b { font-family: var(--font-display); font-stretch: 85%; font-weight: 700; font-size: 1.15rem; line-height: 1.2; }
+.tab span { color: var(--muted); font-size: 0.875rem; }
+.tab em { font-style: normal; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.tab[aria-selected="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+
+.direction { display: grid; gap: 22px; }
+@media (max-width: 700px) { .tabs { position: static; } }
+.page > *, .direction > * { min-width: 0; }
+.board-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.board-scroll { overflow-x: auto; border-radius: 16px; }
+.board { container-type: inline-size; aspect-ratio: 16 / 10; min-width: 720px; border-radius: 16px; overflow: hidden; position: relative; isolation: isolate; }
+.board button:focus-visible { outline: 0.25cqw solid currentColor; outline-offset: 0.3cqw; }
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px 28px; }
+.notes h3 { font-size: 0.8rem; font-family: var(--font-mono); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+.also { border-top: 1px solid var(--line); padding-top: 28px; display: grid; gap: 10px; }
+.also h2 { font-family: var(--font-display); font-stretch: 85%; font-weight: 700; font-size: 1.5rem; }
+.also p { color: var(--muted); max-width: 70ch; }
+
+/* ============ D: Assembly sheet ============ */
+.d-board { --y: #ffd60a; --ink: #141414; --paper: #ffffff; background: var(--y); color: var(--ink); font-family: 'Overpass', system-ui, sans-serif; display: flex; flex-direction: column; }
+.d-board ::selection { background: var(--ink); color: var(--y); }
+.d-nav { display: flex; justify-content: space-between; align-items: center; padding: 2.2cqw 3.5cqw 0; font-size: 1.2cqw; font-weight: 600; }
+.d-nav b { font-weight: 800; font-size: 1.5cqw; letter-spacing: -0.01em; }
+.d-nav span + span { margin-left: 2.6cqw; }
+.d-main { flex: 1; display: grid; grid-template-columns: 37cqw 1fr; gap: 2.5cqw; padding: 1.6cqw 3.5cqw 2.6cqw; min-height: 0; }
+.d-copy { display: flex; flex-direction: column; justify-content: center; gap: 1.5cqw; min-width: 0; }
+.d-h1 { font-weight: 900; font-size: 6.3cqw; line-height: 0.94; letter-spacing: -0.035em; }
+.d-sub { font-size: 1.38cqw; line-height: 1.45; max-width: 33cqw; }
+.d-calls { display: grid; gap: 0.3cqw; list-style: none; margin-left: -0.6cqw; }
+.d-call-btn { display: grid; grid-template-columns: 3cqw 1fr; gap: 1.1cqw; align-items: center; text-align: left; width: 100%; padding: 0.55cqw 0.6cqw; border-radius: 1.2cqw; transition: background-color 150ms ease; }
+.d-letter { width: 3cqw; height: 3cqw; border-radius: 50%; border: 0.2cqw solid var(--ink); background: var(--paper); display: grid; place-items: center; font-weight: 800; font-size: 1.4cqw; line-height: 1; padding-top: 0.2cqw; transition: background-color 150ms ease, color 150ms ease; }
+.d-call-btn[aria-pressed="true"] .d-letter { background: var(--ink); color: var(--y); }
+.d-call-btn b { display: block; font-size: 1.28cqw; font-weight: 800; line-height: 1.2; }
+.d-call-btn small { display: block; font-size: 1.12cqw; line-height: 1.35; }
+.d-actions { display: flex; gap: 1cqw; margin-top: 0.3cqw; }
+.d-btn { font-weight: 800; font-size: 1.22cqw; line-height: 1; padding: 1.1cqw 1.8cqw 0.9cqw; border-radius: 5cqw; background: var(--ink); color: var(--y); border: 0.2cqw solid var(--ink); white-space: nowrap; }
+.d-btn.line { background: transparent; color: var(--ink); }
+.d-fig { position: relative; background: var(--paper); border: 0.2cqw solid var(--ink); border-radius: 2.4cqw; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.d-fig.is-drag { cursor: grabbing; }
+.d-fig-cap { position: absolute; left: 2.2cqw; top: 1.9cqw; }
+.d-fig-cap b { display: block; font-weight: 800; font-size: 1.6cqw; line-height: 1.15; }
+.d-fig-cap small { font-size: 1.1cqw; }
+.d-stack { position: absolute; left: 13cqw; top: 26cqw; width: 26cqw; height: 13cqw; transform: rotateX(58deg) rotateZ(-38deg); transform-style: preserve-3d; pointer-events: none; }
+.d-layer { position: absolute; inset: 0; border: 0.2cqw solid var(--ink); border-radius: 0.8cqw; background: var(--paper); overflow: hidden; box-shadow: 0 1.4cqw 2.6cqw rgba(20, 20, 20, 0.2); transition: outline-color 150ms ease; outline: 0.5cqw solid transparent; }
+.d-layer.is-lit { outline-color: var(--ink); }
+.d-layer img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.d-tag { position: absolute; left: 40.25cqw; top: 30.97cqw; display: flex; align-items: center; pointer-events: none; z-index: 2; }
+.d-tag i { width: 2.4cqw; border-top: 0.2cqw solid var(--ink); }
+.d-thread { position: absolute; left: 44.05cqw; top: 30.97cqw; width: 0; border-left: 0.2cqw dashed var(--ink); pointer-events: none; }
+.d-count { position: absolute; left: 2.2cqw; bottom: 1.8cqw; display: flex; align-items: baseline; gap: 0.8cqw; }
+.d-count b { font-weight: 900; font-size: 4.4cqw; line-height: 1; letter-spacing: -0.03em; }
+.d-count span { font-size: 1.15cqw; font-weight: 600; max-width: 10cqw; line-height: 1.25; }
+.d-hint { position: absolute; right: 2.2cqw; bottom: 2cqw; display: flex; align-items: center; gap: 0.7cqw; font-size: 1.1cqw; font-weight: 600; }
+.d-hint svg { width: 1.3cqw; height: 2.4cqw; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.d-parts-head { padding: 3.2cqw 3.5cqw 0; }
+.d-parts-head h3 { font-weight: 900; font-size: 4.6cqw; line-height: 1; letter-spacing: -0.03em; }
+.d-parts-head p { font-size: 1.35cqw; margin-top: 0.8cqw; }
+.d-parts { flex: 1; display: grid; align-content: center; gap: 0.5cqw; padding: 1cqw 3.5cqw 2.4cqw; list-style: none; }
+.d-part { display: grid; grid-template-columns: 17cqw 11cqw 1fr auto; gap: 2.2cqw; align-items: center; padding: 0.6cqw 1.2cqw 0.6cqw 0; border-radius: 1.6cqw; transition: background-color 150ms ease; }
+.d-part .qty { font-weight: 900; font-size: 4cqw; line-height: 1; letter-spacing: -0.03em; text-align: right; font-variant-numeric: tabular-nums; padding-top: 0.5cqw; }
+.d-part img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border: 0.2cqw solid var(--ink); border-radius: 1cqw; background: var(--paper); display: block; transition: transform 220ms var(--ease-out); }
+.d-part b { display: block; font-weight: 800; font-size: 1.7cqw; line-height: 1.15; }
+.d-part small { display: block; font-size: 1.18cqw; line-height: 1.35; max-width: 36cqw; }
+
+/* ============ E: The cut ============ */
+.e-board { --o: #ff5a1f; --k: #050505; --w: #ffffff; background: var(--k); color: var(--w); font-family: 'Antonio', 'Arial Narrow', sans-serif; text-transform: uppercase; letter-spacing: 0.02em; display: flex; flex-direction: column; }
+.e-board ::selection { background: var(--o); color: var(--k); }
+.e-nav { display: flex; justify-content: space-between; align-items: center; padding: 2cqw 3.5cqw 0; font-size: 1.35cqw; font-weight: 600; }
+.e-nav b { background: var(--o); color: var(--k); padding: 0.3cqw 0.9cqw; font-weight: 700; }
+.e-nav span + span { margin-left: 2.4cqw; }
+.e-head { padding: 2.2cqw 3.5cqw 0; }
+.e-h1 { font-weight: 700; font-size: 7.4cqw; line-height: 0.98; letter-spacing: -0.005em; }
+.e-h1 em { font-style: normal; color: var(--o); display: block; }
+.e-role { font-size: 1.5cqw; font-weight: 500; margin-top: 0.9cqw; }
+.e-rail { position: relative; height: 14.6cqw; margin-top: 1.8cqw; background-color: var(--o); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.15' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); overflow: hidden; touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none; flex: none; }
+.e-rail.is-drag { cursor: grabbing; }
+.e-strip { position: absolute; top: 0; bottom: 0; left: 0; display: flex; align-items: center; gap: 1.4cqw; will-change: transform; }
+.e-strip::before, .e-strip::after { content: ''; position: absolute; left: -120cqw; right: -120cqw; height: 0.9cqw; background: repeating-linear-gradient(90deg, var(--k) 0 1.3cqw, transparent 1.3cqw 2.8cqw); }
+.e-strip::before { top: 0.75cqw; } .e-strip::after { bottom: 0.75cqw; }
+.e-frame { flex: none; width: 17cqw; aspect-ratio: 16 / 9; border: 0.3cqw solid var(--w); background: var(--w); position: relative; opacity: 0.62; transition: opacity 200ms ease; overflow: hidden; }
+.e-frame.is-on { opacity: 1; }
+.e-frame img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+.e-flag { position: absolute; left: 50%; top: 0; width: 2.6cqw; height: 3.5cqw; margin-left: -1.3cqw; background: var(--w); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 76%, 0 100%); z-index: 2; pointer-events: none; }
+.e-below { flex: 1; display: grid; grid-template-columns: 31cqw 1fr; gap: 3cqw; padding: 0 3.5cqw 2.2cqw; min-height: 0; }
+.e-win { background: var(--w); color: var(--k); margin-top: 2cqw; padding: 1.5cqw 1.8cqw 1.7cqw; display: flex; flex-direction: column; align-items: flex-start; gap: 0.7cqw; align-self: start; transition: opacity 140ms ease, filter 140ms ease; }
+.e-win.is-swap { opacity: 0; filter: blur(0.2cqw); }
+.e-win h3 { font-weight: 700; font-size: 3.2cqw; line-height: 1; }
+.e-win p { text-transform: none; letter-spacing: 0.01em; font-size: 1.5cqw; line-height: 1.3; font-weight: 400; }
+.e-cta { background: var(--k); color: var(--w); padding: 0.65cqw 1.5cqw; font-size: 1.4cqw; font-weight: 600; margin-top: 0.3cqw; }
+.e-bin-wrap { display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; min-width: 0; }
+.e-bin { display: flex; gap: 1.9cqw; align-items: flex-start; }
+.e-trim { width: 8.6cqw; display: flex; flex-direction: column; align-items: center; transform-origin: 50% 0; text-align: center; }
+.e-trim::before { content: ''; width: 0.12cqw; height: var(--drop, 2.6cqw); background: var(--w); }
+.e-pin { width: 0.8cqw; height: 0.8cqw; border-radius: 50%; background: var(--o); margin-bottom: -0.4cqw; position: relative; z-index: 1; }
+.e-x { width: 100%; aspect-ratio: 4 / 3; border: 0.2cqw solid var(--w); background: var(--k); position: relative; overflow: hidden; }
+.e-x::before, .e-x::after { content: ''; position: absolute; left: 50%; top: 50%; width: 140%; height: 0.28cqw; background: var(--w); transform: translate(-50%, -50%) rotate(37deg); }
+.e-x::after { transform: translate(-50%, -50%) rotate(-37deg); }
+.e-trim b { font-size: 1.22cqw; font-weight: 600; line-height: 1.15; margin-top: 0.7cqw; }
+.e-trim small { font-size: 1.02cqw; color: var(--o); line-height: 1.2; margin-top: 0.2cqw; }
+.e-bin-label { font-size: 1.3cqw; font-weight: 500; }
+@keyframes e-swing { 0% { rotate: 0deg; } 25% { rotate: 4deg; } 50% { rotate: -3deg; } 75% { rotate: 1.4deg; } 100% { rotate: 0deg; } }
+
+.e-case-head { padding: 3cqw 3.5cqw 0; }
+.e-case-head h3 { font-weight: 700; font-size: 4.8cqw; line-height: 1; }
+.e-rail.tall { height: 19.8cqw; cursor: default; }
+.e-rail.tall .e-strip { position: relative; width: 100%; height: 100%; justify-content: center; }
+.e-rail.tall .e-frame { width: 29cqw; aspect-ratio: 2 / 1; opacity: 1; }
+.e-rounds { flex: 1; display: grid; grid-template-columns: repeat(3, 29cqw); gap: 1.4cqw; justify-content: center; padding-bottom: 2cqw; min-height: 0; }
+.e-round { display: flex; flex-direction: column; align-items: center; gap: 1.1cqw; }
+.e-round .e-bin { gap: 2cqw; }
+.e-round .e-trim { width: 10.8cqw; }
+.e-round .e-trim b { font-size: 1.45cqw; }
+.e-round .e-trim small { font-size: 1.2cqw; }
+.e-round h4 { font-size: 2.3cqw; font-weight: 700; line-height: 1; margin-top: 0.4cqw; }
+.e-round h4 span { color: var(--o); margin-left: 0.6cqw; }
+.e-tape { background: var(--w); color: var(--k); font-size: 1.4cqw; font-weight: 600; padding: 0.3cqw 1cqw; }
+
+/* ============ F: Session ============ */
+.f-board { --g: #0c5c43; --w: #f2f7f3; --soft: #cfe5da; --rec: #ff5c39; --ink: #082a1f; background: var(--g); color: var(--w); font-family: 'Funnel Sans', system-ui, sans-serif; display: flex; flex-direction: column; }
+.f-board ::selection { background: var(--w); color: var(--g); }
+.f-hud { display: flex; align-items: center; justify-content: space-between; gap: 2cqw; padding: 2.2cqw 3.5cqw 0; font-size: 1.2cqw; font-weight: 500; }
+.f-id { display: flex; align-items: center; gap: 0.9cqw; font-weight: 600; font-size: 1.3cqw; }
+.f-rec { width: 1cqw; height: 1cqw; border-radius: 50%; background: var(--rec); opacity: 0.35; transition: opacity 200ms ease; }
+.f-board.is-live .f-rec { opacity: 1; }
+.f-meter { font-family: 'Martian Mono', ui-monospace, monospace; font-size: 1.1cqw; font-variant-numeric: tabular-nums; display: flex; gap: 2cqw; }
+.f-links span + span { margin-left: 2.4cqw; }
+.f-main { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 1.9cqw; padding: 0 3.5cqw; min-height: 0; }
+.f-h1 { font-family: 'Funnel Display', sans-serif; font-weight: 700; font-size: 6.8cqw; line-height: 1; letter-spacing: -0.03em; max-width: 70cqw; text-wrap: balance; }
+.f-sub { font-size: 1.45cqw; line-height: 1.5; max-width: 48cqw; color: var(--soft); }
+.f-targets { display: flex; flex-wrap: wrap; gap: 1cqw; margin-top: 0.5cqw; }
+.f-target { background: #ffffff; color: var(--ink); font-family: 'Funnel Display', sans-serif; font-weight: 600; font-size: 1.7cqw; line-height: 1; padding: 1.4cqw 2.2cqw; border-radius: 1.2cqw; transition: transform 140ms var(--ease-out), background-color 150ms ease, color 150ms ease; }
+.f-target.is-hit { background: var(--ink); color: var(--w); }
+.f-target.is-miss { transform: translateX(0.5cqw); }
+.f-again { background: transparent; color: var(--w); box-shadow: inset 0 0 0 0.15cqw var(--w); }
+.f-log { list-style: none; padding: 0 3.5cqw 2.2cqw; display: grid; gap: 0.35cqw; font-size: 1.1cqw; min-height: 6.6cqw; align-content: end; }
+.f-log li { display: grid; grid-template-columns: 6.2cqw 1fr; gap: 1cqw; color: var(--soft); transition: opacity 200ms ease, transform 200ms var(--ease-out); }
+.f-log li:last-child { color: var(--w); }
+@starting-style { .f-log li { opacity: 0; transform: translateY(0.5cqw); } }
+.f-log time { font-family: 'Martian Mono', ui-monospace, monospace; font-size: 1cqw; font-variant-numeric: tabular-nums; }
+
+.f-sum { flex: 1; display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 4cqw; padding: 3.2cqw 3.5cqw; align-items: center; min-height: 0; }
+.f-sum h3 { font-family: 'Funnel Display', sans-serif; font-weight: 700; font-size: 4.8cqw; line-height: 1; letter-spacing: -0.03em; }
+.f-sum-note { font-size: 1.3cqw; color: var(--soft); margin: 1cqw 0 2.4cqw; }
+.f-bars { display: grid; grid-template-columns: 19cqw 1fr; column-gap: 1.6cqw; row-gap: 1.4cqw; align-items: center; font-size: 1.2cqw; }
+.f-bars .lbl { grid-column: 1; line-height: 1.3; }
+.f-bar { grid-column: 2; position: relative; z-index: 1; display: flex; align-items: center; gap: 0.8cqw; font-family: 'Martian Mono', ui-monospace, monospace; font-size: 1.05cqw; font-variant-numeric: tabular-nums; }
+.f-bar i { height: 2.6cqw; width: calc(var(--t) / 24 * 100%); background: var(--w); border-radius: 0.3cqw; flex: none; transition: width 400ms var(--ease-out); }
+.f-bar b { background: var(--g); padding: 0.2cqw 0.5cqw; margin-left: -0.3cqw; font-weight: 500; }
+.f-goal { grid-column: 2; grid-row: 1 / span 3; align-self: stretch; justify-self: start; margin-left: calc(10 / 24 * 100%); border-left: 0.16cqw dashed var(--rec); position: relative; pointer-events: none; }
+.f-goal span { position: absolute; left: 0.6cqw; top: -2.2cqw; font-size: 1cqw; color: var(--rec); white-space: nowrap; font-family: 'Martian Mono', ui-monospace, monospace; }
+.f-axis { grid-column: 2; position: relative; height: 1.6cqw; border-top: 0.12cqw solid rgba(242, 247, 243, 0.4); font-family: 'Martian Mono', ui-monospace, monospace; font-size: 0.9cqw; color: var(--soft); }
+.f-axis span { position: absolute; top: 0.5cqw; left: calc(var(--t) / 24 * 100%); transform: translateX(-50%); }
+.f-axis span:first-child { transform: none; }
+.f-card { background: #ffffff; color: var(--ink); border-radius: 1.6cqw; padding: 1.4cqw; display: grid; gap: 1.1cqw; box-shadow: 0 1.4cqw 3cqw rgba(4, 30, 21, 0.35); }
+.f-card img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: 30% 50%; border-radius: 0.9cqw; display: block; }
+.f-card b { font-family: 'Funnel Display', sans-serif; font-weight: 700; font-size: 1.9cqw; line-height: 1.1; padding-inline: 0.4cqw; }
+.f-card p { font-size: 1.2cqw; line-height: 1.45; padding-inline: 0.4cqw; }
+.f-card span { background: var(--g); color: var(--w); font-family: 'Funnel Display', sans-serif; font-weight: 600; font-size: 1.3cqw; text-align: center; padding: 0.95cqw; border-radius: 0.9cqw; }
+
+/* Press feedback everywhere; hover only where there is a real pointer */
+.d-btn, .e-cta, .f-card span { transition: transform 140ms var(--ease-out); }
+.d-btn:active, .e-cta:active, .f-target:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) {
+  .d-call-btn:hover, .d-part:hover { background-color: rgba(20, 20, 20, 0.08); }
+  .d-part:hover img { transform: translateY(-0.3cqw) rotate(-1.5deg); }
+  .e-frame:hover { opacity: 1; }
+  .e-trim:hover { animation: e-swing 900ms ease-out; }
+  .f-target:hover:not(.is-hit) { background: #e3f3ea; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .e-trim:hover { animation: none; }
+  .d-part img, .f-bar i, .f-log li, .f-target, .e-win { transition: none; }
+}
+</style>
+
+<div class="page">
+  <header class="intro">
+    <h1>Three more directions, pushed further</h1>
+    <p>Round two, shaped for UI/UX product teams first. Each one is a working sketch you can drag and click. The first three are saved and still at their own link.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Design directions">
+    <button class="tab" role="tab" id="tab-session" aria-controls="session" aria-selected="true"><em>My pick</em><b>F. Session</b><span>The site runs a usability test on the visitor</span></button>
+    <button class="tab" role="tab" id="tab-sheet" aria-controls="sheet" aria-selected="false"><em>Clearest</em><b>D. Assembly sheet</b><span>Your work as an instruction manual</span></button>
+    <button class="tab" role="tab" id="tab-cut" aria-controls="cut" aria-selected="false"><em>Boldest look</em><b>E. The cut</b><span>A film strip of what you kept and what you cut</span></button>
+  </div>
+
+  <!-- ================= F: Session ================= -->
+  <section class="direction" id="session" role="tabpanel" aria-labelledby="tab-session">
+    <div>
+      <p class="board-label">First screen. The clock starts when you move. Do the task.</p>
+      <div class="board-scroll">
+        <div class="board f-board" id="fBoard">
+          <div class="f-hud">
+            <div class="f-id"><span class="f-rec" aria-hidden="true"></span>Session with Costin Sarghiuta</div>
+            <div class="f-meter"><span id="fTask">Task 1 of 3</span><span id="fClock">00:00.0</span><span id="fClicks">0 clicks</span></div>
+            <div class="f-links"><span>Work</span><span>About</span><span>Contact</span><span>CV</span></div>
+          </div>
+          <div class="f-main">
+            <h2 class="f-h1" id="fPrompt">Find a game you can play right now.</h2>
+            <p class="f-sub" id="fSub">No wrong answers. I'm Costin, a game and UI/UX designer, and this page times how fast you find things.</p>
+            <div class="f-targets" id="fTargets">
+              <button type="button" class="f-target" data-k="about">About Costin</button>
+              <button type="button" class="f-target" data-k="shiftpro">ShiftPro case study</button>
+              <button type="button" class="f-target" data-k="muster">Play Muster</button>
+              <button type="button" class="f-target" data-k="contact">Get in touch</button>
+              <button type="button" class="f-target f-again" id="fAgain" hidden>Run it again</button>
+            </div>
+          </div>
+          <ol class="f-log" id="fLog" aria-live="polite"><li><time>00:00.0</time><span>Waiting for the participant.</span></li></ol>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p class="board-label">End of the session. It fills in with your own times.</p>
+      <div class="board-scroll">
+        <div class="board f-board">
+          <div class="f-sum">
+            <div>
+              <h3>Your session</h3>
+              <p class="f-sum-note" id="fNote">Example times. Do the three tasks above and yours replace them.</p>
+              <div class="f-bars">
+                <span class="lbl" style="grid-row:1">Find a game to play</span><span class="f-bar" style="grid-row:1;--t:6.4" data-row="0"><i></i><b>6.4 s</b></span>
+                <span class="lbl" style="grid-row:2">Find proof of testing</span><span class="f-bar" style="grid-row:2;--t:9.1" data-row="1"><i></i><b>9.1 s</b></span>
+                <span class="lbl" style="grid-row:3">Find a way to reach him</span><span class="f-bar" style="grid-row:3;--t:4.8" data-row="2"><i></i><b>4.8 s</b></span>
+                <span class="f-goal" aria-hidden="true"><span>goal 10 s</span></span>
+                <span class="f-axis" style="grid-row:4"><span style="--t:0">0</span><span style="--t:5">5 s</span><span style="--t:10">10 s</span><span style="--t:15">15 s</span><span style="--t:20">20 s</span></span>
+              </div>
+            </div>
+            <div class="f-card">
+              <img src="img/shiftpro-hifi.jpg" alt="ShiftPro hi-fi prototype screens">
+              <b>ShiftPro was built the same way.</b>
+              <p>12 people, two rounds, and every change traced back to something a tester did.</p>
+              <span>ShiftPro case study</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div><h3>The idea</h3><p>You say you test things on real people, so the site tests itself on the visitor. It sets three small tasks, times them, and shows the result. A design lead gets your method by doing it.</p></div>
+      <div><h3>How it moves</h3><p>Almost nothing moves. A live clock, notes that write themselves as you click, and bars that grow to your real times. The task buttons are the real navigation, so any click still takes you somewhere.</p></div>
+      <div><h3>Honest risk</h3><p>It needs a visitor willing to play for ten seconds. The normal menu stays on top, and if the page turns out slow to use, the clock will say so in public.</p></div>
+    </div>
+  </section>
+
+  <!-- ================= D: Assembly sheet ================= -->
+  <section class="direction" id="sheet" role="tabpanel" aria-labelledby="tab-sheet" hidden>
+    <div>
+      <p class="board-label">First screen. Drag the drawing up and down, click A, B and C.</p>
+      <div class="board-scroll">
+        <div class="board d-board" id="dBoard">
+          <div class="d-nav"><b>Costin Sarghiuta</b><div><span>Work</span><span>About</span><span>Contact</span><span>CV</span></div></div>
+          <div class="d-main">
+            <div class="d-copy">
+              <h2 class="d-h1">Understood in seconds.</h2>
+              <p class="d-sub">Costin Sarghiuta, game designer &amp; UI/UX designer. This is ShiftPro pulled apart, one prototype round per layer.</p>
+              <ul class="d-calls" id="dCalls">
+                <li><button type="button" class="d-call-btn" data-i="0" aria-pressed="false"><span class="d-letter">A</span><span><b>Lo-fi, 3 testers</b><small>Clear screens. Changing a shift was hard.</small></span></button></li>
+                <li><button type="button" class="d-call-btn" data-i="1" aria-pressed="false"><span class="d-letter">B</span><span><b>Hi-fi, 9 testers</b><small>3 of 9 asked to look ahead by date.</small></span></button></li>
+                <li><button type="button" class="d-call-btn" data-i="2" aria-pressed="false"><span class="d-letter">C</span><span><b>Final prototype</b><small>Calendar view added. Text at full contrast.</small></span></button></li>
+              </ul>
+              <div class="d-actions"><span class="d-btn">Read the case study</span><span class="d-btn line">Play Muster</span></div>
+            </div>
+            <div class="d-fig" id="dFig">
+              <div class="d-fig-cap"><b>ShiftPro, pulled apart</b><small>Oldest round at the bottom</small></div>
+              <div class="d-stack">
+                <div class="d-layer"><img src="img/shiftpro-lofi.jpg" alt="Lo-fi wireframes" draggable="false"></div>
+                <div class="d-layer"><img src="img/shiftpro-hifi.jpg" alt="Hi-fi prototype" draggable="false"></div>
+                <div class="d-layer"><img src="img/shiftpro.jpg" alt="Final prototype" draggable="false"></div>
+              </div>
+              <span class="d-thread" id="dThread" aria-hidden="true"></span>
+              <span class="d-tag" aria-hidden="true"><i></i><span class="d-letter">A</span></span>
+              <span class="d-tag" aria-hidden="true"><i></i><span class="d-letter">B</span></span>
+              <span class="d-tag" aria-hidden="true"><i></i><span class="d-letter">C</span></span>
+              <div class="d-count"><b>12×</b><span>testers across two rounds</span></div>
+              <div class="d-hint"><svg viewBox="0 0 12 22" aria-hidden="true"><path d="M6 2v18M2 6l4-4 4 4M2 16l4 4 4-4"/></svg>Drag to pull apart</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p class="board-label">Work section. A parts list where every quantity is a real number.</p>
+      <div class="board-scroll">
+        <div class="board d-board">
+          <div class="d-parts-head"><h3>Parts list</h3><p>Everything in the box, with the number that matters for each.</p></div>
+          <ul class="d-parts">
+            <li class="d-part"><span class="qty">12×</span><img src="img/shiftpro.jpg" alt="ShiftPro"><span><b>ShiftPro</b><small>people tested this shift-swap app over two prototype rounds</small></span><span class="d-btn">Read</span></li>
+            <li class="d-part"><span class="qty">24,000×</span><img src="img/muster.jpg" alt="Muster"><span><b>Muster</b><small>bot matches simulated to balance a 5-minute dice duel</small></span><span class="d-btn">Play</span></li>
+            <li class="d-part"><span class="qty">1×</span><img src="img/earshot.jpg" alt="Earshot"><span><b>Earshot</b><small>speaker per app, set from the macOS menu bar</small></span><span class="d-btn">Read</span></li>
+            <li class="d-part"><span class="qty">2×</span><img src="img/river.jpg" alt="River Racer"><span><b>River Racer</b><small>phones as paddles, joined with one QR scan</small></span><span class="d-btn">Play</span></li>
+            <li class="d-part"><span class="qty">4×</span><img src="img/duck.jpg" alt="Duck Shoot"><span><b>Duck Shoot</b><small>phones at once, each one a motion-aimed light gun</small></span><span class="d-btn">Play</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div><h3>The idea</h3><p>Your line is that people should understand your work in seconds. Instruction manuals are the format built for that, so the site becomes one: exploded drawings made from your real prototype rounds, lettered callouts and a parts list.</p></div>
+      <div><h3>How it moves</h3><p>You pull drawings apart by hand and they spring back with the speed you let go at. Callouts you have opened stay ticked. One dashed line runs through every figure on the page.</p></div>
+      <div><h3>Honest risk</h3><p>The format is at its best with line drawings, and yours would have to be drawn. Without them it leans on screenshots, which is less charming than a real manual.</p></div>
+    </div>
+  </section>
+
+  <!-- ================= E: The cut ================= -->
+  <section class="direction" id="cut" role="tabpanel" aria-labelledby="tab-cut" hidden>
+    <div>
+      <p class="board-label">First screen. Drag or flick the orange rail. It settles on a frame.</p>
+      <div class="board-scroll">
+        <div class="board e-board" id="eBoard">
+          <div class="e-nav"><b>Costin Sarghiuta</b><div><span>Work</span><span>About</span><span>Contact</span><span>CV</span></div></div>
+          <div class="e-head">
+            <h2 class="e-h1">Costin Sarghiuta<em>cuts what tests badly.</em></h2>
+            <p class="e-role">Game designer &amp; UI/UX designer</p>
+          </div>
+          <div class="e-rail" id="eRail">
+            <span class="e-flag" aria-hidden="true"></span>
+            <div class="e-strip" id="eStrip">
+              <button type="button" class="e-frame" data-k="earshot"><img src="img/earshot.jpg" alt="Earshot" draggable="false"></button>
+              <button type="button" class="e-frame" data-k="shiftpro"><img src="img/shiftpro.jpg" alt="ShiftPro" draggable="false"></button>
+              <button type="button" class="e-frame" data-k="muster"><img src="img/muster.jpg" alt="Muster" draggable="false"></button>
+              <button type="button" class="e-frame" data-k="river"><img src="img/river.jpg" alt="River Racer" draggable="false"></button>
+              <button type="button" class="e-frame" data-k="duck"><img src="img/duck.jpg" alt="Duck Shoot" draggable="false"></button>
+            </div>
+          </div>
+          <div class="e-below">
+            <div class="e-win" id="eWin" aria-live="polite">
+              <h3 id="eTitle">ShiftPro</h3>
+              <p id="ePitch">Shifts, swaps and company news in one app. Three prototype rounds, twelve testers.</p>
+              <span class="e-cta" id="eCta">Read the case study</span>
+            </div>
+            <div class="e-bin-wrap">
+              <div class="e-bin">
+                <div class="e-trim" style="--drop:2cqw"><span class="e-pin"></span><span class="e-x"></span><b>One Swap button</b><small>ShiftPro</small></div>
+                <div class="e-trim" style="--drop:4.2cqw"><span class="e-pin"></span><span class="e-x"></span><b>Mini-games</b><small>Calorie App</small></div>
+                <div class="e-trim" style="--drop:2.8cqw"><span class="e-pin"></span><span class="e-x"></span><b>Faded grey text</b><small>ShiftPro</small></div>
+                <div class="e-trim" style="--drop:4.8cqw"><span class="e-pin"></span><span class="e-x"></span><b>Go elite and win</b><small>Muster</small></div>
+                <div class="e-trim" style="--drop:3.2cqw"><span class="e-pin"></span><span class="e-x"></span><b>Hoarding dice</b><small>Muster</small></div>
+              </div>
+              <p class="e-bin-label">On the pins: five things testing cut</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p class="board-label">A case study. Each round is a frame, and what it cut hangs underneath.</p>
+      <div class="board-scroll">
+        <div class="board e-board">
+          <div class="e-case-head"><h3>ShiftPro: three rounds, twelve testers</h3></div>
+          <div class="e-rail tall">
+            <div class="e-strip">
+              <span class="e-frame"><img src="img/shiftpro-lofi.jpg" alt="Lo-fi wireframes"></span>
+              <span class="e-frame"><img src="img/shiftpro-hifi.jpg" alt="Hi-fi prototype"></span>
+              <span class="e-frame"><img src="img/shiftpro.jpg" alt="Final prototype"></span>
+            </div>
+          </div>
+          <div class="e-rounds">
+            <div class="e-round">
+              <div class="e-bin">
+                <div class="e-trim" style="--drop:2.2cqw"><span class="e-pin"></span><span class="e-x"></span><b>One long shift list</b><small>Now grouped by day</small></div>
+                <div class="e-trim" style="--drop:3.6cqw"><span class="e-pin"></span><span class="e-x"></span><b>All-grey screens</b><small>Now colour-coded</small></div>
+              </div>
+              <h4>Lo-fi<span>3 testers</span></h4>
+              <span class="e-tape">Kept: the clear screens</span>
+            </div>
+            <div class="e-round">
+              <div class="e-bin">
+                <div class="e-trim" style="--drop:3.4cqw"><span class="e-pin"></span><span class="e-x"></span><b>One Swap button</b><small>Now Request and Pick Up</small></div>
+                <div class="e-trim" style="--drop:2cqw"><span class="e-pin"></span><span class="e-x"></span><b>This week only</b><small>Now a calendar view</small></div>
+              </div>
+              <h4>Hi-fi<span>9 testers</span></h4>
+              <span class="e-tape">Kept: the simple, familiar layout</span>
+            </div>
+            <div class="e-round">
+              <div class="e-bin">
+                <div class="e-trim" style="--drop:2.6cqw"><span class="e-pin"></span><span class="e-x"></span><b>Faded grey text</b><small>Now full contrast</small></div>
+                <div class="e-trim" style="--drop:4cqw"><span class="e-pin"></span><span class="e-x"></span><b>Profile in the tab bar</b><small>Now at the top</small></div>
+              </div>
+              <h4>Final<span>clickable prototype</span></h4>
+              <span class="e-tape">Shipped as a clickable prototype</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div><h3>The idea</h3><p>A film editor's bench. Your projects are frames on an orange strip, and everything testing made you cut still hangs on pins below it. Most portfolios only show what shipped. This one shows the cuts.</p></div>
+      <div><h3>How it moves</h3><p>The rail scrubs under your hand, carries on when you flick it and settles on a frame, never between two. Trims swing when you touch them. One typeface, two colours, nothing else.</p></div>
+      <div><h3>Honest risk</h3><p>Black and orange with all-caps type is loud, and the film idea comes from outside your own work. It needs a real list of cuts for every project, and three of them do not have one yet.</p></div>
+    </div>
+  </section>
+
+  <section class="also">
+    <h2>Also on the table</h2>
+    <p>One more idea held its ground but is not sketched here: the whole site as a four-shade handheld game screen, four greens on an 8 by 8 pixel grid with a d-pad to move around. I held it back because your screenshots lose their colour in it. Say the word and I will sketch it.</p>
+  </section>
+</div>
+
+<script>
+(() => {
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // A small spring: starts from the current value, takes the release velocity, can be stopped mid-flight.
+  const spring = ({ from, to, velocity = 0, stiffness = 190, ratio = 1, precision = 0.5, onUpdate, onDone }) => {
+    if (reduced) { onUpdate(to); if (onDone) onDone(); return { stop() {} }; }
+    const damping = 2 * Math.sqrt(stiffness) * ratio;
+    let x = from, v = velocity, last = performance.now(), raf = 0;
+    const step = (now) => {
+      const dt = Math.min(0.032, (now - last) / 1000) / 2;
+      last = now;
+      for (let i = 0; i < 2; i++) { v += (-stiffness * (x - to) - damping * v) * dt; x += v * dt; }
+      if (Math.abs(v) < precision * 10 && Math.abs(x - to) < precision) { onUpdate(to); if (onDone) onDone(); return; }
+      onUpdate(x);
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return { stop() { cancelAnimationFrame(raf); } };
+  };
+  // Where a flick would come to rest, the same way scroll deceleration is projected.
+  const project = (velocity, rate = 0.997) => (velocity / 1000) * rate / (1 - rate);
+  const releaseVelocity = (history) => {
+    const lastPoint = history[history.length - 1];
+    const first = history.find(p => lastPoint.t - p.t < 100) || lastPoint;
+    const dt = (lastPoint.t - first.t) / 1000;
+    return dt > 0 ? (lastPoint.v - first.v) / dt : 0;
+  };
+
+  // ---- Direction tabs ----
+  const tabs = $$('.tab');
+  const show = (id, push) => {
+    tabs.forEach(tab => {
+      const on = tab.getAttribute('aria-controls') === id;
+      tab.setAttribute('aria-selected', on);
+      document.getElementById(tab.getAttribute('aria-controls')).hidden = !on;
+    });
+    if (push) { try { history.replaceState(null, '', '#' + id); } catch (e) { /* not allowed here */ } }
+  };
+  tabs.forEach(tab => tab.addEventListener('click', () => show(tab.getAttribute('aria-controls'), true)));
+  if (['session', 'sheet', 'cut'].includes(location.hash.slice(1))) show(location.hash.slice(1), false);
+
+  // ---- D: the exploded stack ----
+  (() => {
+    const board = $('#dBoard'), fig = $('#dFig'), thread = $('#dThread');
+    const layers = $$('.d-layer', fig), tags = $$('.d-tag', fig), calls = $$('.d-call-btn');
+    const MIN = 3.7, MAX = 8.6, RISE = 0.848;
+    let g = 1, unit = 0, anim = null, drag = null;
+    const render = () => {
+      const gap = (MIN + (MAX - MIN) * g) * unit;
+      layers.forEach((layer, i) => { layer.style.transform = 'translateZ(' + (i * gap) + 'px)'; });
+      tags.forEach((tag, i) => { tag.style.transform = 'translateY(' + (-i * gap * RISE) + 'px) translateY(-50%)'; });
+      thread.style.height = (2 * gap * RISE) + 'px';
+      thread.style.transform = 'translateY(' + (-2 * gap * RISE) + 'px)';
+    };
+    new ResizeObserver(() => { unit = board.clientWidth / 100; render(); }).observe(board);
+    const travel = () => (MAX - MIN) * unit * 2 * RISE;
+    const band = (value) => {
+      if (value > 1) return 1 + (value - 1) * 0.55 / (1 + (value - 1) * 1.6);
+      if (value < 0) return value * 0.55 / (1 - value * 1.6);
+      return value;
+    };
+    fig.addEventListener('pointerdown', (e) => {
+      if (e.button || drag) return;
+      fig.setPointerCapture(e.pointerId);
+      if (anim) anim.stop();
+      drag = { id: e.pointerId, y: e.clientY, g0: g, history: [{ t: e.timeStamp, v: g }] };
+      fig.classList.add('is-drag');
+    });
+    fig.addEventListener('pointermove', (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      g = band(drag.g0 - (e.clientY - drag.y) / travel());
+      drag.history.push({ t: e.timeStamp, v: g });
+      if (drag.history.length > 8) drag.history.shift();
+      render();
+    });
+    const release = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const velocity = releaseVelocity(drag.history);
+      drag = null;
+      fig.classList.remove('is-drag');
+      const target = g + project(velocity, 0.99) > 0.5 ? 1 : 0;
+      anim = spring({ from: g, to: target, velocity, stiffness: 210, ratio: 0.8, precision: 0.001, onUpdate: (value) => { g = value; render(); } });
+    };
+    fig.addEventListener('pointerup', release);
+    fig.addEventListener('pointercancel', release);
+    calls.forEach(btn => {
+      const layer = layers[+btn.dataset.i];
+      const lit = (on) => layer.classList.toggle('is-lit', on);
+      btn.addEventListener('pointerenter', () => lit(true));
+      btn.addEventListener('pointerleave', () => lit(false));
+      btn.addEventListener('focus', () => lit(true));
+      btn.addEventListener('blur', () => lit(false));
+      btn.addEventListener('click', () => btn.setAttribute('aria-pressed', btn.getAttribute('aria-pressed') !== 'true'));
+    });
+  })();
+
+  // ---- E: the select rail ----
+  (() => {
+    const INFO = {
+      earshot: ['Earshot', "A macOS menu bar app that sends each app's sound to its own speaker.", 'Read the case study'],
+      shiftpro: ['ShiftPro', 'Shifts, swaps and company news in one app. Three prototype rounds, twelve testers.', 'Read the case study'],
+      muster: ['Muster', 'A 5-minute strategy duel. Roll three dice, build an army, hold the line.', 'Play Muster'],
+      river: ['River Racer', 'Your phone is the paddle. Scan a code and race a friend down the river.', 'Play River Racer'],
+      duck: ['Duck Shoot', 'A light-gun tribute. Point your phone at the screen and fire.', 'Play Duck Shoot']
+    };
+    const rail = $('#eRail'), strip = $('#eStrip'), win = $('#eWin');
+    const frames = $$('.e-frame', strip);
+    let x = 0, index = 1, anim = null, drag = null, targets = [], swap = 0;
+    const setX = (value) => { x = value; strip.style.transform = 'translate3d(' + value + 'px, 0, 0)'; };
+    const measure = () => {
+      const gate = rail.clientWidth / 2;
+      targets = frames.map(frame => gate - (frame.offsetLeft + frame.offsetWidth / 2));
+      if (!drag) { if (anim) anim.stop(); setX(targets[index] || 0); }
+    };
+    const select = (next) => {
+      if (next === index) return;
+      index = next;
+      frames.forEach((frame, i) => frame.classList.toggle('is-on', i === index));
+      const [title, pitch, cta] = INFO[frames[index].dataset.k];
+      win.classList.add('is-swap');
+      clearTimeout(swap);
+      swap = setTimeout(() => {
+        $('#eTitle').textContent = title; $('#ePitch').textContent = pitch; $('#eCta').textContent = cta;
+        win.classList.remove('is-swap');
+      }, reduced ? 0 : 140);
+    };
+    const nearest = (value) => targets.reduce((best, target, i) => Math.abs(target - value) < Math.abs(targets[best] - value) ? i : best, 0);
+    const go = (next, velocity = 0) => {
+      select(next);
+      if (anim) anim.stop();
+      anim = spring({ from: x, to: targets[next], velocity, stiffness: 200, ratio: 0.85, precision: 0.3, onUpdate: setX });
+    };
+    frames[index].classList.add('is-on');
+    new ResizeObserver(measure).observe(rail);
+
+    rail.addEventListener('pointerdown', (e) => {
+      if (e.button || drag) return;
+      rail.setPointerCapture(e.pointerId);
+      if (anim) anim.stop();
+      drag = { id: e.pointerId, start: e.clientX, x0: x, moved: false, history: [{ t: e.timeStamp, v: x }] };
+    });
+    rail.addEventListener('pointermove', (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const dx = e.clientX - drag.start;
+      if (!drag.moved && Math.abs(dx) < 8) return;
+      if (!drag.moved) { drag.moved = true; rail.classList.add('is-drag'); }
+      const max = targets[0], min = targets[targets.length - 1], width = rail.clientWidth;
+      let next = drag.x0 + dx;
+      if (next > max) next = max + (next - max) * width * 0.55 / (width + 0.55 * (next - max));
+      if (next < min) next = min - (min - next) * width * 0.55 / (width + 0.55 * (min - next));
+      setX(next);
+      drag.history.push({ t: e.timeStamp, v: next });
+      if (drag.history.length > 8) drag.history.shift();
+    });
+    const release = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const done = drag;
+      drag = null;
+      rail.classList.remove('is-drag');
+      if (!done.moved) {
+        const hit = document.elementFromPoint(e.clientX, e.clientY);
+        const frame = hit && hit.closest ? hit.closest('.e-frame') : null;
+        if (frame && strip.contains(frame)) go(frames.indexOf(frame));
+        return;
+      }
+      const velocity = releaseVelocity(done.history);
+      go(nearest(x + project(velocity)), velocity);
+    };
+    rail.addEventListener('pointerup', release);
+    rail.addEventListener('pointercancel', release);
+    // Keyboard: a focused frame moves to the gate at once, with no travel
+    frames.forEach((frame, i) => frame.addEventListener('click', (e) => {
+      if (e.detail !== 0) return;
+      select(i);
+      if (anim) anim.stop();
+      setX(targets[i]);
+    }));
+  })();
+
+  // ---- F: the timed session ----
+  (() => {
+    const TASKS = [
+      { prompt: 'Find a game you can play right now.', sub: "No wrong answers. I'm Costin, a game and UI/UX designer, and this page times how fast you find things.", key: 'muster' },
+      { prompt: 'Find proof that he tests with real people.', sub: 'Good. Two to go.', key: 'shiftpro' },
+      { prompt: 'Find a way to reach him.', sub: 'Last one.', key: 'contact' }
+    ];
+    const board = $('#fBoard'), log = $('#fLog'), again = $('#fAgain');
+    const targets = $$('.f-target[data-k]');
+    const bars = $$('.f-bar[data-row]');
+    let started = 0, taskStart = 0, task = 0, clicks = 0, running = false, raf = 0, hasReal = false;
+    const stamp = (ms) => {
+      const total = Math.max(0, ms) / 1000;
+      const minutes = String(Math.floor(total / 60)).padStart(2, '0');
+      return minutes + ':' + (total % 60).toFixed(1).padStart(4, '0');
+    };
+    const note = (ms, text) => {
+      const item = document.createElement('li');
+      const time = document.createElement('time');
+      const span = document.createElement('span');
+      time.textContent = stamp(ms); span.textContent = text;
+      item.append(time, span);
+      log.append(item);
+      while (log.children.length > 3) log.firstElementChild.remove();
+    };
+    const tick = () => {
+      $('#fClock').textContent = stamp(performance.now() - started);
+      if (running) raf = requestAnimationFrame(tick);
+    };
+    const setTask = () => {
+      $('#fTask').textContent = 'Task ' + (task + 1) + ' of 3';
+      $('#fPrompt').textContent = TASKS[task].prompt;
+      $('#fSub').textContent = TASKS[task].sub;
+    };
+    const start = () => {
+      if (running || task >= TASKS.length) return;
+      running = true;
+      started = taskStart = performance.now();
+      board.classList.add('is-live');
+      log.textContent = '';
+      note(0, 'Session started.');
+      tick();
+    };
+    board.addEventListener('pointermove', start, { passive: true });
+    board.addEventListener('focusin', start);
+    const record = (row, seconds) => {
+      if (!hasReal) {
+        hasReal = true;
+        $('#fNote').textContent = 'Your times so far.';
+        bars.forEach(bar => { bar.style.setProperty('--t', 0); bar.lastElementChild.textContent = 'not done yet'; });
+      }
+      bars[row].style.setProperty('--t', Math.min(seconds, 20));
+      bars[row].lastElementChild.textContent = seconds > 20 ? '20+ s' : seconds.toFixed(1) + ' s';
+    };
+    targets.forEach(btn => btn.addEventListener('click', () => {
+      if (task >= TASKS.length) return;
+      start();
+      const now = performance.now();
+      clicks += 1;
+      $('#fClicks').textContent = clicks + (clicks === 1 ? ' click' : ' clicks');
+      if (btn.dataset.k !== TASKS[task].key) {
+        note(now - started, 'Clicked ' + btn.textContent + '. That is not this task.');
+        btn.classList.add('is-miss');
+        setTimeout(() => btn.classList.remove('is-miss'), 150);
+        return;
+      }
+      const seconds = (now - taskStart) / 1000;
+      btn.classList.add('is-hit');
+      note(now - started, 'Clicked ' + btn.textContent + '. Task ' + (task + 1) + ' done in ' + seconds.toFixed(1) + ' s.');
+      record(task, seconds);
+      task += 1;
+      taskStart = now;
+      if (task < TASKS.length) { setTask(); return; }
+      running = false;
+      cancelAnimationFrame(raf);
+      board.classList.remove('is-live');
+      const total = ((now - started) / 1000).toFixed(1);
+      $('#fTask').textContent = 'Done';
+      $('#fPrompt').textContent = 'Done. Three tasks in ' + total + ' seconds.';
+      $('#fSub').textContent = 'On the real site each of those buttons takes you straight there. The clock is only proof that the page is easy to read.';
+      $('#fNote').textContent = 'Your times, ' + clicks + ' clicks in total.';
+      again.hidden = false;
+    }));
+    again.addEventListener('click', () => {
+      task = 0; clicks = 0; running = false;
+      cancelAnimationFrame(raf);
+      targets.forEach(btn => btn.classList.remove('is-hit'));
+      again.hidden = true;
+      $('#fClock').textContent = '00:00.0';
+      $('#fClicks').textContent = '0 clicks';
+      setTask();
+      log.textContent = '';
+      note(0, 'Waiting for the participant.');
+    });
+  })();
+})();
+</script>
+</body></html>

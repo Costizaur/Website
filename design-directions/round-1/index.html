@@ -1,0 +1,636 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>Costin Portfolio Directions</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Baloo+2:wght@700;800&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Caveat:wght@500;700&family=Geist:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&family=Lilita+One&family=Press+Start+2P&display=swap">
+<style>
+/* Layout: a quiet review page. One direction on screen at a time, each shown as two 16:10 artboards with notes underneath. */
+:root {
+  --bg: #f2f3f6;
+  --panel: #ffffff;
+  --fg: #14151a;
+  --muted: #5a5d6a;
+  --line: #d9dbe3;
+  --accent: #2a4bdb;
+  --accent-ink: #ffffff;
+  --font-display: 'Bricolage Grotesque', 'Arial Narrow', sans-serif;
+  --font-text: 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101116; --panel: #191b22; --fg: #ecedf2; --muted: #9a9dab; --line: #2c2f3a;
+    --accent: #8fa6ff; --accent-ink: #0d1024; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101116; --panel: #191b22; --fg: #ecedf2; --muted: #9a9dab; --line: #2c2f3a;
+  --accent: #8fa6ff; --accent-ink: #0d1024; color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-text); font-size: 16px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.page { width: min(100%, 1180px); margin-inline: auto; padding-inline: 20px; padding-block: 40px 72px; display: grid; gap: 32px; }
+
+.intro h1 { font-family: var(--font-display); font-stretch: 80%; font-weight: 800; font-size: clamp(2.1rem, 1.4rem + 3vw, 3.4rem); line-height: 1; letter-spacing: -0.01em; text-wrap: balance; }
+.intro p { color: var(--muted); max-width: 62ch; margin-top: 14px; }
+
+/* Direction switcher */
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; padding-block: 10px; background: var(--bg); }
+.tab { display: grid; gap: 2px; text-align: left; padding: 10px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); min-width: 0; flex: 1 1 200px; }
+.tab b { font-family: var(--font-display); font-stretch: 85%; font-weight: 700; font-size: 1.15rem; line-height: 1.2; }
+.tab span { color: var(--muted); font-size: 0.875rem; }
+.tab em { font-style: normal; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.tab[aria-selected="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+
+.direction { display: grid; gap: 22px; }
+@media (max-width: 700px) { .tabs { position: static; } }
+.page > *, .direction > * { min-width: 0; }
+.board-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+.board-scroll { overflow-x: auto; border-radius: 16px; }
+.board { container-type: inline-size; aspect-ratio: 16 / 10; min-width: 720px; border-radius: 16px; overflow: hidden; position: relative; isolation: isolate; }
+
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px 28px; }
+.notes h3 { font-size: 0.8rem; font-family: var(--font-mono); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+.notes p { color: var(--fg); }
+
+.same { border-top: 1px solid var(--line); padding-top: 28px; display: grid; gap: 14px; }
+.same h2 { font-family: var(--font-display); font-stretch: 85%; font-weight: 700; font-size: 1.5rem; }
+.same ul { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px 28px; color: var(--muted); }
+.same li { padding-left: 16px; position: relative; }
+.same li::before { content: ''; position: absolute; left: 0; top: 0.65em; width: 7px; height: 7px; border-radius: 2px; background: var(--accent); }
+
+/* ============ B: Press Play (the site inside its own editor) ============ */
+.e-board { --chrome: #f3f4f7; --chrome-2: #e4e7ee; --e-line: #cfd3dc; --e-ink: #16171c; --e-muted: #626674; --e-soft: #3a3d49; --sel: #2f6bff;
+  background: var(--chrome); color: var(--e-ink); font-family: 'Geist', system-ui, sans-serif; display: flex; flex-direction: column; transition: background 0.5s ease, color 0.5s ease; }
+.e-board.is-playing { --chrome: #0d0e13; --chrome-2: #1b1d26; --e-line: #262a36; --e-ink: #eef0f6; --e-muted: #9a9fb0; --e-soft: #c5c9d6; }
+.e-die { width: 2.2cqw; height: 2.2cqw; border-radius: 0.55cqw; background: #ffc53d; display: grid; grid-template-columns: repeat(3, 1fr); padding: 0.32cqw; flex: none; }
+.e-die i { width: 0.4cqw; height: 0.4cqw; border-radius: 50%; background: #1a1405; place-self: center; }
+.e-die i:nth-child(1) { grid-area: 1 / 1; } .e-die i:nth-child(2) { grid-area: 2 / 2; } .e-die i:nth-child(3) { grid-area: 3 / 3; }
+
+.e-bar { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 5.4cqw; padding: 0 1.6cqw; border-bottom: 0.12cqw solid var(--e-line); flex: none; }
+.e-brand { display: flex; align-items: center; gap: 0.8cqw; font-weight: 600; font-size: 1.25cqw; }
+.e-transport { display: flex; align-items: center; gap: 1.2cqw; }
+.e-mode { font-family: 'JetBrains Mono', monospace; font-size: 0.9cqw; letter-spacing: 0.08em; text-transform: uppercase; color: var(--e-muted); min-width: 6.4cqw; text-align: right; }
+.e-play { display: flex; align-items: center; gap: 0.8cqw; background: var(--sel); color: #ffffff; font-weight: 700; font-size: 1.2cqw; padding: 0.75cqw 1.7cqw 0.75cqw 1.3cqw; border-radius: 0.8cqw; white-space: nowrap; transition: transform 0.12s, background 0.3s, color 0.3s; }
+.e-play:active { transform: scale(0.97); }
+.e-play i { width: 0; height: 0; border-left: 0.95cqw solid currentColor; border-top: 0.6cqw solid transparent; border-bottom: 0.6cqw solid transparent; }
+.e-board.is-playing .e-play { background: #eef0f6; color: #0d0e13; }
+.e-board.is-playing .e-play i { width: 1cqw; height: 1cqw; border: 0; background: currentColor; border-radius: 0.15cqw; }
+.e-links { justify-self: end; display: flex; gap: 2.2cqw; font-size: 1.15cqw; font-weight: 500; }
+
+.e-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 15.5cqw 1fr 21.5cqw; grid-template-rows: 1fr 9.6cqw; transition: grid-template-columns 0.65s cubic-bezier(0.3, 0.8, 0.2, 1), grid-template-rows 0.65s cubic-bezier(0.3, 0.8, 0.2, 1); }
+.e-board.is-playing .e-body { grid-template-columns: 0cqw 1fr 0cqw; grid-template-rows: 1fr 0cqw; }
+.e-panel { min-width: 0; min-height: 0; overflow: hidden; }
+.e-tree { grid-column: 1; grid-row: 1 / 3; border-right: 0.12cqw solid var(--e-line); }
+.e-console { grid-column: 2; grid-row: 2; border-top: 0.12cqw solid var(--e-line); }
+.e-insp { grid-column: 3; grid-row: 1 / 3; border-left: 0.12cqw solid var(--e-line); }
+.e-head { font-family: 'JetBrains Mono', monospace; font-size: 0.9cqw; letter-spacing: 0.08em; text-transform: uppercase; color: var(--e-muted); padding: 1cqw 1.2cqw 0.7cqw; }
+
+.e-tree-in { width: 15.5cqw; }
+.e-group { font-size: 1cqw; font-weight: 600; color: var(--e-muted); padding: 0.7cqw 1.2cqw 0.25cqw 2.4cqw; position: relative; }
+.e-group::before { content: ''; position: absolute; left: 1.25cqw; top: 1.15cqw; border-top: 0.5cqw solid currentColor; border-left: 0.35cqw solid transparent; border-right: 0.35cqw solid transparent; }
+.e-node { display: flex; align-items: center; gap: 0.7cqw; width: calc(100% - 1cqw); margin: 0.1cqw 0.5cqw; padding: 0.45cqw 0.7cqw 0.45cqw 2cqw; border-radius: 0.6cqw; font-size: 1.12cqw; font-weight: 500; text-align: left; color: var(--e-ink); }
+.e-node.root { padding-left: 0.7cqw; font-weight: 600; }
+.e-node img { width: 1.9cqw; height: 1.9cqw; border-radius: 0.4cqw; object-fit: cover; flex: none; }
+.e-node .e-die { width: 1.9cqw; height: 1.9cqw; padding: 0.28cqw; border-radius: 0.45cqw; }
+.e-node .e-die i { width: 0.34cqw; height: 0.34cqw; }
+.e-node[aria-pressed="true"] { background: var(--sel); color: #ffffff; }
+@media (hover: hover) { .e-node:not([aria-pressed="true"]):hover { background: var(--chrome-2); } }
+
+/* Scene view: a grid floor in perspective, with the projects standing on it */
+.e-view { grid-column: 2; grid-row: 1; position: relative; overflow: hidden; background: linear-gradient(#f8f9fc 0 47%, #e3e7f0 47% 100%); }
+.e-board.is-playing .e-view { background: #0d0e13; }
+.e-floor { position: absolute; left: -10%; right: -10%; top: 47%; height: 40cqw; transform-origin: 50% 0; transform: perspective(60cqw) rotateX(72deg); pointer-events: none;
+  background-image: linear-gradient(rgba(47, 107, 255, 0.26) 0.14cqw, transparent 0.14cqw), linear-gradient(90deg, rgba(47, 107, 255, 0.26) 0.14cqw, transparent 0.14cqw); background-size: 4cqw 4cqw;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 22%); mask-image: linear-gradient(to bottom, transparent 0, #000 22%); transition: opacity 0.4s ease; }
+.e-board.is-playing .e-floor { opacity: 0; }
+.e-copy { position: absolute; left: 5%; right: 5%; top: 6%; z-index: 3; transition: opacity 0.3s ease; }
+.e-board.is-playing .e-copy { opacity: 0; }
+.e-kicker { font-family: 'JetBrains Mono', monospace; font-size: 1cqw; letter-spacing: 0.08em; text-transform: uppercase; color: var(--e-muted); }
+.e-title { display: inline-block; position: relative; font-size: 6.6cqw; font-weight: 800; letter-spacing: -0.055em; line-height: 0.98; margin: 1cqw 0 1.1cqw; }
+.e-pitch { font-size: 1.4cqw; line-height: 1.45; max-width: 34cqw; color: var(--e-soft); }
+.e-box { position: absolute; inset: -0.5cqw -0.8cqw; border: 0.16cqw solid var(--sel); opacity: 0; transition: opacity 0.25s ease; pointer-events: none; }
+.e-box i { position: absolute; width: 0.9cqw; height: 0.9cqw; background: #ffffff; border: 0.16cqw solid var(--sel); }
+.e-box i:nth-child(1) { left: -0.5cqw; top: -0.5cqw; } .e-box i:nth-child(2) { right: -0.5cqw; top: -0.5cqw; }
+.e-box i:nth-child(3) { left: -0.5cqw; bottom: -0.5cqw; } .e-box i:nth-child(4) { right: -0.5cqw; bottom: -0.5cqw; }
+.e-view[data-sel="me"] .e-title .e-box { opacity: 1; }
+
+.e-obj { position: absolute; left: var(--x); bottom: var(--y); width: var(--w); z-index: var(--z, 1); padding: 0; transition: left 0.6s cubic-bezier(0.3, 0.8, 0.2, 1), bottom 0.6s cubic-bezier(0.3, 0.8, 0.2, 1), width 0.6s cubic-bezier(0.3, 0.8, 0.2, 1), opacity 0.35s ease; }
+.e-obj img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 0.7cqw; box-shadow: 0 1.4cqw 2.4cqw rgba(22, 23, 28, 0.24); }
+.e-obj .tag { position: absolute; left: -0.35cqw; bottom: calc(100% + 0.55cqw); font-family: 'JetBrains Mono', monospace; font-size: 0.85cqw; line-height: 1.4; background: var(--sel); color: #ffffff; padding: 0.1cqw 0.5cqw; border-radius: 0.3cqw; white-space: nowrap; opacity: 0; transition: opacity 0.2s ease; }
+.e-obj:hover .tag, .e-obj:focus-visible .tag, .e-obj.is-sel .tag { opacity: 1; }
+.e-obj .e-box { inset: -0.35cqw; }
+.e-obj.is-sel .e-box { opacity: 1; }
+.e-view:not([data-sel="me"]) .e-obj { opacity: 0; pointer-events: none; }
+.e-view:not([data-sel="me"]) .e-obj.is-sel { opacity: 1; pointer-events: auto; left: 36%; bottom: 7%; width: 58%; z-index: 5; }
+.e-board.is-playing .e-view .e-obj.is-sel { left: 0; bottom: 0; width: 100%; height: 100%; }
+.e-board.is-playing .e-view .e-obj.is-sel img { height: 100%; aspect-ratio: auto; border-radius: 0; box-shadow: none; }
+.e-board.is-playing .e-view .e-obj .tag, .e-board.is-playing .e-view .e-obj .e-box { opacity: 0; }
+.e-run { position: absolute; left: 1.6cqw; bottom: 1.6cqw; z-index: 6; max-width: 52cqw; background: rgba(13, 14, 19, 0.88); color: #eef0f6; font-size: 1.15cqw; line-height: 1.4; padding: 0.75cqw 1.2cqw; border-radius: 0.7cqw; opacity: 0; transform: translateY(1cqw); transition: opacity 0.2s ease, transform 0.2s ease; pointer-events: none; }
+.e-board.is-playing .e-run { opacity: 1; transform: none; transition: opacity 0.35s ease 0.45s, transform 0.35s ease 0.45s; }
+
+.e-insp-in { width: 21.5cqw; height: 100%; display: flex; flex-direction: column; }
+.e-insp-name { display: flex; align-items: center; gap: 0.8cqw; padding: 0.3cqw 1.2cqw 1.1cqw; font-size: 1.35cqw; font-weight: 700; border-bottom: 0.12cqw solid var(--e-line); }
+.e-insp-name img { width: 2.4cqw; height: 2.4cqw; border-radius: 0.5cqw; object-fit: cover; flex: none; }
+.e-fields { display: grid; grid-template-columns: 6.2cqw 1fr; gap: 0.85cqw 0.8cqw; padding: 1.2cqw; font-size: 1.05cqw; line-height: 1.35; }
+.e-fields dt { color: var(--e-muted); }
+.e-fields dd { font-weight: 500; min-width: 0; }
+.e-insp-foot { margin-top: auto; padding: 1.1cqw 1.2cqw 1.3cqw; border-top: 0.12cqw solid var(--e-line); display: flex; }
+.e-case { flex: 1; text-align: center; font-size: 1.1cqw; font-weight: 600; padding: 0.7cqw; border-radius: 0.7cqw; border: 0.14cqw solid var(--e-ink); }
+
+.e-console-in { height: 9.6cqw; padding: 0 1.4cqw; overflow: hidden; }
+.e-console-in .e-head { padding: 0.8cqw 0 0.35cqw; }
+.e-log { font-family: 'JetBrains Mono', monospace; font-size: 0.98cqw; line-height: 1.6; }
+.e-log p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.e-log b { color: var(--sel); font-weight: 600; }
+
+/* B, second board: the same editor on a phone */
+.e-phones { background: #e6e9ef; color: #16171c; font-family: 'Geist', system-ui, sans-serif; display: grid; grid-template-columns: 1fr auto auto; gap: 3cqw; align-items: center; padding: 0 4cqw; }
+.e-phones-copy h3 { font-size: 3.2cqw; font-weight: 800; letter-spacing: -0.05em; line-height: 1; }
+.e-phones-copy p { font-size: 1.35cqw; line-height: 1.5; color: #3a3d49; margin-top: 1.4cqw; }
+.e-phone { width: 21cqw; height: 44cqw; border: 0.5cqw solid #16171c; border-radius: 3cqw; background: #f3f4f7; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2cqw 4cqw rgba(22, 23, 28, 0.2); position: relative; }
+.e-phone.land { width: 40cqw; height: 19.5cqw; background: #0d0e13; }
+.e-phone.land img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.e-phone.land .stop { position: absolute; left: 1.4cqw; top: 1.2cqw; display: flex; align-items: center; gap: 0.5cqw; background: rgba(13, 14, 19, 0.85); color: #eef0f6; font-size: 0.95cqw; font-weight: 700; padding: 0.4cqw 0.9cqw; border-radius: 0.6cqw; }
+.e-phone.land .stop i { width: 0.7cqw; height: 0.7cqw; background: currentColor; border-radius: 0.12cqw; }
+.p-bar { display: flex; align-items: center; justify-content: space-between; padding: 1.6cqw 1.1cqw 0.8cqw; font-size: 0.95cqw; font-weight: 600; border-bottom: 0.1cqw solid #cfd3dc; }
+.p-bar > span { display: flex; align-items: center; gap: 0.5cqw; }
+.p-bar .e-die { width: 1.5cqw; height: 1.5cqw; padding: 0.22cqw; border-radius: 0.38cqw; }
+.p-bar .e-die i { width: 0.27cqw; height: 0.27cqw; }
+.p-view { background: linear-gradient(#f8f9fc 0 40%, #e3e7f0 40% 100%); padding: 1.1cqw 1.1cqw 1.3cqw; }
+.p-view b { display: block; font-size: 2.5cqw; font-weight: 800; letter-spacing: -0.05em; line-height: 1; margin-bottom: 1cqw; }
+.p-view .shot { position: relative; }
+.p-view img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 0.5cqw; }
+.p-view .e-box { inset: -0.3cqw; opacity: 1; }
+.p-view .e-box i { width: 0.7cqw; height: 0.7cqw; }
+.p-chips { display: flex; gap: 0.5cqw; padding: 0.9cqw 1.1cqw; overflow: hidden; border-block: 0.1cqw solid #cfd3dc; }
+.p-chips span { flex: none; font-size: 0.9cqw; font-weight: 600; padding: 0.35cqw 0.8cqw; border-radius: 0.5cqw; background: #e4e7ee; }
+.p-chips span.on { background: #2f6bff; color: #ffffff; }
+.p-fields { display: grid; grid-template-columns: 5.2cqw 1fr; gap: 0.55cqw 0.6cqw; padding: 1cqw 1.1cqw; font-size: 0.9cqw; line-height: 1.3; }
+.p-fields dt { color: #626674; }
+.p-fields dd { font-weight: 500; }
+.p-play { margin: auto 1.1cqw 1.4cqw; display: flex; align-items: center; justify-content: center; gap: 0.6cqw; background: #2f6bff; color: #ffffff; font-size: 1.05cqw; font-weight: 700; padding: 0.85cqw; border-radius: 0.8cqw; }
+.p-play i { width: 0; height: 0; border-left: 0.8cqw solid currentColor; border-top: 0.5cqw solid transparent; border-bottom: 0.5cqw solid transparent; }
+
+/* ============ A: Five worlds ============ */
+.b-board { --b-bg: #e9eaee; --b-fg: #111216; --b-accent: #111216; --b-accent-ink: #f4f4f6; --b-display: 'Archivo', 'Arial Black', sans-serif; --b-size: 6cqw;
+  background: var(--b-bg); color: var(--b-fg); font-family: 'Geist', system-ui, sans-serif; display: flex; flex-direction: column; transition: background 0.6s ease, color 0.4s ease; }
+.b-board[data-world="muster"] { --b-bg: linear-gradient(160deg, #70421f 0%, #4a2a14 55%, #2a170c 100%); --b-fg: #fff3d6; --b-accent: #ffc53d; --b-accent-ink: #2a170c; --b-display: 'Lilita One', sans-serif; --b-size: 10cqw; }
+.b-board[data-world="river"] { --b-bg: linear-gradient(180deg, #1ba6ba 0%, #0f7f93 100%); --b-fg: #f2fffd; --b-accent: #ffd84a; --b-accent-ink: #0b3c46; --b-display: 'Baloo 2', sans-serif; --b-size: 7.6cqw; }
+.b-board[data-world="duck"] { --b-bg: #5c94fc; --b-fg: #ffffff; --b-accent: #101010; --b-accent-ink: #ffffff; --b-display: 'Press Start 2P', monospace; --b-size: 4.1cqw; }
+.b-board[data-world="shiftpro"] { --b-bg: #f4f6fb; --b-fg: #0e1630; --b-accent: #2b5bea; --b-accent-ink: #ffffff; --b-display: 'Geist', sans-serif; --b-size: 7.6cqw; }
+.b-board[data-world="earshot"] { --b-bg: radial-gradient(90% 90% at 20% 80%, #0f3a3a 0%, #0a1517 70%); --b-fg: #e6f4f1; --b-accent: #58d6b4; --b-accent-ink: #06201b; --b-display: 'JetBrains Mono', monospace; --b-size: 6.4cqw; }
+
+.b-nav { display: flex; align-items: center; justify-content: space-between; padding: 2.2cqw 3.5cqw 0; font-size: 1.2cqw; font-weight: 500; }
+.b-nav b { font-weight: 600; font-size: 1.3cqw; }
+.b-nav span + span { margin-left: 2.6cqw; }
+.b-main { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 3cqw; align-items: center; padding: 0 3.5cqw; min-height: 0; }
+.b-kicker { font-family: 'JetBrains Mono', monospace; font-size: 1.05cqw; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.8; }
+.b-title { font-family: var(--b-display); font-size: var(--b-size); font-weight: 900; font-stretch: 125%; line-height: 0.92; letter-spacing: -0.02em; text-transform: uppercase; margin: 1.3cqw 0 1.6cqw; text-wrap: balance; }
+.b-board[data-world="muster"] .b-title { font-weight: 400; color: #ffc53d; text-shadow: 0 0.6cqw 0 #1c0f07; letter-spacing: 0.01em; }
+.b-board[data-world="river"] .b-title { font-weight: 800; text-transform: none; letter-spacing: -0.01em; line-height: 0.95; }
+.b-board[data-world="duck"] .b-title { font-weight: 400; line-height: 1.35; letter-spacing: 0; text-shadow: 0.35cqw 0.35cqw 0 #101010; }
+.b-board[data-world="shiftpro"] .b-title { font-weight: 700; text-transform: none; letter-spacing: -0.045em; }
+.b-board[data-world="earshot"] .b-title { font-weight: 600; text-transform: none; letter-spacing: -0.04em; color: #58d6b4; }
+.b-pitch { font-size: 1.5cqw; line-height: 1.5; max-width: 40cqw; }
+.b-cta { display: inline-block; margin-top: 2.2cqw; background: var(--b-accent); color: var(--b-accent-ink); font-weight: 700; font-size: 1.3cqw; padding: 1cqw 2.1cqw; border-radius: 1cqw; transition: transform 0.12s; }
+.b-cta:active { transform: scale(0.97); }
+.b-shots { position: relative; aspect-ratio: 16 / 10; }
+.b-shot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 1.4cqw; box-shadow: 0 1.6cqw 3.4cqw rgba(0, 0, 0, 0.3); transition: transform 0.7s cubic-bezier(0.2, 0.85, 0.25, 1), opacity 0.45s ease; }
+.b-board[data-world="home"] .b-shot:nth-child(1) { transform: translate(-27%, -30%) rotate(-7deg) scale(0.44); }
+.b-board[data-world="home"] .b-shot:nth-child(2) { transform: translate(27%, -27%) rotate(5deg) scale(0.44); }
+.b-board[data-world="home"] .b-shot:nth-child(3) { transform: translate(-26%, 29%) rotate(4deg) scale(0.44); }
+.b-board[data-world="home"] .b-shot:nth-child(4) { transform: translate(28%, 28%) rotate(-5deg) scale(0.44); }
+.b-board[data-world="home"] .b-shot:nth-child(5) { transform: translate(0, 1%) rotate(-2deg) scale(0.56); z-index: 2; }
+.b-board:not([data-world="home"]) .b-shot { opacity: 0; transform: scale(0.9); }
+.b-board:not([data-world="home"]) .b-shot.is-on { opacity: 1; transform: none; }
+.b-index { display: flex; gap: 0.6cqw; padding: 0 3.5cqw 2.2cqw; flex-wrap: wrap; }
+.b-index button { font-size: 1.15cqw; font-weight: 600; padding: 0.7cqw 1.3cqw; border-radius: 0.9cqw; border: 0.15cqw solid color-mix(in srgb, var(--b-fg) 35%, transparent); color: var(--b-fg); transition: background 0.2s, color 0.2s; }
+.b-index button[aria-pressed="true"] { background: var(--b-fg); color: #111216; border-color: var(--b-fg); }
+.b-board[data-world="home"] .b-index button[aria-pressed="true"], .b-board[data-world="shiftpro"] .b-index button[aria-pressed="true"] { color: #f4f4f6; }
+
+/* B, second board: the scroll order as a strip */
+.b-strip { display: grid; grid-template-columns: repeat(5, 1fr); background: #111216; }
+.b-tile { background: var(--b-bg); color: var(--b-fg); display: flex; flex-direction: column; gap: 1.4cqw; padding: 2.6cqw 1.6cqw 1.8cqw; min-width: 0; min-height: 0; }
+.b-tile h4 { font-family: var(--b-display); font-size: 2.5cqw; line-height: 1; text-transform: uppercase; overflow-wrap: anywhere; }
+.b-tile[data-world="muster"] h4 { font-weight: 400; color: #ffc53d; text-shadow: 0 0.25cqw 0 #1c0f07; font-size: 3.6cqw; }
+.b-tile[data-world="river"] h4 { font-weight: 800; text-transform: none; font-size: 3cqw; }
+.b-tile[data-world="duck"] h4 { font-weight: 400; font-size: 1.6cqw; line-height: 1.4; text-shadow: 0.2cqw 0.2cqw 0 #101010; }
+.b-tile[data-world="shiftpro"] h4 { font-weight: 700; text-transform: none; letter-spacing: -0.04em; font-size: 3cqw; }
+.b-tile[data-world="earshot"] h4 { font-weight: 600; text-transform: none; letter-spacing: -0.04em; color: #58d6b4; font-size: 2.6cqw; }
+.b-tile p { font-size: 1.2cqw; line-height: 1.4; min-height: 3.4cqw; }
+.b-tile img { width: 100%; flex: 1 1 0; min-height: 0; object-fit: cover; border-radius: 1cqw; display: block; }
+.b-tile .go { font-size: 1cqw; font-weight: 700; background: var(--b-accent); color: var(--b-accent-ink); border-radius: 0.7cqw; padding: 0.6cqw 0.4cqw; text-align: center; }
+
+/* ============ C: Playtest notes ============ */
+.c-board { --paper: #fcfcfa; --ink: #15161b; --pen: #df352b; --hi: #ffe45c;
+  background-color: var(--paper); background-image: linear-gradient(rgba(42, 75, 219, 0.08) 0.1cqw, transparent 0.1cqw), linear-gradient(90deg, rgba(42, 75, 219, 0.08) 0.1cqw, transparent 0.1cqw); background-size: 2.5cqw 2.5cqw;
+  color: var(--ink); font-family: 'Geist', system-ui, sans-serif; display: flex; flex-direction: column; }
+.c-nav { display: flex; align-items: center; justify-content: space-between; padding: 2.2cqw 3.5cqw 0; font-size: 1.2cqw; font-weight: 500; }
+.c-nav b { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 1.4cqw; }
+.c-links { display: flex; align-items: center; gap: 2.4cqw; }
+.c-toggle { display: flex; align-items: center; gap: 0.7cqw; font-size: 1.1cqw; font-weight: 600; color: var(--ink); border: 0.15cqw solid var(--ink); border-radius: 5cqw; padding: 0.4cqw 0.5cqw 0.4cqw 1.1cqw; background: var(--paper); }
+.c-toggle i { width: 3cqw; height: 1.7cqw; border-radius: 2cqw; background: var(--pen); position: relative; transition: background 0.2s; }
+.c-toggle i::after { content: ''; position: absolute; top: 0.2cqw; left: 1.5cqw; width: 1.3cqw; height: 1.3cqw; border-radius: 50%; background: var(--paper); transition: left 0.2s; }
+.c-toggle[aria-pressed="false"] i { background: #a9abb5; }
+.c-toggle[aria-pressed="false"] i::after { left: 0.2cqw; }
+
+.c-hero { flex: 1; display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 3.5cqw; align-items: center; padding: 0 3.5cqw 1cqw; }
+.c-who { font-family: 'JetBrains Mono', monospace; font-size: 1.05cqw; letter-spacing: 0.06em; text-transform: uppercase; }
+.c-h1 { font-family: 'Bricolage Grotesque', sans-serif; font-stretch: 78%; font-weight: 800; font-size: 7.4cqw; line-height: 0.95; letter-spacing: -0.015em; margin: 1.4cqw 0 2.6cqw; }
+.c-h1 mark { background: none; color: inherit; position: relative; white-space: nowrap; }
+.c-sub { font-size: 1.45cqw; line-height: 1.5; max-width: 38cqw; color: #3c3e48; }
+.c-actions { display: flex; gap: 1cqw; margin-top: 2.2cqw; }
+.c-btn { font-weight: 700; font-size: 1.25cqw; padding: 0.95cqw 1.9cqw; border-radius: 0.5cqw; background: var(--ink); color: var(--paper); border: 0.15cqw solid var(--ink); }
+.c-btn.ghost { background: var(--paper); color: var(--ink); }
+
+.c-note { font-family: 'Caveat', 'Comic Sans MS', cursive; font-weight: 700; color: var(--pen); font-size: 1.9cqw; line-height: 1.05; transition: opacity 0.35s ease; }
+.c-note svg { display: block; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.c-board.notes-off .c-note, .c-board.notes-off .c-ring { opacity: 0; }
+.c-ring { position: absolute; inset: -0.3cqw -1cqw -0.5cqw -1cqw; border: 0.3cqw solid var(--pen); border-radius: 50%; transform: rotate(-3deg); transition: opacity 0.35s ease; pointer-events: none; }
+.c-h1-wrap { position: relative; }
+.c-note.n1 { position: absolute; left: 31cqw; top: 9.6cqw; width: 17cqw; transform: rotate(-4deg); }
+.c-note.n1 svg { width: 5cqw; margin: 0 0 0.2cqw 1cqw; }
+
+.c-chart { background: #ffffff; border: 0.15cqw solid var(--ink); border-radius: 0.5cqw; padding: 2.2cqw 2.2cqw 1.6cqw; transform: rotate(1deg); box-shadow: 0.7cqw 0.7cqw 0 rgba(21, 22, 27, 0.12); position: relative; }
+.c-chart h3 { font-family: 'Bricolage Grotesque', sans-serif; font-stretch: 85%; font-weight: 700; font-size: 1.9cqw; line-height: 1.1; }
+.c-chart .src { font-family: 'JetBrains Mono', monospace; font-size: 0.95cqw; color: #5a5d6a; margin-top: 0.5cqw; }
+.c-bars { display: grid; grid-template-columns: 10.5cqw 1fr; row-gap: 1.25cqw; align-items: center; margin-top: 2cqw; font-size: 1.15cqw; font-weight: 600; }
+.c-bar { display: flex; align-items: center; gap: 0.7cqw; font-family: 'JetBrains Mono', monospace; font-size: 1.1cqw; font-variant-numeric: tabular-nums; }
+.c-bar i { height: 2.3cqw; width: calc(var(--v) * 1%); background: var(--ink); border-radius: 0.2cqw; flex: none; }
+.c-bar.trap i { background: var(--pen); }
+.c-axis { grid-column: 2; display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 0.9cqw; font-weight: 400; color: #5a5d6a; border-top: 0.12cqw solid #b9bbc6; padding-top: 0.5cqw; }
+.c-note.n2 { position: absolute; left: 21cqw; bottom: 4cqw; width: 14cqw; font-size: 1.75cqw; transform: rotate(-3deg); display: flex; align-items: center; gap: 0.5cqw; }
+.c-note.n2 svg { width: 3.6cqw; flex: none; }
+.c-note.n3 { position: absolute; right: 2cqw; top: 2.2cqw; transform: rotate(3deg); font-size: 1.7cqw; }
+
+/* C, second board: ShiftPro rounds */
+.c-rounds-head { padding: 3.2cqw 3.5cqw 0; }
+.c-rounds-head h3 { font-family: 'Bricolage Grotesque', sans-serif; font-stretch: 78%; font-weight: 800; font-size: 4.2cqw; line-height: 1; }
+.c-rounds-head p { font-size: 1.35cqw; color: #3c3e48; margin-top: 0.9cqw; max-width: 52cqw; }
+.c-rounds { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.6cqw; padding: 2.4cqw 3.5cqw 2.6cqw; align-items: start; }
+.c-round { display: grid; gap: 1cqw; }
+.c-round img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: 60% 60%; border: 0.15cqw solid var(--ink); border-radius: 0.4cqw; background: #fff; box-shadow: 0.6cqw 0.6cqw 0 rgba(21, 22, 27, 0.12); display: block; }
+.c-round:nth-child(1) img { transform: rotate(-1.5deg); } .c-round:nth-child(2) img { transform: rotate(1deg); } .c-round:nth-child(3) img { transform: rotate(-0.6deg); }
+.c-round h4 { font-size: 1.5cqw; font-weight: 700; margin-top: 0.6cqw; }
+.c-round h4 span { font-family: 'JetBrains Mono', monospace; font-size: 1cqw; font-weight: 400; color: #5a5d6a; margin-left: 0.6cqw; }
+.c-round .found { font-size: 1.95cqw; min-height: 4.2cqw; }
+.c-round .did { font-size: 1.15cqw; line-height: 1.45; border-top: 0.12cqw solid var(--ink); padding-top: 0.8cqw; }
+.c-round .did b { font-weight: 700; }
+
+@media (prefers-reduced-motion: reduce) {
+  .e-body, .e-obj, .e-run, .e-floor, .e-board, .b-shot, .b-board, .c-note, .c-ring { transition: none; }
+}
+</style>
+
+<div class="page">
+  <header class="intro">
+    <h1>Three directions for costinsarghiuta.com</h1>
+    <p>Each one is a live sketch of the first screen and the work section, built with your real projects and copy. Nothing in your repo has changed yet. Click around, then tell me which one to build.</p>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Design directions">
+    <button class="tab" role="tab" id="tab-worlds" aria-controls="worlds" aria-selected="true"><em>My pick</em><b>A. Five worlds</b><span>The site turns into each project</span></button>
+    <button class="tab" role="tab" id="tab-play" aria-controls="play" aria-selected="false"><em>New</em><b>B. Press Play</b><span>The site opens inside its own editor</span></button>
+    <button class="tab" role="tab" id="tab-notes" aria-controls="notes" aria-selected="false"><em>Most proof</em><b>C. Playtest notes</b><span>Your working document, red pen included</span></button>
+  </div>
+
+  <!-- ================= Five worlds ================= -->
+  <section class="direction" id="worlds" role="tabpanel" aria-labelledby="tab-worlds">
+    <div>
+      <p class="board-label">First screen. Pick a project along the bottom.</p>
+      <div class="board-scroll">
+        <div class="board b-board" id="bStage" data-world="home">
+          <div class="b-nav"><b>Costin Sarghiuta</b><div><span>Work</span><span>About</span><span>Contact</span><span>CV</span></div></div>
+          <div class="b-main">
+            <div>
+              <p class="b-kicker" id="bKicker">Game designer &amp; UI/UX designer</p>
+              <h2 class="b-title" id="bTitle">Costin Sarghiuta</h2>
+              <p class="b-pitch" id="bPitch">Five projects, five different worlds. Pick one and the whole site changes to match.</p>
+              <button class="b-cta" id="bCta" type="button">Start with Muster</button>
+            </div>
+            <div class="b-shots">
+              <img class="b-shot" data-w="river" src="img/river.jpg" alt="River Racer: two kayaks racing down a river past logs and rocks">
+              <img class="b-shot" data-w="duck" src="img/duck.jpg" alt="Duck Shoot: pixel art ducks over a field with two crosshairs">
+              <img class="b-shot" data-w="shiftpro" src="img/shiftpro.jpg" alt="ShiftPro: three phone screens of the shift schedule app">
+              <img class="b-shot" data-w="earshot" src="img/earshot.jpg" alt="Earshot: a macOS menu listing apps and their speakers">
+              <img class="b-shot" data-w="muster" src="img/muster.jpg" alt="Muster: four figurines, dice and gold on a wooden table">
+            </div>
+          </div>
+          <div class="b-index" id="bIndex">
+            <button type="button" data-w="home" aria-pressed="true">Home</button>
+            <button type="button" data-w="muster" aria-pressed="false">Muster</button>
+            <button type="button" data-w="river" aria-pressed="false">River Racer</button>
+            <button type="button" data-w="duck" aria-pressed="false">Duck Shoot</button>
+            <button type="button" data-w="shiftpro" aria-pressed="false">ShiftPro</button>
+            <button type="button" data-w="earshot" aria-pressed="false">Earshot</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p class="board-label">Scrolling down. One full screen per world, in this order.</p>
+      <div class="board-scroll">
+        <div class="board b-strip">
+          <div class="b-tile b-board" data-world="muster"><div><h4>Muster</h4></div><p>A 5-minute strategy duel with dice.</p><img src="img/muster-battle.jpg" alt=""><span class="go">Play Muster</span></div>
+          <div class="b-tile b-board" data-world="river"><div><h4>River Racer</h4></div><p>Your phone is the paddle.</p><img src="img/river.jpg" alt=""><span class="go">Play River Racer</span></div>
+          <div class="b-tile b-board" data-world="duck"><div><h4>Duck Shoot</h4></div><p>Your phone is the light gun.</p><img src="img/duck.jpg" alt=""><span class="go">Play Duck Shoot</span></div>
+          <div class="b-tile b-board" data-world="shiftpro"><div><h4>ShiftPro</h4></div><p>Shift swaps, tested with 12 people.</p><img src="img/shiftpro.jpg" alt=""><span class="go">Read case study</span></div>
+          <div class="b-tile b-board" data-world="earshot"><div><h4>Earshot</h4></div><p>Every app on its own speaker.</p><img src="img/earshot.jpg" alt=""><span class="go">Read case study</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div><h3>The idea</h3><p>A plain stage that turns into whatever project is on screen. Colours, typeface and mood all switch, so Muster feels like Muster and ShiftPro feels like an iOS app.</p></div>
+      <div><h3>How it moves</h3><p>Scrolling goes through the worlds one full screen at a time, with a wipe between them. Each world carries one screenshot, one line and one button.</p></div>
+      <div><h3>Trade-off</h3><p>It shows range across games, UI and apps, which fits someone applying to all three. It is the most work to build and needs care to stay fast on phones.</p></div>
+    </div>
+  </section>
+
+  <!-- ================= Press Play ================= -->
+  <section class="direction" id="play" role="tabpanel" aria-labelledby="tab-play" hidden>
+    <div>
+      <p class="board-label">First screen. Select a project on the left, then press Play.</p>
+      <div class="board-scroll">
+        <div class="board e-board" id="eBoard">
+          <div class="e-bar">
+            <div class="e-brand"><span class="e-die" aria-hidden="true"><i></i><i></i><i></i></span>Costin Sarghiuta</div>
+            <div class="e-transport"><span class="e-mode" id="eMode">Edit mode</span><button type="button" class="e-play" id="ePlay"><i aria-hidden="true"></i><span id="ePlayLabel">Play Muster</span></button></div>
+            <div class="e-links"><span>About</span><span>Contact</span><span>CV</span></div>
+          </div>
+          <div class="e-body">
+            <div class="e-panel e-tree">
+              <div class="e-tree-in" id="eTree">
+                <p class="e-head">Hierarchy</p>
+                <button type="button" class="e-node root" data-o="me" aria-pressed="true"><span class="e-die" aria-hidden="true"><i></i><i></i><i></i></span>Costin Sarghiuta</button>
+                <p class="e-group">Games</p>
+                <button type="button" class="e-node" data-o="muster" aria-pressed="false"><img src="img/muster.jpg" alt="">Muster</button>
+                <button type="button" class="e-node" data-o="river" aria-pressed="false"><img src="img/river.jpg" alt="">River Racer</button>
+                <button type="button" class="e-node" data-o="duck" aria-pressed="false"><img src="img/duck.jpg" alt="">Duck Shoot</button>
+                <p class="e-group">UI/UX</p>
+                <button type="button" class="e-node" data-o="shiftpro" aria-pressed="false"><img src="img/shiftpro.jpg" alt="">ShiftPro</button>
+                <p class="e-group">Apps</p>
+                <button type="button" class="e-node" data-o="earshot" aria-pressed="false"><img src="img/earshot.jpg" alt="">Earshot</button>
+              </div>
+            </div>
+            <div class="e-view" id="eView" data-sel="me">
+              <div class="e-floor" aria-hidden="true"></div>
+              <div class="e-copy">
+                <p class="e-kicker" id="eKicker">Game designer &amp; UI/UX designer</p>
+                <h2 class="e-title"><span id="eTitle">Costin Sarghiuta</span><span class="e-box" aria-hidden="true"><i></i><i></i><i></i><i></i></span></h2>
+                <p class="e-pitch" id="ePitch">I design games and interfaces people understand in seconds, then build them myself.</p>
+              </div>
+              <button type="button" class="e-obj" data-o="duck" style="--x:23%;--y:40%;--w:14%;--z:1"><img src="img/duck.jpg" alt="Duck Shoot: pixel art ducks over a field"><span class="tag">Duck Shoot</span><span class="e-box" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button>
+              <button type="button" class="e-obj" data-o="earshot" style="--x:76%;--y:39%;--w:15%;--z:1"><img src="img/earshot.jpg" alt="Earshot: a macOS menu listing apps and speakers"><span class="tag">Earshot</span><span class="e-box" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button>
+              <button type="button" class="e-obj" data-o="shiftpro" style="--x:39%;--y:22%;--w:21%;--z:2"><img src="img/shiftpro.jpg" alt="ShiftPro: three phone screens of the shift app"><span class="tag">ShiftPro</span><span class="e-box" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button>
+              <button type="button" class="e-obj" data-o="muster" style="--x:5%;--y:6%;--w:27%;--z:3"><img src="img/muster.jpg" alt="Muster: figurines, dice and gold on a wooden table"><span class="tag">Muster</span><span class="e-box" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button>
+              <button type="button" class="e-obj" data-o="river" style="--x:66%;--y:5%;--w:26%;--z:3"><img src="img/river.jpg" alt="River Racer: two kayaks racing down a river"><span class="tag">River Racer</span><span class="e-box" aria-hidden="true"><i></i><i></i><i></i><i></i></span></button>
+              <p class="e-run" id="eRun" aria-live="polite"></p>
+            </div>
+            <div class="e-panel e-console">
+              <div class="e-console-in"><p class="e-head">Console</p><div class="e-log" id="eLog"></div></div>
+            </div>
+            <div class="e-panel e-insp">
+              <div class="e-insp-in">
+                <p class="e-head">Inspector</p>
+                <div class="e-insp-name"><span class="e-die" id="eInspDie" aria-hidden="true"><i></i><i></i><i></i></span><img id="eInspImg" src="img/muster.jpg" alt="" hidden><span id="eInspName">Costin Sarghiuta</span></div>
+                <dl class="e-fields" id="eFields"></dl>
+                <div class="e-insp-foot"><span class="e-case" id="eCase">Open CV</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p class="board-label">On a phone. Editing on the left, playing on the right.</p>
+      <div class="board-scroll">
+        <div class="board e-phones">
+          <div class="e-phones-copy"><h3>The same editor in your hand</h3><p>The hierarchy becomes a row of chips, the inspector a short sheet, and Play sits under your thumb. Games open full screen in landscape.</p></div>
+          <div class="e-phone">
+            <div class="p-bar"><span><span class="e-die" aria-hidden="true"><i></i><i></i><i></i></span>Costin Sarghiuta</span><span>CV</span></div>
+            <div class="p-view"><b>ShiftPro</b><div class="shot"><img src="img/shiftpro.jpg" alt="ShiftPro app screens"><span class="e-box" aria-hidden="true"><i></i><i></i><i></i><i></i></span></div></div>
+            <div class="p-chips"><span>Duck Shoot</span><span class="on">ShiftPro</span><span>Earshot</span><span>Muster</span></div>
+            <dl class="p-fields"><dt>Type</dt><dd>Mobile app prototype</dd><dt>Tested with</dt><dd>12 people, two rounds</dd><dt>Tools</dt><dd>Figma, Figma Make</dd></dl>
+            <span class="p-play"><i aria-hidden="true"></i>Run the prototype</span>
+          </div>
+          <div class="e-phone land"><img src="img/muster-battle.jpg" alt="Muster battle screen running full screen"><span class="stop"><i aria-hidden="true"></i>Stop</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div><h3>The idea</h3><p>The site opens inside its own editor, the way a game looks while you are building it. The hierarchy is the menu, the inspector holds each project's facts, and the console prints what testing found.</p></div>
+      <div><h3>How it moves</h3><p>Press Play and the panels slide away, the lights go down and the selected project runs in place. Muster boots right in the page and ShiftPro's prototype becomes clickable. Stop brings the editor back.</p></div>
+      <div><h3>Trade-off</h3><p>It shows your builder side and makes every project playable without leaving the page. It is the densest of the three, so the phone layout needs the most care.</p></div>
+    </div>
+  </section>
+
+  <!-- ================= Playtest notes ================= -->
+  <section class="direction" id="notes" role="tabpanel" aria-labelledby="tab-notes" hidden>
+    <div>
+      <p class="board-label">First screen. Try the Notes switch in the menu.</p>
+      <div class="board-scroll">
+        <div class="board c-board" id="cOne">
+          <div class="c-nav"><b>Costin Sarghiuta</b>
+            <div class="c-links"><span>Work</span><span>About</span><span>Contact</span><span>CV</span>
+              <button type="button" class="c-toggle" id="cToggle" aria-pressed="true">Notes <i aria-hidden="true"></i></button>
+            </div>
+          </div>
+          <div class="c-hero">
+            <div class="c-h1-wrap">
+              <p class="c-who">Game designer &amp; UI/UX designer</p>
+              <h2 class="c-h1">Design it. <mark>Test it.<span class="c-ring" aria-hidden="true"></span></mark> Build it.</h2>
+              <p class="c-note n1"><svg viewBox="0 0 60 34" aria-hidden="true"><path d="M54 30 C 44 12, 26 6, 6 8"/><path d="M15 2 L5 8 L14 15"/></svg>24,000 bot matches and 12 usability tests so far</p>
+              <p class="c-sub">I'm Costin. Each project here shows what I tested and what I changed because of it.</p>
+              <div class="c-actions"><span class="c-btn">Play Muster</span><span class="c-btn ghost">See my work</span></div>
+            </div>
+            <div class="c-chart">
+              <h3>Muster: win rate by strategy</h3>
+              <p class="src">About 24,000 simulated bot matches</p>
+              <div class="c-bars">
+                <span>Balanced</span><span class="c-bar" style="--v:67"><i></i>67%</span>
+                <span>Elite</span><span class="c-bar" style="--v:61"><i></i>61%</span>
+                <span>Counter</span><span class="c-bar" style="--v:58"><i></i>58%</span>
+                <span>Barbarian spam</span><span class="c-bar trap" style="--v:15"><i></i>15%</span>
+                <span class="c-axis"><span>0%</span><span>50%</span><span>100%</span></span>
+              </div>
+              <p class="c-note n3">three ways to win</p>
+              <p class="c-note n2"><svg viewBox="0 0 60 34" aria-hidden="true"><path d="M56 18 C 40 26, 22 25, 8 15"/><path d="M17 8 L7 15 L17 23"/></svg>weak on purpose. It's a trap.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p class="board-label">A case study. What each round of testing found, and what changed.</p>
+      <div class="board-scroll">
+        <div class="board c-board" id="cTwo">
+          <div class="c-rounds-head"><h3>ShiftPro: three rounds, 12 testers</h3><p>At Primark the schedule is a printed sheet in a hallway. This app lets staff check and swap shifts from anywhere.</p></div>
+          <div class="c-rounds">
+            <div class="c-round"><img src="img/shiftpro-lofi.jpg" alt="Grey lo-fi wireframes of ShiftPro"><h4>Lo-fi <span>3 testers</span></h4><p class="c-note found">"Clear screens, but changing a shift is hard."</p><p class="did"><b>Changed:</b> grouped shifts by day and added colour.</p></div>
+            <div class="c-round"><img src="img/shiftpro-hifi.jpg" alt="Hi-fi ShiftPro screens"><h4>Hi-fi <span>9 testers</span></h4><p class="c-note found">3 of 9 asked to look ahead by date.</p><p class="did"><b>Changed:</b> added a calendar view and split Swap into Request and Pick Up.</p></div>
+            <div class="c-round"><img src="img/shiftpro.jpg" alt="Final ShiftPro prototype"><h4>Final <span>clickable prototype</span></h4><p class="c-note found">Faded text was hard to read.</p><p class="did"><b>Changed:</b> full-contrast text, profile moved to the top.</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="notes">
+      <div><h3>The idea</h3><p>The page reads like your working document. Red pen notes point at real results: 24,000 simulated matches, 12 usability tests, and what changed after each round.</p></div>
+      <div><h3>How it moves</h3><p>Notes draw themselves in as you scroll, and a switch in the menu hides them for a clean read. Charts are built from your real numbers.</p></div>
+      <div><h3>Trade-off</h3><p>The strongest proof of process and the calmest look. It is less of a show than the other two.</p></div>
+    </div>
+  </section>
+
+  <section class="same">
+    <h2>The same in all three</h2>
+    <ul>
+      <li>Play Muster is one click from the first screen.</li>
+      <li>Every project is one click from its case study.</li>
+      <li>CV, email, LinkedIn and GitHub stay in reach on every screen.</li>
+      <li>The phone layout is designed alongside the desktop one.</li>
+      <li>Your current projects, copy, links and contact form carry over.</li>
+      <li>Motion switches off for visitors who ask for reduced motion.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+(() => {
+  // ---- Direction tabs ----
+  const tabs = [...document.querySelectorAll('.tab')];
+  const show = (id, push) => {
+    tabs.forEach(tab => {
+      const on = tab.getAttribute('aria-controls') === id;
+      tab.setAttribute('aria-selected', on);
+      document.getElementById(tab.getAttribute('aria-controls')).hidden = !on;
+    });
+    if (push) { try { history.replaceState(null, '', '#' + id); } catch (e) { /* not allowed here */ } }
+  };
+  tabs.forEach(tab => tab.addEventListener('click', () => show(tab.getAttribute('aria-controls'), true)));
+  const wanted = location.hash.slice(1);
+  if (['worlds', 'play', 'notes'].includes(wanted)) show(wanted, false);
+
+  // ---- Five worlds ----
+  const WORLDS = {
+    home: { kicker: 'Game designer & UI/UX designer', title: 'Costin Sarghiuta', pitch: 'Five projects, five different worlds. Pick one and the whole site changes to match.', cta: 'Start with Muster' },
+    muster: { kicker: 'Game design, Unity', title: 'Muster', pitch: 'A 5-minute strategy duel. Roll three dice, build an army, hold the line.', cta: 'Play Muster' },
+    river: { kicker: 'Game design, p5.js', title: 'River Racer', pitch: 'Your phone is the paddle. Scan a code, hold both sides and race a friend down the river.', cta: 'Play River Racer' },
+    duck: { kicker: 'Game design, p5.js', title: 'Duck Shoot', pitch: 'A light-gun tribute. Point your phone at the screen and hit the big red Fire button.', cta: 'Play Duck Shoot' },
+    shiftpro: { kicker: 'UI/UX design, Figma', title: 'ShiftPro', pitch: 'Shifts, swaps and company news in one app, tested with 12 people over two rounds.', cta: 'Read the case study' },
+    earshot: { kicker: 'macOS app, Swift', title: 'Earshot', pitch: "A menu bar app that sends each app's sound to its own speaker.", cta: 'Read the case study' }
+  };
+  const stage = document.getElementById('bStage');
+  const setWorld = (name) => {
+    const world = WORLDS[name];
+    stage.dataset.world = name;
+    document.getElementById('bKicker').textContent = world.kicker;
+    document.getElementById('bTitle').textContent = world.title;
+    document.getElementById('bPitch').textContent = world.pitch;
+    document.getElementById('bCta').textContent = world.cta;
+    stage.querySelectorAll('.b-shot').forEach(shot => shot.classList.toggle('is-on', shot.dataset.w === name));
+    stage.querySelectorAll('#bIndex button').forEach(btn => btn.setAttribute('aria-pressed', btn.dataset.w === name));
+  };
+  document.getElementById('bIndex').addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (btn) setWorld(btn.dataset.w);
+  });
+  document.getElementById('bCta').addEventListener('click', () => {
+    if (stage.dataset.world === 'home') setWorld('muster');
+  });
+
+  // ---- Press Play: the editor ----
+  const OBJECTS = {
+    me: { title: 'Costin Sarghiuta', kicker: 'Game designer & UI/UX designer', pitch: 'I design games and interfaces people understand in seconds, then build them myself.', play: 'Play Muster', more: 'Open CV',
+      fields: [['Role', 'Game designer & UI/UX designer'], ['Status', 'Open to internships and junior roles'], ['Does', 'Game design, UI/UX design, front-end'], ['Toolkit', 'Figma, Unity, C#, React, Swift'], ['Find me', 'Email, LinkedIn, GitHub']],
+      log: [['Status', 'Open to internships and junior roles.'], ['Tip', 'Select a project in the hierarchy, then press Play.']] },
+    muster: { title: 'Muster', kicker: 'Game design, Unity', pitch: 'A 5-minute strategy duel. Roll three dice, build an army, hold the line.', play: 'Play Muster', more: 'Read case study', img: 'img/muster.jpg',
+      run: 'Muster is running. On the real site the game boots right here.',
+      fields: [['Type', 'Two-player strategy duel'], ['Focus', 'Systems design, balancing, playtesting'], ['Tools', 'Unity, C#, Figma, Excel'], ['Match', 'About 5 minutes'], ['Balance', 'About 24,000 simulated matches']],
+      log: [['Sim', 'About 24,000 bot matches run across four strategies.'], ['Balance', 'Balanced 67%, Elite 61%, Counter 58%, Barbarian spam 15%.'], ['Fix', 'Red starts with +1 gold to offset Blue moving first.']] },
+    river: { title: 'River Racer', kicker: 'Game design, p5.js', pitch: 'Your phone is the paddle. Scan a code, hold both sides and race a friend down the river.', play: 'Play River Racer', more: 'Read case study', img: 'img/river.jpg',
+      run: 'River Racer is running. On the real site the game boots right here.',
+      fields: [['Type', 'Local multiplayer racing'], ['Focus', 'Game design, phone controls'], ['Tools', 'p5.js, WebRTC, MQTT, JavaScript'], ['Players', '2, each on their own phone'], ['Join', 'One QR scan or a four-letter code']],
+      log: [['Design', 'Two buttons only, so anyone can play within seconds.'], ['Feel', 'Hitting a rock stuns you, knocks you back and buzzes your phone.'], ['Net', 'Phones connect directly, with a relay as fallback.']] },
+    duck: { title: 'Duck Shoot', kicker: 'Game design, p5.js', pitch: 'A light-gun tribute. Point your phone at the screen and hit the big red Fire button.', play: 'Play Duck Shoot', more: 'Read case study', img: 'img/duck.jpg',
+      run: 'Duck Shoot is running. On the real site the game boots right here.',
+      fields: [['Type', 'Light-gun tribute'], ['Focus', 'Motion controls, retro feel'], ['Tools', 'p5.js, WebRTC, MQTT, JavaScript'], ['Players', 'Up to 4 phones, or a mouse'], ['Rules', 'Three shots per duck, ten ducks a round']],
+      log: [['Design', 'You aim by pointing the phone like a remote.'], ['Feel', 'Every shot blacks out the screen for one frame, like the originals.']] },
+    shiftpro: { title: 'ShiftPro', kicker: 'UI/UX design, Figma', pitch: 'Shifts, swaps and company news in one app, instead of a sheet on the hallway wall.', play: 'Run the prototype', more: 'Read case study', img: 'img/shiftpro.jpg',
+      run: 'The ShiftPro prototype is running. On the real site you can click through it right here.',
+      fields: [['Type', 'Mobile app prototype'], ['Focus', 'User research, usability testing'], ['Tools', 'Figma, Figma Make'], ['Rounds', 'Lo-fi, hi-fi, final'], ['Tested with', '12 people']],
+      log: [['Test', 'Lo-fi, 3 people: changing a shift was hard.'], ['Test', 'Hi-fi, 9 people: 3 asked to look ahead by date.'], ['Fix', 'Added a calendar view and split Swap into Request and Pick Up.']] },
+    earshot: { title: 'Earshot', kicker: 'macOS app, Swift', pitch: "A menu bar app that sends each app's sound to its own speaker.", play: 'Watch the demo', more: 'Read case study', img: 'img/earshot.jpg',
+      run: 'The Earshot demo is playing. On the real site this is a short screen recording.',
+      fields: [['Type', 'macOS menu bar app'], ['Focus', 'UX, audio routing'], ['Tools', 'Swift, SwiftUI, AppKit, Core Audio'], ['Install', 'No driver or kernel extension'], ['Speed', 'A route switches on in 7 to 14 ms']],
+      log: [['Build', "Built on Apple's Core Audio process taps."], ['Perf', 'Only holds the audio capture while something is playing.']] }
+  };
+  const board = document.getElementById('eBoard');
+  const view = document.getElementById('eView');
+  const playBtn = document.getElementById('ePlay');
+  const byId = (id) => document.getElementById(id);
+  let selected = 'me';
+  const select = (key) => {
+    const item = OBJECTS[key];
+    selected = key;
+    view.dataset.sel = key;
+    board.querySelectorAll('.e-obj').forEach(obj => obj.classList.toggle('is-sel', obj.dataset.o === key));
+    board.querySelectorAll('.e-node').forEach(node => node.setAttribute('aria-pressed', node.dataset.o === key));
+    byId('eKicker').textContent = item.kicker;
+    byId('eTitle').textContent = item.title;
+    byId('ePitch').textContent = item.pitch;
+    byId('eInspName').textContent = item.title;
+    byId('eInspDie').hidden = Boolean(item.img);
+    byId('eInspImg').hidden = !item.img;
+    if (item.img) byId('eInspImg').src = item.img;
+    const fields = byId('eFields');
+    fields.textContent = '';
+    item.fields.forEach(([label, value]) => {
+      const dt = document.createElement('dt'); dt.textContent = label;
+      const dd = document.createElement('dd'); dd.textContent = value;
+      fields.append(dt, dd);
+    });
+    const log = byId('eLog');
+    log.textContent = '';
+    item.log.forEach(([tag, text]) => {
+      const line = document.createElement('p');
+      const mark = document.createElement('b'); mark.textContent = '[' + tag + '] ';
+      line.append(mark, text);
+      log.append(line);
+    });
+    byId('eCase').textContent = item.more;
+    if (!board.classList.contains('is-playing')) byId('ePlayLabel').textContent = item.play;
+  };
+  board.addEventListener('click', (e) => {
+    const target = e.target.closest('.e-node, .e-obj');
+    if (target && !board.classList.contains('is-playing')) select(target.dataset.o);
+  });
+  playBtn.addEventListener('click', () => {
+    if (board.classList.contains('is-playing')) {
+      board.classList.remove('is-playing');
+      byId('eMode').textContent = 'Edit mode';
+      byId('ePlayLabel').textContent = OBJECTS[selected].play;
+      return;
+    }
+    if (selected === 'me') select('muster');
+    byId('eRun').textContent = OBJECTS[selected].run;
+    board.classList.add('is-playing');
+    byId('eMode').textContent = 'Play mode';
+    byId('ePlayLabel').textContent = 'Stop';
+  });
+  select('me');
+
+  // ---- Playtest notes: the Notes switch ----
+  const toggle = document.getElementById('cToggle');
+  toggle.addEventListener('click', () => {
+    const on = toggle.getAttribute('aria-pressed') !== 'true';
+    toggle.setAttribute('aria-pressed', on);
+    document.querySelectorAll('.c-board').forEach(board => board.classList.toggle('notes-off', !on));
+  });
+})();
+</script>
+</body></html>

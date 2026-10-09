@@ -1,7 +1,7 @@
 {
   "name": "Muster",
   "short_name": "Muster",
-  "description": "A 5-minute army duel. Build an army. Hold the line.",
+  "description": "An army duel. Build an army. Hold the line.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "fullscreen",

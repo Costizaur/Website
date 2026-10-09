@@ -149,8 +149,8 @@ const projects = [
         icon: iconMuster,
         src: musterMenu,
         extraImages: [musterMenu, musterPhase, musterLineup, musterBattle, musterHowToPlay, musterPhone],
-        description: 'A 5-minute, two-player strategy duel. Each turn you roll three dice and spend them on six actions to grow your economy and recruit an army, then secretly order your troops for a battle where counters and wounds decide who holds the line.',
-        longDescription: 'My goal was a short match where every die is a real decision and no single strategy wins. Dice work like workers, a four-unit counter cycle keeps every unit useful, hidden armies make scouting and reading your opponent pay off, and I balanced the numbers by simulating thousands of bot matches. Playable in the browser on desktop and phone.',
+        description: 'A two-player dice strategy duel that takes about 7 to 10 minutes. Each turn you roll three dice and spend them on taxes, the forge and recruits, pay iron for upgrades, scouting and sabotage, then secretly order your troops for a battle where the class triangle and wounds decide who holds the line.',
+        longDescription: 'My goal was a short match where every die is a real decision and no single strategy wins. Dice work like workers, a three-class triangle keeps every unit useful, hidden armies make scouting and reading your opponent pay off, and I balanced the numbers by simulating thousands of bot matches. After the first playtests I rebuilt the rules, the tutorial and the battle screen around what testers could not follow. Playable in the browser on desktop and phone.',
         tags: ['Game Design', 'Systems Design', 'Balancing', 'Playtesting'],
         tools: ['Unity', 'C#', 'Figma', 'Excel'],
         gameLink: '/muster/index.html',
@@ -159,10 +159,10 @@ const projects = [
         unfoldVideoStartMobile: unfoldStartMobile,
         unfoldVideoEndMobile: unfoldEndMobile,
         unfoldText: [
-          { title: "Process", items: ["Set the design goals: a full match in about 5 minutes, every die a meaningful choice, and no dominant strategy", "Defined the core loop: roll, assign dice, build an army, line up in secret, battle", "Kept every tunable number in one config and an Excel balance model, so rules could change without rewriting code"] },
-          { title: "Concept", items: ["Dice as workers: each action needs a certain roll, so even a 1 is useful (Scouting needs a 1 or 2)", "A four-unit counter cycle (Knight → Ranger → Mage → Barbarian) so no unit is simply the best", "Hidden armies: opponents only see your unit count, which makes Scout and Sabotage worth spending a die on"] },
-          { title: "Design", items: ["Two resources with hard caps and use-it-or-lose-it dice, so hoarding never beats spending", "Attrition battles: winners carry their wounds into the next duel, so one strong unit can't carry a whole army", "Designed a chunky tabletop UI in Figma, then adapted it into a landscape phone layout for playtesting"] },
-          { title: "Test & Decide", items: ["Built bots for four strategies and simulated about 24,000 matches to measure win rates", "Balanced (67%), elite (61%) and counter (58%) play all stay viable; the attrition rule and the full counter cycle stop 'go elite' from dominating", "Kept all-Barbarian spam weak (15%) as a deliberate trap, and gave Red +1 starting gold to offset Blue moving first"] }
+          { title: "Process", items: ["Set the design goals: a short match (about 7 to 10 minutes), every die a meaningful choice, and no dominant strategy", "Defined the core loop: roll, assign dice, build an army, line up in secret, battle", "Kept every tunable number in one config and an Excel balance model, so rules could change without rewriting code"] },
+          { title: "Concept", items: ["Dice as workers: three dice a turn go on Tax, Forge or Recruit, and the stronger units need a higher roll", "A three-class triangle (Knight → Ranger → Mage → Knight) so no unit is simply the best", "Hidden armies: opponents only see your unit count, which makes Scout and Sabotage worth their iron"] },
+          { title: "Design", items: ["Two resources with hard caps and use-it-or-lose-it dice, so hoarding never beats spending: gold buys troops, iron buys tricks", "Attrition battles: winners carry their wounds into the next duel, so one strong unit can't carry a whole army", "Designed a chunky tabletop UI in Figma, then adapted it into a landscape phone layout for playtesting"] },
+          { title: "Test & Decide", items: ["Built bots for four strategies and simulated about 24,000 matches on each version of the rules to measure win rates", "Playtesters could not follow the first version, so I cut four units to a triangle, made the support actions cost iron instead of a die, hid the opponent's resources and replaced the tutorial tour with hints", "Elite (58%), balanced (60%) and counter (61%) play now sit within 3 points of each other; spamming the cheapest unit stays weak (21%) because one class loses to its counter"] }
         ]
       },
       {
@@ -321,9 +321,9 @@ const PROJECT_LOOK = {
   'Muster': {
     slug: 'muster',
     type: 'Unity, systems design',
-    line: 'A 5-minute dice strategy duel for two players.',
+    line: 'A dice strategy duel for two players.',
     pitch: 'Roll three dice, spend them to grow your economy and recruit an army, then line up in secret and hold the line.',
-    facts: [['5 min', 'for a full match'], ['24,000', 'bot matches for balance'], ['Unity', 'and C#']],
+    facts: [['7–10 min', 'for a full match'], ['24,000', 'bot matches for balance'], ['Unity', 'and C#']],
     action: { label: 'Play Muster', href: 'gameLink' },
     more: { label: 'Read the case study', to: 'notes' },
     notesTitle: 'The case study',

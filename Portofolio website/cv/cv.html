@@ -1,0 +1,592 @@
+<!doctype html>
+<!-- The CV, in the look of the site: the pale desk, the name in Archivo, white sheets and
+     the small folders. This page is the source; the site serves the PDF made from it.
+     To make the PDF again after an edit, from this folder:
+       "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --no-pdf-header-footer \
+         --print-to-pdf=../public/cv.pdf cv.html
+     It is one A4 page. If a change pushes it onto a second page, shorten the text. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Costin Sârghiuță · CV</title>
+<meta name="author" content="Costin Sârghiuță" />
+<style>
+/* The site's own fonts, straight from its packages */
+@font-face {
+    font-family: 'Archivo Variable';
+    font-weight: 100 900;
+    font-stretch: 62% 125%;
+    src: url(../node_modules/@fontsource-variable/archivo/files/archivo-latin-ext-wdth-normal.woff2) format('woff2-variations');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+20A0-20AB, U+20AD-20C0, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+    font-family: 'Archivo Variable';
+    font-weight: 100 900;
+    font-stretch: 62% 125%;
+    src: url(../node_modules/@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2) format('woff2-variations');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212, U+2215;
+}
+@font-face {
+    font-family: 'Geist Variable';
+    font-weight: 100 900;
+    src: url(../node_modules/@fontsource-variable/geist/files/geist-latin-ext-wght-normal.woff2) format('woff2-variations');
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+20A0-20AB, U+20AD-20C0, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+    font-family: 'Geist Variable';
+    font-weight: 100 900;
+    src: url(../node_modules/@fontsource-variable/geist/files/geist-latin-wght-normal.woff2) format('woff2-variations');
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2212, U+2215;
+}
+
+/* The same colours as src/index.css, in their light setting: paper is read in the light */
+:root {
+    --stage: #e9eaee;
+    --ink: #111216;
+    --ink-soft: #50535f;
+    --dot: rgba(17, 18, 22, 0.09);
+    --key: #111216;
+    --key-ink: #f4f4f6;
+    --sheet: #ffffff;
+    --sheet-ink: #14151a;
+    --sheet-soft: #5a5d6a;
+    --sheet-body: #2d2f38;
+    --line: rgba(17, 18, 22, 0.24);
+    /* The four folders */
+    --coral: #ff7a6b;
+    --blue: #4d8dff;
+    --gold: #ffc53d;
+    --mint: #3ddc97;
+    --font-desk: 'Archivo Variable', 'Arial Black', sans-serif;
+    --font-text: 'Geist Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+@page {
+    size: A4;
+    margin: 0;
+}
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 7.9pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+body {
+    width: 210mm;
+    font-family: var(--font-text);
+    line-height: 1.4;
+    color: var(--sheet-body);
+}
+
+ul {
+    list-style: none;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+/* ---- The desk: one A4 page, the words on the left and a narrow column on the right ---- */
+.page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 49.5mm;
+    gap: 4mm;
+    align-content: start;
+    width: 210mm;
+    height: 297mm;
+    padding: 9mm 9mm 8.5mm;
+    overflow: hidden;
+    background-color: var(--stage);
+    background-image: radial-gradient(circle, var(--dot) 0.28mm, transparent 0.36mm);
+    background-size: 6.4mm 6.4mm;
+}
+
+.col {
+    display: grid;
+    align-content: start;
+    gap: 2.6mm;
+}
+
+/* ---- The name, the line under it and a paragraph, as they stand on the home screen ---- */
+.who {
+    padding: 1mm 0.5mm 1mm;
+    color: var(--ink);
+}
+
+.name {
+    font-family: var(--font-desk);
+    font-weight: 900;
+    font-stretch: 125%;
+    font-size: 30pt;
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.role {
+    margin-top: 2.3mm;
+    font-size: 10pt;
+    font-weight: 500;
+    line-height: 1.35;
+}
+
+.profile {
+    margin-top: 2.2mm;
+    font-size: 8.4pt;
+    line-height: 1.45;
+    text-wrap: pretty;
+}
+
+/* ---- Sheets ---- */
+.sheet {
+    padding: 3.4mm 4.4mm 3.6mm;
+    border-radius: 3.1mm;
+    background: var(--sheet);
+    /* Shadows without blur: Preview and Safari draw a blurred shadow in a PDF as a grey box */
+    box-shadow: 0 0.3mm 0 rgba(17, 18, 22, 0.06), 0 0.75mm 0 rgba(17, 18, 22, 0.035);
+    break-inside: avoid;
+}
+
+.side .sheet {
+    padding: 3.4mm 3.5mm 3.7mm;
+}
+
+/* A section's name, with a folder in front of it */
+.label {
+    display: flex;
+    align-items: center;
+    gap: 1.9mm;
+    margin-bottom: 1.9mm;
+    font-family: var(--font-desk);
+    font-weight: 800;
+    font-stretch: 110%;
+    font-size: 10.2pt;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: var(--sheet-ink);
+}
+
+/* The folder from src/components/Folder.css, without its papers */
+.folder {
+    --fw: 5.6mm;
+    --fu: calc(var(--fw) / 156);
+    position: relative;
+    flex: none;
+    width: var(--fw);
+    height: calc(var(--fu) * 142);
+    margin-top: calc(var(--fu) * -22);
+}
+
+.folder i {
+    position: absolute;
+    left: 0;
+    width: 100%;
+}
+
+.folder i:first-child {
+    top: calc(var(--fu) * 30);
+    height: calc(var(--fu) * 112);
+    border-radius: 0 calc(var(--fu) * 12) calc(var(--fu) * 12) calc(var(--fu) * 12);
+    background: color-mix(in srgb, var(--folder) 68%, #000);
+}
+
+.folder i:first-child::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: calc(100% - 0.1mm);
+    width: calc(var(--fu) * 60);
+    height: calc(var(--fu) * 16);
+    border-radius: calc(var(--fu) * 8) calc(var(--fu) * 8) 0 0;
+    background: inherit;
+}
+
+.folder i:last-child {
+    top: calc(var(--fu) * 50);
+    height: calc(var(--fu) * 92);
+    border-radius: calc(var(--fu) * 12);
+    background: linear-gradient(color-mix(in srgb, var(--folder), #fff 14%), var(--folder));
+}
+
+/* ---- What is on a sheet ---- */
+.entry + .entry {
+    margin-top: 2.3mm;
+}
+
+.entry-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4mm;
+}
+
+.entry h3 {
+    font-size: 9.6pt;
+    font-weight: 650;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--sheet-ink);
+}
+
+.when {
+    flex: none;
+    font-size: 7.9pt;
+    color: var(--sheet-soft);
+    white-space: nowrap;
+}
+
+.entry-sub {
+    font-size: 7.9pt;
+    color: var(--sheet-soft);
+}
+
+.points {
+    margin-top: 0.8mm;
+}
+
+/* The dot sits in the line itself, not placed over it, so the text of the PDF keeps its order */
+.points li {
+    padding-left: 3.1mm;
+    text-indent: -3.1mm;
+}
+
+.points li + li {
+    margin-top: 0.35mm;
+}
+
+.points li::before {
+    content: '';
+    display: inline-block;
+    width: 0.95mm;
+    height: 0.95mm;
+    margin-right: 2.15mm;
+    border-radius: 50%;
+    background: var(--folder, var(--sheet-soft));
+    vertical-align: 0.2em;
+}
+
+.points b {
+    font-weight: 650;
+    color: var(--sheet-ink);
+}
+
+/* ---- The photo, lying on the desk like a print (as on the About page) ---- */
+.photo {
+    justify-self: center;
+    width: 35.5mm;
+    margin: 0.4mm 0 1.2mm;
+    padding: 1.9mm 1.9mm 0;
+    border-radius: 2.9mm;
+    background: var(--sheet);
+    color: var(--sheet-ink);
+    rotate: 2.2deg;
+    box-shadow: 0 0.4mm 0 rgba(17, 18, 22, 0.08), 0 1mm 0 rgba(17, 18, 22, 0.045);
+}
+
+.photo img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    object-position: 50% 18%;
+    border-radius: 1.8mm;
+    background: #111216;
+}
+
+.photo figcaption {
+    padding: 1.5mm 0.6mm 1.8mm;
+    font-family: var(--font-desk);
+    font-weight: 800;
+    font-stretch: 110%;
+    font-size: 8.8pt;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+}
+
+/* ---- The narrow column ---- */
+.contact {
+    display: grid;
+    gap: 1mm;
+    font-weight: 500;
+    color: var(--sheet-ink);
+}
+
+.contact li,
+.contact a {
+    display: flex;
+    align-items: center;
+    gap: 1.6mm;
+    white-space: nowrap;
+}
+
+.contact svg {
+    flex: none;
+    width: 3.2mm;
+    height: 3.2mm;
+    fill: currentColor;
+}
+
+/* The main button on the desk: ink with the desk colour on it */
+.contact .key {
+    justify-content: space-between;
+    margin-top: 0.9mm;
+    padding: 1.5mm 2.4mm;
+    border-radius: 1.8mm;
+    background: var(--key);
+    color: var(--key-ink);
+    font-weight: 600;
+}
+
+.contact .key svg {
+    width: 2.7mm;
+    height: 2.7mm;
+}
+
+.group + .group {
+    margin-top: 2mm;
+}
+
+.group h3 {
+    margin-bottom: 1mm;
+    font-size: 7.8pt;
+    font-weight: 650;
+    color: var(--sheet-ink);
+}
+
+/* The pills of the About page's toolkit */
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.05mm;
+}
+
+.chips li {
+    padding: 0.45mm 1.7mm 0.5mm;
+    border: 0.22mm solid var(--line);
+    border-radius: 99px;
+    font-size: 7.2pt;
+    line-height: 1.35;
+    white-space: nowrap;
+    color: var(--sheet-ink);
+}
+
+.levels li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 3mm;
+    padding: 0.7mm 0;
+}
+
+.levels li + li {
+    border-top: 0.2mm solid rgba(17, 18, 22, 0.12);
+}
+
+.levels b {
+    font-weight: 650;
+    color: var(--sheet-ink);
+}
+
+.levels span {
+    font-size: 7.9pt;
+    color: var(--sheet-soft);
+}
+</style>
+</head>
+<body>
+<main class="page">
+
+    <!-- ===== The words ===== -->
+    <div class="col">
+        <header class="who">
+            <h1 class="name">Costin Sârghiuță</h1>
+            <p class="role">Creative Media &amp; Game Technologies · Saxion University · Enschede</p>
+            <p class="profile">I'm a creative media student with a strong interest in how real people interact with digital products, especially those who are often overlooked in the design process. I enjoy talking to users, finding the gap between what a product does and what people actually need, and turning that into something concrete. I have hands-on experience with user research, interactive prototyping and design thinking, and I'm drawn to work where the output genuinely affects people's daily lives.</p>
+        </header>
+
+        <section class="sheet" style="--folder: var(--gold)">
+            <h2 class="label"><span class="folder" aria-hidden="true"><i></i><i></i></span>Experience</h2>
+            <article class="entry">
+                <div class="entry-head">
+                    <h3>Game Designer</h3>
+                    <span class="when">Sep 2026 – Feb 2027</span>
+                </div>
+                <p class="entry-sub">Thales · Internship, 6 months</p>
+            </article>
+            <article class="entry">
+                <div class="entry-head">
+                    <h3>Retail Assistant &amp; Delivery Driver</h3>
+                    <span class="when">2022 – Present</span>
+                </div>
+                <p class="entry-sub">Primark &amp; Delivery (Netherlands)</p>
+                <ul class="points">
+                    <li>Worked alongside people from many different backgrounds daily, building natural communication skills across language and cultural barriers.</li>
+                </ul>
+            </article>
+        </section>
+
+        <section class="sheet" style="--folder: var(--mint)">
+            <h2 class="label"><span class="folder" aria-hidden="true"><i></i><i></i></span>Projects</h2>
+            <article class="entry">
+                <div class="entry-head">
+                    <h3>XR Lab Enschede: Client Project</h3>
+                    <span class="when">2024 · 8 weeks</span>
+                </div>
+                <p class="entry-sub">Real-client project · Saxion University · Scrum Master</p>
+                <ul class="points">
+                    <li>Managed the full project cycle for a real client, from initial brief and stakeholder communication through to final presentation.</li>
+                    <li>Led sprint planning and retrospectives as Scrum Master, keeping the team aligned and the work moving.</li>
+                </ul>
+            </article>
+            <article class="entry">
+                <div class="entry-head">
+                    <h3>Motorised Ping Pong Cannon</h3>
+                    <span class="when">2024 · Saxion University</span>
+                </div>
+                <p class="entry-sub">Hardware project · Arduino · Interactive installation</p>
+                <ul class="points">
+                    <li>Built a phone-controlled ball cannon using two Arduino boards, combining hardware sensors, motorised components and wireless communication.</li>
+                    <li>Designed and implemented the full interaction flow, from mobile control input to physical output.</li>
+                </ul>
+            </article>
+        </section>
+
+        <section class="sheet" style="--folder: var(--coral)">
+            <h2 class="label"><span class="folder" aria-hidden="true"><i></i><i></i></span>Relevant coursework</h2>
+            <article class="entry">
+                <div class="entry-head">
+                    <h3>UI/UX Design Course</h3>
+                    <span class="when">2023/2024 · Saxion University</span>
+                </div>
+                <p class="entry-sub">Weekly sprints · A/B testing · Interactive prototyping · User feedback</p>
+                <ul class="points">
+                    <li>Ran weekly A/B tests with real users, collecting feedback on interface variations and iterating designs based on results.</li>
+                    <li>Built interactive prototypes in Figma every sprint cycle, testing usability assumptions before moving to higher fidelity.</li>
+                    <li>Learned to identify what users say versus what they actually do, and how to design around that gap.</li>
+                </ul>
+            </article>
+            <article class="entry">
+                <div class="entry-head">
+                    <h3>Design Thinking Course</h3>
+                    <span class="when">2023/2024 · Saxion University</span>
+                </div>
+                <p class="entry-sub">Problem discovery · Field surveys · Hi-fi prototype delivery</p>
+                <ul class="points">
+                    <li>Identified a real-world problem by going outside the university environment and gathering surveys from diverse user groups with different backgrounds and needs.</li>
+                    <li>Centralised and analysed responses to find patterns, then used those insights to define the design direction.</li>
+                    <li>Delivered a fully working hi-fi prototype/app that addressed the problem, validated against the original research findings.</li>
+                </ul>
+            </article>
+        </section>
+
+        <section class="sheet" style="--folder: var(--blue)">
+            <h2 class="label"><span class="folder" aria-hidden="true"><i></i><i></i></span>Education</h2>
+            <article class="entry">
+                <div class="entry-head">
+                    <h3>Saxion University of Applied Sciences</h3>
+                    <span class="when">2022 – Present</span>
+                </div>
+                <p class="entry-sub">Creative Media &amp; Game Technologies · Enschede, Netherlands</p>
+                <ul class="points">
+                    <li><b>Relevant courses:</b> UI/UX Design, Design Thinking, Interactivity &amp; Programming, Web Development.</li>
+                    <li>Worked on 8+ team projects applying Agile/Scrum, including briefing, prototyping, testing and presenting to stakeholders.</li>
+                    <li>Served as Scrum Master in 3 projects, coordinating sprints, retrospectives and team communication in Jira.</li>
+                </ul>
+            </article>
+        </section>
+    </div>
+
+    <!-- ===== The narrow column ===== -->
+    <aside class="col side">
+        <figure class="photo">
+            <img src="../src/assets/profile.jpg" alt="Portrait of Costin Sârghiuță" />
+            <figcaption>Player 1</figcaption>
+        </figure>
+
+        <section class="sheet">
+            <h2 class="label">Contact</h2>
+            <ul class="contact">
+                <li>
+                    <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M128,60a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,60Zm0,64a20,20,0,1,1,20-20A20,20,0,0,1,128,124Zm0-112a92.1,92.1,0,0,0-92,92c0,77.36,81.64,135.4,85.12,137.83a12,12,0,0,0,13.76,0,259,259,0,0,0,42.18-39C205.15,170.57,220,136.37,220,104A92.1,92.1,0,0,0,128,12Zm31.3,174.71A249.35,249.35,0,0,1,128,216.89a249.35,249.35,0,0,1-31.3-30.18C80,167.37,60,137.31,60,104a68,68,0,0,1,136,0C196,137.31,176,167.37,159.3,186.71Z"/></svg>
+                    Enschede, Netherlands
+                </li>
+                <li>
+                    <a href="mailto:sarghiuta.costin@gmail.com">
+                        <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M224,44H32A12,12,0,0,0,20,56V192a20,20,0,0,0,20,20H216a20,20,0,0,0,20-20V56A12,12,0,0,0,224,44ZM193.15,68,128,127.72,62.85,68ZM44,188V83.28l75.89,69.57a12,12,0,0,0,16.22,0L212,83.28V188Z"/></svg>
+                        sarghiuta.costin@gmail.com
+                    </a>
+                </li>
+                <li>
+                    <a href="tel:+40729182631">
+                        <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M224,154.8l-47.09-21.11-.18-.08a19.94,19.94,0,0,0-19,1.75,13.08,13.08,0,0,0-1.12.84l-22.31,19c-13-7.05-26.43-20.37-33.49-33.21l19.06-22.66a11.76,11.76,0,0,0,.85-1.15,20,20,0,0,0,1.66-18.83,1.42,1.42,0,0,1-.08-.18L101.2,32A20.06,20.06,0,0,0,80.42,20.15,60.27,60.27,0,0,0,28,80c0,81.61,66.39,148,148,148a60.27,60.27,0,0,0,59.85-52.42A20.06,20.06,0,0,0,224,154.8ZM176,204A124.15,124.15,0,0,1,52,80,36.29,36.29,0,0,1,80.48,44.46l18.82,42L80.14,109.28a12,12,0,0,0-.86,1.16A20,20,0,0,0,78,130.08c9.42,19.28,28.83,38.56,48.31,48A20,20,0,0,0,146,176.63a11.63,11.63,0,0,0,1.11-.85l22.43-19.07,42,18.81A36.29,36.29,0,0,1,176,204Z"/></svg>
+                        +40 729 182 631
+                    </a>
+                </li>
+                <li>
+                    <a class="key" href="https://www.costinsarghiuta.com">
+                        costinsarghiuta.com
+                        <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M204,64V168a12,12,0,0,1-24,0V93L72.49,200.49a12,12,0,0,1-17-17L163,76H88a12,12,0,0,1,0-24H192A12,12,0,0,1,204,64Z"/></svg>
+                    </a>
+                </li>
+            </ul>
+        </section>
+
+        <section class="sheet">
+            <h2 class="label">Skills</h2>
+            <div class="group">
+                <h3>UX Research</h3>
+                <ul class="chips">
+                    <li>User Interviews</li><li>Usability Testing</li><li>A/B Testing</li><li>Surveys</li><li>Observations</li><li>Affinity Mapping</li><li>Accessibility (WCAG)</li>
+                </ul>
+            </div>
+            <div class="group">
+                <h3>Design</h3>
+                <ul class="chips">
+                    <li>Figma</li><li>Hi-fi Prototyping</li><li>Lo-fi Wireframes</li><li>Canva</li><li>UI/UX Design</li>
+                </ul>
+            </div>
+            <div class="group">
+                <h3>Dev &amp; Tools</h3>
+                <ul class="chips">
+                    <li>React</li><li>JavaScript</li><li>HTML / CSS</li><li>Unity</li><li>C#</li><li>Microsoft 365</li><li>Jira</li>
+                </ul>
+            </div>
+            <div class="group">
+                <h3>Workflow</h3>
+                <ul class="chips">
+                    <li>Design Thinking</li><li>Scrum / Agile</li><li>Documentation</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="sheet">
+            <h2 class="label">Soft skills</h2>
+            <ul class="chips">
+                <li>Communication</li><li>Empathy</li><li>Critical Thinking</li><li>Planning</li><li>Teamwork</li><li>Adaptability</li><li>Initiative</li>
+            </ul>
+        </section>
+
+        <section class="sheet">
+            <h2 class="label">Languages</h2>
+            <ul class="levels">
+                <li><b>Romanian</b> <span>Native</span></li>
+                <li><b>English</b> <span>Advanced (C1)</span></li>
+                <li><b>Dutch</b> <span>Beginner (A1)</span></li>
+            </ul>
+        </section>
+    </aside>
+
+</main>
+</body>
+</html>

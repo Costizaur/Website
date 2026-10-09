@@ -1,6 +1,5 @@
 import React from 'react';
 import { ArrowUpRight } from '@phosphor-icons/react';
-import cvPdf from '../assets/cv_costin_sarghiuta (2).pdf';
 
 const PLACES = [
     ['work', 'Work', '#'],
@@ -23,7 +22,7 @@ const SiteNav = ({ current, onGo }) => (
                 </li>
             ))}
             <li>
-                <a href={cvPdf} target="_blank" rel="noopener noreferrer">
+                <a href="/cv.pdf" target="_blank" rel="noopener noreferrer">
                     CV <ArrowUpRight size="0.85em" weight="bold" aria-hidden="true" />
                 </a>
             </li>

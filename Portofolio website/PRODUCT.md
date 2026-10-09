@@ -24,7 +24,7 @@ Costin designs a thing, tests it on real people or with data, then builds it him
 
 - Hosted on GitHub Pages at www.costinsarghiuta.com, built with Vite and React into `../docs`.
 - Three games are served from `public/` and playable in the browser: Muster (`/muster/`), River Racer (`/game2/`) and Duck Shoot (`/game/`).
-- The contact form posts to Web3Forms. The CV is a PDF in `src/assets`.
+- The contact form posts to Web3Forms. The CV is `public/cv.pdf`, served at `/cv.pdf` and made from `cv/cv.html` (the command is at the top of that file).
 
 ## Capabilities and Constraints
 

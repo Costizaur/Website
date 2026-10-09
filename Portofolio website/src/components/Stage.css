@@ -25,16 +25,29 @@
     /* 'fixed': the folders have that width. 'slot': the layout sizes the places on the desk
        and the motion code gives the folders the width of their place (phones). */
     --fold-fit: fixed;
+    /* How far the page reaches past the top and bottom of the screen. Only phones use it. */
+    --band: 0px;
 
     position: relative;
     isolation: isolate;
     overflow: hidden;
     min-height: max(100vh, calc(var(--u) * 57));
     min-height: max(100dvh, calc(var(--u) * 57));
+    color: var(--ink);
+}
+
+/* The desk. On a laptop it is the stage itself; on a phone it is the sheet that scrolls
+   inside the stage, and until then these two wrappers have no box at all. */
+.stage,
+.stage-sheet {
     background-color: var(--stage);
     background-image: radial-gradient(circle, var(--dot) calc(var(--u) * 0.11), transparent calc(var(--u) * 0.14));
     background-size: calc(var(--u) * 2.6) calc(var(--u) * 2.6);
-    color: var(--ink);
+}
+
+.stage-scroll,
+.stage-sheet {
+    display: contents;
 }
 
 /* In the dark a world is a deep version of its folder colour with light text, and the
@@ -353,12 +366,12 @@
 }
 
 .stage[data-world='apps'] .flood {
-    background-image: radial-gradient(calc(var(--u) * 60) calc(var(--u) * 40) at 82% 8%, rgba(255, 255, 255, 0.4), transparent 70%);
+    background-image: radial-gradient(calc(var(--u) * 60) calc(var(--u) * 40) at 82% calc(8% + var(--band) * 0.84), rgba(255, 255, 255, 0.4), transparent 70%);
 }
 
 @media (prefers-color-scheme: dark) {
     .stage[data-world='apps'] .flood {
-        background-image: radial-gradient(calc(var(--u) * 60) calc(var(--u) * 40) at 82% 8%, color-mix(in srgb, var(--wc) 26%, transparent), transparent 70%);
+        background-image: radial-gradient(calc(var(--u) * 60) calc(var(--u) * 40) at 82% calc(8% + var(--band) * 0.84), color-mix(in srgb, var(--wc) 26%, transparent), transparent 70%);
     }
 }
 
@@ -701,11 +714,22 @@
 
 /* ================= Phones and narrow windows =================
    Below 900px wide, or on a screen under 520px tall (a big phone on its side), the stage
-   stops being one fixed screen. It becomes as long as its contents and
-   the window scrolls over it: the folders stand in a grid, and inside a world they line up
-   as tabs along the top with the sheets in a column underneath. The motion code is the same;
-   it simply finds everything in different places. */
+   stops being one fixed screen. Its contents become a sheet as long as they need and scroll:
+   the folders stand in a grid, and inside a world they line up as tabs along the top with
+   the sheets in a column underneath. The motion code is the same; it simply finds everything
+   in different places.
+
+   What scrolls is the sheet inside the stage, not the page. A phone's browser draws the page
+   behind its own bars too, but past either end of the page it only has a flat colour. So the
+   page is made one screen tall plus a band above and a band below, it never scrolls itself,
+   and lib/stageMotion.js keeps it moved down by one band: the bands, with the desk's dots or
+   a folder's pattern on them, lie behind the bars, and the sheets slide under the bars as
+   they scroll. */
 @media (max-width: 899px), (max-height: 520px) {
+    html {
+        overflow: hidden;
+    }
+
     .stage {
         --u: clamp(9px, 2.6vw, 11px);
         /* Side padding; never less than the phone's safe area in landscape */
@@ -715,9 +739,31 @@
            the desk below works out what really fits, and the folders follow it. */
         --fw: min(calc((100vw - 2 * var(--pad) - 1.25rem) / 2), 15rem);
         --fold-fit: slot;
+        /* Taller than any bar, and than the stretch when a scroll bounces at its end */
+        --band: 20rem;
+        min-height: 0;
+        height: calc(100vh + 2 * var(--band));
+        height: calc(100svh + 2 * var(--band));
+        /* Nothing of its own behind the sheet: a hard bounce shows the page's colour there */
+        background: none;
+    }
+
+    /* The window that scrolls. It covers the bands too. */
+    .stage-scroll {
+        display: block;
+        position: absolute;
+        inset: 0;
+        overflow: hidden auto;
+        scroll-padding-block: var(--band);
+    }
+
+    /* As long as its contents and never shorter than the window, with a band at each end */
+    .stage-sheet {
         display: grid;
-        min-height: 100vh;
-        min-height: 100svh;
+        position: relative;
+        min-height: 100%;
+        padding-block: var(--band);
+        overflow: hidden;
     }
 
     /* ---- Home ---- */
@@ -815,7 +861,7 @@
 
     /* ---- World: back arrow and the folders as tabs along the top ---- */
     .world {
-        inset: 0 0 auto;
+        inset: var(--band) 0 auto;
         height: calc(var(--top) + 6.75rem);
     }
 
@@ -856,6 +902,11 @@
         position: relative;
         inset: auto;
         grid-area: 1 / 1;
+    }
+
+    /* The copy of the last folder's sheets lies exactly over the new ones, between the bands */
+    .cards-out {
+        inset: var(--band) 0;
     }
 
     .cards-layer > .frame {

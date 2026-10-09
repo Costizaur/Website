@@ -30,6 +30,12 @@ const lieOf = (count, j) => {
 
 const countLabel = (n) => `${n} ${n === 1 ? 'project' : 'projects'}`;
 
+// One colour to stand for a backdrop that may be a gradient: its middle stop, or its last of two
+const plainColour = (background) => {
+    const stops = background.match(/#[0-9a-f]{3,8}\b/gi);
+    return stops ? stops[Math.floor(stops.length / 2)] : null;
+};
+
 // Go somewhere, and say so in the address bar. `from` is the spot that was clicked, if any.
 const travel = (motion, target, instant, mode = 'push', from) => {
     motion.goTo(target, instant, from);
@@ -156,23 +162,21 @@ const Stage = () => {
         return () => { document.documentElement.style.overflow = ''; };
     }, [ui.view, onPage]);
 
-    // The page behind the stage takes the open folder's colour. A phone's browser fills the
-    // strips behind its own bars, and the space past either end of the page, with it; older
-    // browsers tint their bars from the theme-color tags instead.
+    // The page behind the stage takes the colour of what lies on it: the open folder's, or the
+    // open project's backdrop. A phone's browser tints the edges under its own bars with that
+    // colour and shows it where a scroll bounces past the end; older browsers colour their
+    // bars from the theme-color tags instead.
     useEffect(() => {
         const page = document.body.style;
-        if (ui.view !== 'home' && world) {
-            page.setProperty('--wc', world.color);
-            page.setProperty('--wd', world.deep);
-        } else {
-            page.removeProperty('--wc');
-            page.removeProperty('--wd');
-        }
-        // A project brings its own backdrop, so only the folder page itself changes the tags
-        THEME_TAGS.forEach(({ tag, desk, dark }) => {
-            tag.content = ui.view === 'world' && world ? (dark ? world.deep : world.color) : desk;
+        const backdrop = ui.view === 'project' && project ? project.backdrop : null;
+        const light = backdrop ? plainColour(backdrop.bg) : ui.view !== 'home' && world ? world.color : null;
+        const dark = backdrop ? plainColour((backdrop.dark || backdrop).bg) : ui.view !== 'home' && world ? world.deep : null;
+        if (light) page.setProperty('--behind', light); else page.removeProperty('--behind');
+        if (dark) page.setProperty('--behind-dark', dark); else page.removeProperty('--behind-dark');
+        THEME_TAGS.forEach((entry) => {
+            entry.tag.content = (entry.dark ? dark : light) || entry.desk;
         });
-    }, [ui.view, world]);
+    }, [ui.view, world, project]);
 
     // The open world's colours, for everything on the stage that takes them
     const colours = world ? { '--wc': world.color, '--wi': world.ink, '--wd': world.deep, '--wdi': world.deepInk } : undefined;
@@ -181,109 +185,116 @@ const Stage = () => {
         <div className="stage" ref={root} data-view={ui.view} data-world={world ? world.key : undefined} style={colours}>
             <i className="u-probe" aria-hidden="true"></i>
 
-            {/* --- HOME: the name, one line, and the desk the folders sit on --- */}
-            <div className="home" inert={ui.view !== 'home' || onPage}>
-                <div className="frame">
-                    <header className="h-top">
-                        <SiteNav current="work" onGo={onNav} />
-                        <h1 className="h-name"><span>Costin</span> <span>Sarghiuta</span></h1>
-                        <p className="h-sub">Game designer &amp; UI/UX designer, open to internships and junior roles. Every folder below is its own world. Open one.</p>
-                    </header>
-                    {/* Empty places that mark where each folder rests on the desk */}
-                    <div className="desk" aria-hidden="true">
-                        <div className="desk-in">
-                            {worlds.map(w => <span key={w.key} className="desk-slot"></span>)}
+            {/* On a phone the page itself stands still and everything up to the sheets scrolls
+                inside these two: the first is the window that scrolls, the second is as long as
+                its contents. On a laptop neither has a box of its own (see Stage.css). */}
+            <div className="stage-scroll">
+                <div className="stage-sheet">
+                    {/* --- HOME: the name, one line, and the desk the folders sit on --- */}
+                    <div className="home" inert={ui.view !== 'home' || onPage}>
+                        <div className="frame">
+                            <header className="h-top">
+                                <SiteNav current="work" onGo={onNav} />
+                                <h1 className="h-name"><span>Costin</span> <span>Sarghiuta</span></h1>
+                                <p className="h-sub">Game designer &amp; UI/UX designer, open to internships and junior roles. Every folder below is its own world. Open one.</p>
+                            </header>
+                            {/* Empty places that mark where each folder rests on the desk */}
+                            <div className="desk" aria-hidden="true">
+                                <div className="desk-in">
+                                    {worlds.map(w => <span key={w.key} className="desk-slot"></span>)}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            {/* --- The colour that pours out of a folder --- */}
-            <div className="under" aria-hidden="true"></div>
-            <div className="flood" aria-hidden="true"></div>
+                    {/* --- The colour that pours out of a folder --- */}
+                    <div className="under" aria-hidden="true"></div>
+                    <div className="flood" aria-hidden="true"></div>
 
-            {/* --- WORLD: the back arrow, and the places the folders move to --- */}
-            <div className="world" inert={ui.view !== 'world'}>
-                <div className="frame">
-                    <button type="button" className="w-back" aria-label="Back to all folders" onClick={backToDesk}>
-                        <ArrowLeft size="1em" weight="bold" aria-hidden="true" />
-                    </button>
-                    {/* Empty places that mark where each folder rests: down the side, or along the top on a phone */}
-                    <div className="rail" aria-hidden="true">
-                        {worlds.map(w => <span key={w.key} className="rail-slot"></span>)}
+                    {/* --- WORLD: the back arrow, and the places the folders move to --- */}
+                    <div className="world" inert={ui.view !== 'world'}>
+                        <div className="frame">
+                            <button type="button" className="w-back" aria-label="Back to all folders" onClick={backToDesk}>
+                                <ArrowLeft size="1em" weight="bold" aria-hidden="true" />
+                            </button>
+                            {/* Empty places that mark where each folder rests: down the side, or along the top on a phone */}
+                            <div className="rail" aria-hidden="true">
+                                {worlds.map(w => <span key={w.key} className="rail-slot"></span>)}
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            {/* --- FOLDERS: one set of four, on the desk at home and beside the sheets in a world --- */}
-            <nav className="folders" aria-label="Folders" inert={ui.view === 'project' || onPage}>
-                {worlds.map((w, i) => (
-                    <button
-                        key={w.key}
-                        type="button"
-                        className={`fold ${ui.world === i ? 'is-active' : ''}`}
-                        style={{ '--folder': w.color }}
-                        aria-label={`${w.title}, ${countLabel(w.projects.length)}`}
-                        aria-current={ui.view !== 'home' && ui.world === i ? 'true' : undefined}
-                        onClick={(e) => openFolder(i, e)}
-                    >
-                        <span className="fold-in">
-                            <Folder color={w.color} items={w.folderImages || w.projects.map(p => p.icon || p.src)} />
-                        </span>
-                        <span className="fold-name">{w.title}</span>
-                        <span className="fold-count">{countLabel(w.projects.length)}</span>
-                        <span className="fold-short" aria-hidden="true">{w.short}</span>
-                    </button>
-                ))}
-            </nav>
+                    {/* --- FOLDERS: one set of four, on the desk at home and beside the sheets in a world --- */}
+                    <nav className="folders" aria-label="Folders" inert={ui.view === 'project' || onPage}>
+                        {worlds.map((w, i) => (
+                            <button
+                                key={w.key}
+                                type="button"
+                                className={`fold ${ui.world === i ? 'is-active' : ''}`}
+                                style={{ '--folder': w.color }}
+                                aria-label={`${w.title}, ${countLabel(w.projects.length)}`}
+                                aria-current={ui.view !== 'home' && ui.world === i ? 'true' : undefined}
+                                onClick={(e) => openFolder(i, e)}
+                            >
+                                <span className="fold-in">
+                                    <Folder color={w.color} items={w.folderImages || w.projects.map(p => p.icon || p.src)} />
+                                </span>
+                                <span className="fold-name">{w.title}</span>
+                                <span className="fold-count">{countLabel(w.projects.length)}</span>
+                                <span className="fold-short" aria-hidden="true">{w.short}</span>
+                            </button>
+                        ))}
+                    </nav>
 
-            {/* --- SHEETS: the open folder's header and its projects. The first layer holds the
-                last folder's sheets for a moment while another folder takes over. --- */}
-            <div className="cards-layer cards-out" aria-hidden="true" inert></div>
-            <section className="cards-layer cards" inert={ui.view !== 'world'} aria-label={world ? world.title : undefined}>
-                <div className="frame">
-                    <div className="w-head">
-                        <p className="w-crumbs">
-                            <button type="button" onClick={backToDesk}>Projects</button>
-                            <CaretRight size="0.8em" weight="bold" aria-hidden="true" />
-                            <span>{world ? world.title : ''}</span>
-                        </p>
-                        <div className="w-title-clip"><h2 className="w-title">{world ? world.title : ''}</h2></div>
-                        <p className="w-blurb">{world ? world.blurb : ''}</p>
-                    </div>
-                    {world && (
-                        <div className="cards-grid" data-count={Math.min(count, 3)} role="group" aria-label={`Projects in ${world.title}`}>
-                            {world.projects.map((p, j) => {
-                                const lie = lieOf(count, j);
-                                return (
-                                    <button
-                                        key={`${world.key}/${p.slug}`}
-                                        type="button"
-                                        className={`card ${count === 1 ? 'is-wide' : ''}`}
-                                        style={{ '--tilt': `${lie.tilt}deg`, '--drop': lie.drop, '--pos': p.shotPosition }}
-                                        onClick={(e) => openProject(j, e)}
-                                    >
-                                        <span className="card-in">
-                                            <img className="card-shot" src={p.src} alt="" draggable="false" />
-                                            <span className="card-body">
-                                                <span className="card-meta">
-                                                    <img className="card-icon" src={p.icon} alt="" draggable="false" />
-                                                    <span>
-                                                        <span className="card-title">{p.title}</span>
-                                                        <span className="card-type">{p.type}</span>
+                    {/* --- SHEETS: the open folder's header and its projects. The first layer holds the
+                        last folder's sheets for a moment while another folder takes over. --- */}
+                    <div className="cards-layer cards-out" aria-hidden="true" inert></div>
+                    <section className="cards-layer cards" inert={ui.view !== 'world'} aria-label={world ? world.title : undefined}>
+                        <div className="frame">
+                            <div className="w-head">
+                                <p className="w-crumbs">
+                                    <button type="button" onClick={backToDesk}>Projects</button>
+                                    <CaretRight size="0.8em" weight="bold" aria-hidden="true" />
+                                    <span>{world ? world.title : ''}</span>
+                                </p>
+                                <div className="w-title-clip"><h2 className="w-title">{world ? world.title : ''}</h2></div>
+                                <p className="w-blurb">{world ? world.blurb : ''}</p>
+                            </div>
+                            {world && (
+                                <div className="cards-grid" data-count={Math.min(count, 3)} role="group" aria-label={`Projects in ${world.title}`}>
+                                    {world.projects.map((p, j) => {
+                                        const lie = lieOf(count, j);
+                                        return (
+                                            <button
+                                                key={`${world.key}/${p.slug}`}
+                                                type="button"
+                                                className={`card ${count === 1 ? 'is-wide' : ''}`}
+                                                style={{ '--tilt': `${lie.tilt}deg`, '--drop': lie.drop, '--pos': p.shotPosition }}
+                                                onClick={(e) => openProject(j, e)}
+                                            >
+                                                <span className="card-in">
+                                                    <img className="card-shot" src={p.src} alt="" draggable="false" />
+                                                    <span className="card-body">
+                                                        <span className="card-meta">
+                                                            <img className="card-icon" src={p.icon} alt="" draggable="false" />
+                                                            <span>
+                                                                <span className="card-title">{p.title}</span>
+                                                                <span className="card-type">{p.type}</span>
+                                                            </span>
+                                                        </span>
+                                                        <span className="card-line">{p.line}</span>
+                                                        <span className="card-go">Open project <ArrowRight size="1em" weight="bold" aria-hidden="true" /></span>
                                                     </span>
                                                 </span>
-                                                <span className="card-line">{p.line}</span>
-                                                <span className="card-go">Open project <ArrowRight size="1em" weight="bold" aria-hidden="true" /></span>
-                                            </span>
-                                        </span>
-                                    </button>
-                                );
-                            })}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </section>
                 </div>
-            </section>
+            </div>
 
             {/* --- PROJECT: a sheet grown to the whole screen --- */}
             <ProjectPage

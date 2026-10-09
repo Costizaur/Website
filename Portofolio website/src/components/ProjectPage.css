@@ -474,6 +474,18 @@
 /* ================= Phones and narrow windows =================
    The page is one scrolling column, with the screenshot first. */
 @media (max-width: 899px), (max-height: 520px) {
+    /* Like the stage (see Stage.css), the page reaches a band past the top and the bottom of
+       the screen, so its backdrop lies behind the browser's bars; its contents start and end
+       between the bands */
+    .page {
+        position: absolute;
+        scroll-padding-block: var(--band);
+    }
+
+    .pg-body {
+        padding-block: var(--band);
+    }
+
     .pg-hero {
         min-height: 0;
     }

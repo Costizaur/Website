@@ -110,6 +110,18 @@
 }
 
 @media (max-width: 899px), (max-height: 520px) {
+    /* Like the stage (see Stage.css), the page reaches a band past the top and the bottom of
+       the screen, so the desk's dots lie behind the browser's bars; its contents start and
+       end between the bands */
+    .info {
+        position: absolute;
+        scroll-padding-block: var(--band);
+    }
+
+    .info > .frame {
+        padding-block: var(--band);
+    }
+
     .info-body {
         padding: 1.75rem var(--pad) calc(3.5rem + env(safe-area-inset-bottom, 0px));
     }

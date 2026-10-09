@@ -78,10 +78,10 @@ body {
   font-family: var(--font-text);
   font-size: 1rem;
   line-height: 1.55;
-  /* A phone's browser paints this colour behind its own bars and past either end of the
-     page, where the stage does not reach. Inside a folder it is the folder's colour:
-     --wc and --wd (the dark one) arrive from Stage.jsx while a folder is open. */
-  background-color: var(--wc, var(--stage));
+  /* A phone's browser tints the edges under its own bars with this colour, and shows it
+     where a scroll bounces past the end of the page. Inside a folder or a project it is that
+     folder's or project's colour: --behind and --behind-dark arrive from Stage.jsx. */
+  background-color: var(--behind, var(--stage));
   transition: background-color 400ms ease;
   color: var(--ink);
   overflow-x: clip;
@@ -91,7 +91,7 @@ body {
 
 @media (prefers-color-scheme: dark) {
   body {
-    background-color: var(--wd, var(--stage));
+    background-color: var(--behind-dark, var(--stage));
   }
 }
 

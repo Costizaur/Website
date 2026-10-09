@@ -13,6 +13,7 @@ export const createStageMotion = (root, commit, start) => {
     const $$ = (sel, from = root) => [...from.querySelectorAll(sel)];
 
     const top = $('.h-top'), flood = $('.flood'), under = $('.under'), world = $('.world');
+    const scroller = $('.stage-scroll'), sheet = $('.stage-sheet');
     const backBtn = $('.w-back'), probe = $('.u-probe');
     const cards = $('.cards'), cardsOut = $('.cards-out'), page = $('.page'), info = $('.info');
     const headEls = [$('.w-crumbs', cards), $('.w-title', cards), $('.w-blurb', cards)];
@@ -36,8 +37,12 @@ export const createStageMotion = (root, commit, start) => {
     let infoFrom = null;         // where on the screen the page grows from
     let infoEls = [];
     let leaveTimer = 0, swapTimer = 0;
+    let band = 0;                // how far the page reaches past the screen, on a phone (--band in Stage.css)
 
     // ---- Measuring ----
+    // Everything is measured from the corner of the colour layer: it covers the stage on a
+    // laptop and the whole scrolling sheet on a phone, and the folders and sheets lie in it.
+    const frameBox = () => flood.getBoundingClientRect();
     const rectIn = (el, frame) => {
         const b = el.getBoundingClientRect();
         return { x: b.left - frame.left, y: b.top - frame.top, w: b.width, h: b.height };
@@ -49,7 +54,7 @@ export const createStageMotion = (root, commit, start) => {
 
     const collectCards = () => {
         cardEls = $$('.card', cards);
-        const frame = root.getBoundingClientRect();
+        const frame = frameBox();
         cardAt = cardEls.map(el => {
             // Its resting place, without the transform this file puts on it
             el.style.transform = 'none';
@@ -89,7 +94,7 @@ export const createStageMotion = (root, commit, start) => {
         cards.style.visibility = on;
         if (f >= 1) flood.style.clipPath = 'none';
         else {
-            const width = root.clientWidth, height = root.clientHeight;
+            const width = flood.clientWidth, height = flood.clientHeight;
             const far = Math.hypot(Math.max(origin.x, width - origin.x), Math.max(origin.y, height - origin.y)) * 1.03;
             flood.style.clipPath = `circle(${easeOut5(range(f, 0, 0.72)) * far}px at ${origin.x}px ${origin.y}px)`;
         }
@@ -146,7 +151,9 @@ export const createStageMotion = (root, commit, start) => {
         if (t >= 1) info.style.clipPath = 'none';
         else {
             const width = info.clientWidth, height = info.clientHeight;
-            const from = infoFrom || { x: width * 0.72, y: 0 };
+            // The click is a place on the screen; on a phone the page starts a band above it
+            const box = info.getBoundingClientRect();
+            const from = infoFrom ? { x: infoFrom.x - box.left, y: infoFrom.y - box.top } : { x: width * 0.72, y: -box.top };
             const far = Math.hypot(Math.max(from.x, width - from.x), Math.max(from.y, height - from.y)) * 1.03;
             info.style.clipPath = `circle(${easeOut5(range(t, 0, 0.78)) * far}px at ${from.x}px ${from.y}px)`;
         }
@@ -162,10 +169,21 @@ export const createStageMotion = (root, commit, start) => {
     const P = makeSpring(renderP);
     const I = makeTrack(0.62, renderI);
 
+    // On a phone the page itself never scrolls: it is one screen with a band above and below,
+    // and it stays moved down by exactly one band, so the bands lie behind the browser's bars.
+    // While someone types, the browser may move the page to keep the field in view; then it is left alone.
+    const hold = () => {
+        if (!band || Math.abs(window.scrollY - band) < 0.5) return;
+        const typing = document.activeElement && document.activeElement.matches('input, textarea, select');
+        if (!typing) window.scrollTo(0, band);
+    };
+
     const measure = () => {
         u = probe.getBoundingClientRect().width / 100;
         if (!u) return;
-        const frame = root.getBoundingClientRect();
+        band = parseFloat(getComputedStyle(sheet).paddingTop) || 0;
+        hold();
+        const frame = frameBox();
         home = deskSlots.map(el => rectIn(el, frame));
         // On a phone the layout decides how big a folder can be; the folders take that width
         // before the sidebar places, which depend on it, are measured
@@ -198,10 +216,11 @@ export const createStageMotion = (root, commit, start) => {
 
     const show = (next) => commit({ view, world: active < 0 ? null : active, project: null, info: infoOn, panel, ...next });
 
-    // On a phone the stage is as long as its contents and the window scrolls over it.
-    // Anything that happens at the top of the stage starts by going there.
+    // Anything that happens at the top of the stage starts by going there. On a phone it is
+    // the sheet that scrolls, inside the stage; on a laptop in a low window it is the page.
     const toTop = (glide) => {
-        if (window.scrollY > 0) window.scrollTo({ top: 0, behavior: glide ? 'smooth' : 'auto' });
+        const where = band ? scroller : window;
+        if ((band ? scroller.scrollTop : window.scrollY) > 0) where.scrollTo({ top: 0, behavior: glide ? 'smooth' : 'auto' });
     };
 
     // ---- Folders ----
@@ -411,6 +430,9 @@ export const createStageMotion = (root, commit, start) => {
     // ---- Start ----
     const observer = new ResizeObserver(measure);
     observer.observe(root);
+    observer.observe(flood);
+    window.addEventListener('scroll', hold, { passive: true });
+    document.addEventListener('focusout', hold);
     measure();
     W.set(0);
     F.set(0);
@@ -446,6 +468,8 @@ export const createStageMotion = (root, commit, start) => {
         goTo,
         destroy() {
             observer.disconnect();
+            window.removeEventListener('scroll', hold);
+            document.removeEventListener('focusout', hold);
             clearTimeout(leaveTimer);
             clearTimeout(swapTimer);
             W.stop();

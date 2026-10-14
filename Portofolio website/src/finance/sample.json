@@ -1,0 +1,453 @@
+{
+  "ok": true,
+  "generated_at": "2026-10-14T16:05:33.621Z",
+  "output": {
+    "decision_source": "Blend",
+    "decision_score": 0.428,
+    "stance": "OFFENSIVE",
+    "pick": "VWCE",
+    "pick_momentum": 0.117,
+    "best_offensive": "VWCE",
+    "best_offensive_momentum": 0.117,
+    "best_defensive": "IB01",
+    "best_defensive_momentum": 0.017,
+    "as_of": "2026-10-14",
+    "next_rebalance": "2026-10-31",
+    "data_check": "OK",
+    "missing_momentum_count": 0,
+    "missing_momentum_tickers": null,
+    "scores_ok": true
+  },
+  "base": {
+    "ticker": "VWCE",
+    "prices": [
+      173.02,
+      166.24,
+      165.67,
+      150.2,
+      140.65
+    ],
+    "momentum": 0.117
+  },
+  "scores": {
+    "fred": 0.44,
+    "etf": 0.41,
+    "clasic": 0.52
+  },
+  "model": {
+    "ok": true,
+    "signals": {
+      "macro": [
+        {
+          "label": "Dobanda (Rates)",
+          "found": true,
+          "live": 89.54,
+          "weight": 0.15,
+          "vote": -1
+        },
+        {
+          "label": "Inflatie",
+          "found": true,
+          "live": 33.48,
+          "weight": 0.15,
+          "vote": -1
+        },
+        {
+          "label": "Piata Muncii",
+          "found": true,
+          "live": 112.36,
+          "weight": 0.15,
+          "vote": -1
+        },
+        {
+          "label": "GDP (Economie)",
+          "found": true,
+          "live": 276.7,
+          "weight": 0.15,
+          "vote": 0
+        },
+        {
+          "label": "Incertitudine",
+          "found": true,
+          "live": 15.37,
+          "weight": 0.1,
+          "vote": 1
+        },
+        {
+          "label": "Lichiditate (Fed)",
+          "found": true,
+          "live": 77.09,
+          "weight": 0.1,
+          "vote": -1
+        },
+        {
+          "label": "Geopolitica",
+          "found": true,
+          "live": 381.67,
+          "weight": 0.1,
+          "vote": 1
+        },
+        {
+          "label": "Optimism Social",
+          "found": true,
+          "live": 1.335,
+          "weight": 0.05,
+          "vote": 0
+        },
+        {
+          "label": "Crize Sanitare",
+          "found": true,
+          "live": 4.586,
+          "weight": 0.05,
+          "vote": 0
+        }
+      ],
+      "tech": [
+        {
+          "label": "Trend D1 (200 MA)",
+          "found": true,
+          "live": 666.283,
+          "weight": 0.35,
+          "vote": 1
+        },
+        {
+          "label": "MA (30) D1",
+          "found": true,
+          "live": 706.402,
+          "weight": 0.2,
+          "vote": 1
+        },
+        {
+          "label": "RSI Proxy (14 Day)",
+          "found": true,
+          "live": 88.889,
+          "weight": 0.2,
+          "vote": -1
+        },
+        {
+          "label": "MACD Proxy",
+          "found": true,
+          "live": 3.451,
+          "weight": 0.25,
+          "vote": 1
+        }
+      ],
+      "sent": [
+        {
+          "label": "VIX (Frica)",
+          "found": true,
+          "live": 15.37,
+          "weight": 1,
+          "vote": 1
+        },
+        {
+          "label": "Curba Obligatiuni",
+          "found": true,
+          "live": 102.55,
+          "weight": 0,
+          "vote": -1
+        }
+      ],
+      "fund": [
+        {
+          "label": "Dobanda de referinta",
+          "found": true,
+          "live": null,
+          "weight": 0.15,
+          "vote": -1
+        },
+        {
+          "label": "Inflatie",
+          "found": true,
+          "live": null,
+          "weight": 0.15,
+          "vote": 1
+        },
+        {
+          "label": "Piata muncii",
+          "found": true,
+          "live": null,
+          "weight": 0.15,
+          "vote": 0
+        },
+        {
+          "label": "Produs Intern Brut",
+          "found": true,
+          "live": null,
+          "weight": 0.15,
+          "vote": 1
+        },
+        {
+          "label": "Alegeri (Stabilitate VIX)",
+          "found": true,
+          "live": null,
+          "weight": 0.1,
+          "vote": 1
+        },
+        {
+          "label": "Politica fiscala (Yield Curve)",
+          "found": true,
+          "live": null,
+          "weight": 0.1,
+          "vote": 1
+        },
+        {
+          "label": "Evenimente geopolitice (Aur)",
+          "found": true,
+          "live": null,
+          "weight": 0.1,
+          "vote": 1
+        },
+        {
+          "label": "Proteste de amploare",
+          "found": true,
+          "live": null,
+          "weight": 0,
+          "vote": -1
+        },
+        {
+          "label": "Crize sanitare",
+          "found": true,
+          "live": null,
+          "weight": 0,
+          "vote": -1
+        }
+      ],
+      "health": [
+        {
+          "label": "Dr. Copper",
+          "found": true,
+          "live": 84.4,
+          "weight": 0.25,
+          "vote": 1
+        },
+        {
+          "label": "Market Breadth",
+          "found": true,
+          "live": 213.3,
+          "weight": 0.25,
+          "vote": -1
+        },
+        {
+          "label": "Tech Pulse",
+          "found": true,
+          "live": 588.12,
+          "weight": 0.25,
+          "vote": 1
+        },
+        {
+          "label": "USD Index",
+          "found": true,
+          "live": 29.02,
+          "weight": 0.25,
+          "vote": -1
+        }
+      ],
+      "risk": [
+        {
+          "label": "Supra-extindere",
+          "found": true,
+          "live": 0.076,
+          "weight": 0.5,
+          "vote": 1
+        },
+        {
+          "label": "Sezonalitate",
+          "found": true,
+          "live": 10,
+          "weight": 0.5,
+          "vote": 0
+        }
+      ]
+    },
+    "totals": {
+      "macro": -0.35,
+      "tech": 0.6,
+      "sent": 1,
+      "health": 0,
+      "risk": 0.5,
+      "fund": 0.5
+    }
+  },
+  "etfs": [
+    {
+      "side": "offensive",
+      "category": "Actiuni SUA - S&P 500",
+      "ticker": "VOO",
+      "prices": [
+        715.2,
+        699.3,
+        691.1,
+        638.35,
+        608.75
+      ],
+      "momentum": 0.088
+    },
+    {
+      "side": "offensive",
+      "category": "Actiuni internationale - Piete dezvoltate ex SUA",
+      "ticker": "LON:EXUS",
+      "prices": [
+        45.21,
+        46.08,
+        45.42,
+        44.3,
+        38.92
+      ],
+      "momentum": 0.04
+    },
+    {
+      "side": "offensive",
+      "category": "Actiuni internationale - Piete dezvoltate ex SUA",
+      "ticker": "EFA",
+      "prices": [
+        103.47,
+        105.85,
+        103.96,
+        103.64,
+        93.4
+      ],
+      "momentum": 0.02
+    },
+    {
+      "side": "offensive",
+      "category": "Actiuni piete emergente",
+      "ticker": "EIMI",
+      "prices": [
+        53.86,
+        54.28,
+        53.69,
+        50.79,
+        43.05
+      ],
+      "momentum": 0.077
+    },
+    {
+      "side": "offensive",
+      "category": "Actiuni piete emergente",
+      "ticker": "VFEM",
+      "prices": [
+        61.77,
+        61.08,
+        60.66,
+        59.2,
+        55.18
+      ],
+      "momentum": 0.048
+    },
+    {
+      "side": "offensive",
+      "category": "Actiuni Global",
+      "ticker": "VWCE",
+      "prices": [
+        173.02,
+        166.24,
+        165.67,
+        150.2,
+        140.65
+      ],
+      "momentum": 0.117
+    },
+    {
+      "side": "defensive",
+      "category": "Oblig. Guvern",
+      "ticker": "DTLA",
+      "prices": [
+        4.29,
+        4.41,
+        4.54,
+        4.64,
+        4.72
+      ],
+      "momentum": -0.062
+    },
+    {
+      "side": "defensive",
+      "category": "Titluri de stat 0-1 an",
+      "ticker": "IB01",
+      "prices": [
+        122.16,
+        121.78,
+        121.06,
+        119.98,
+        117.84
+      ],
+      "momentum": 0.017
+    },
+    {
+      "side": "defensive",
+      "category": "Oblig. Corp. (EUR)",
+      "ticker": "IEAC",
+      "prices": [
+        116.31,
+        115.75,
+        119.81,
+        119.12,
+        121.36
+      ],
+      "momentum": -0.022
+    },
+    {
+      "side": "defensive",
+      "category": "Oblig. Corp. SUA (EUR hedged)",
+      "ticker": "LQEE",
+      "prices": [
+        3.4,
+        3.49,
+        3.56,
+        3.67,
+        3.77
+      ],
+      "momentum": -0.061
+    },
+    {
+      "side": "defensive",
+      "category": "AUR",
+      "ticker": "IAU",
+      "prices": [
+        78.25,
+        80.54,
+        76.27,
+        91.18,
+        78.03
+      ],
+      "momentum": -0.035
+    },
+    {
+      "side": "defensive",
+      "category": "Cash / Inverse",
+      "ticker": "SH",
+      "prices": [
+        31.83,
+        32.78,
+        32.86,
+        35.57,
+        37.23
+      ],
+      "momentum": -0.078
+    }
+  ],
+  "log": [
+    {
+      "date": "2026-10-14",
+      "month": "2026-10",
+      "decision_source": "Blend",
+      "decision_score": 0.428,
+      "stance": "OFFENSIVE",
+      "pick": "VWCE",
+      "pick_momentum": 0.117,
+      "best_offensive": "VWCE",
+      "best_offensive_momentum": 0.117,
+      "best_defensive": "IB01",
+      "best_defensive_momentum": 0.017,
+      "fred": 0.44,
+      "etf": 0.41,
+      "clasic": 0.52,
+      "base_etf": "VWCE",
+      "base_momentum": 0.117,
+      "data_check": "OK",
+      "missing_momentum_tickers": null,
+      "logged_at_utc": "2026-10-14T12:15:50Z"
+    }
+  ]
+}

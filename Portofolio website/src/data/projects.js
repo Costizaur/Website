@@ -24,6 +24,9 @@ import portfolioAbout from '../assets/portfolio-about.jpg';
 import portfolioWork from '../assets/portfolio-work.jpg';
 import portfolioProject from '../assets/portfolio-project.jpg';
 import financeDashboard from '../assets/finance-dashboard.png';
+import financeLiveScale from '../assets/finance-live-scale.jpg';
+import financeLiveCheck from '../assets/finance-live-check.jpg';
+import financeLiveDecide from '../assets/finance-live-decide.jpg';
 import musterMenu from '../assets/muster-menu.jpg';
 import musterPhase from '../assets/muster-muster-phase.jpg';
 import musterLineup from '../assets/muster-lineup.jpg';
@@ -126,11 +129,12 @@ const projects = [
       {
         title: 'Live Finance Dashboard',
         icon: iconFinanceLive,
-        src: financeDashboard,
-        description: 'This project bridges the gap between raw data and actionable insights. Built with Python, Streamlit, and Plotly, this web application connects securely to a live Google Sheet to track multi-month financial momentum.',
-        longDescription: 'By applying UX research from professional analytics platforms, I designed a top-down visual hierarchy that automatically cleans complex data and presents immediate, readable strategy signals to the user.',
-        tags: ['Python', 'Streamlit', 'Plotly', 'Google Sheets API'],
-        liveLink: 'https://financedashboard-lbekvafqjqn6jsvtrtgn6b.streamlit.app/'
+        src: financeLiveScale,
+        extraImages: [financeLiveScale, financeLiveCheck, financeLiveDecide],
+        description: 'Go for growth or play it safe this month? My Google Sheet model weighs thirty market signals and picks one ETF a month. This page puts the model on a see-saw, so someone with no finance knowledge can see which way it leans, check any ETF against the base and follow it to a decision.',
+        longDescription: 'Each group of signals is a weight sized by its share of the decision, so the beam tips by exactly the score the sheet decides with. Tap a signal to flip its vote and the scores, the scale and the pick are worked out again with the sheet’s own formulas. A small server reads the sheet, so its address never reaches the browser, and the page says so openly when data is missing.',
+        tags: ['React', 'Google Apps Script', 'Google Sheets', 'Data visualisation'],
+        liveLink: '/finance/'
       }
     ],
     folderImages: [iconPortfolio, iconFinanceLive],
@@ -310,10 +314,10 @@ const PROJECT_LOOK = {
   },
   'Live Finance Dashboard': {
     slug: 'live-finance-dashboard',
-    type: 'Python, Streamlit',
-    line: 'A live dashboard in Python and Streamlit, fed by a Google Sheet.',
-    pitch: 'Connects to a live Google Sheet, cleans the data and turns multi-month momentum into signals you can read at a glance.',
-    facts: [['Python', 'Streamlit and Plotly'], ['Live', 'Google Sheets data'], ['Deployed', 'on Streamlit Cloud']],
+    type: 'React, Apps Script',
+    line: 'Thirty market signals on a see-saw, read live from a Google Sheet.',
+    pitch: 'Go for growth or play it safe this month? The page weighs thirty signals from my Google Sheet model and walks anyone, finance or not, to the month’s one ETF pick.',
+    facts: [['30', 'market signals, weighed'], ['Live', 'from a Google Sheet'], ['1', 'ETF picked each month']],
     action: { label: 'Open the live app', href: 'liveLink' },
     titleScale: 0.8,
     backdrop: { bg: '#0e1117', fg: '#e6e9ef' }

@@ -10,6 +10,7 @@
     background-color: var(--stage);
     background-image: radial-gradient(circle, var(--dot) calc(var(--u) * 0.11), transparent calc(var(--u) * 0.14));
     background-size: calc(var(--u) * 2.6) calc(var(--u) * 2.6);
+    background-position: 50% 0;
     color: var(--ink);
     visibility: hidden;
     will-change: clip-path;

@@ -43,6 +43,8 @@
     background-color: var(--stage);
     background-image: radial-gradient(circle, var(--dot) calc(var(--u) * 0.11), transparent calc(var(--u) * 0.14));
     background-size: calc(var(--u) * 2.6) calc(var(--u) * 2.6);
+    /* Centred, so the dots keep the same gap to both edges at any screen width */
+    background-position: 50% 0;
 }
 
 .stage-scroll,
@@ -351,6 +353,7 @@
 .stage[data-world='uiux'] .flood {
     background-image: radial-gradient(circle, color-mix(in srgb, var(--w-ink) 17%, transparent) calc(var(--u) * 0.13), transparent calc(var(--u) * 0.16));
     background-size: calc(var(--u) * 2.2) calc(var(--u) * 2.2);
+    background-position: 50% 0;
 }
 
 .stage[data-world='web'] .flood {
@@ -362,7 +365,7 @@
         radial-gradient(circle, color-mix(in srgb, var(--w-ink) 8%, transparent) calc(var(--u) * 1.1), transparent calc(var(--u) * 1.15)),
         radial-gradient(circle, color-mix(in srgb, var(--w-ink) 8%, transparent) calc(var(--u) * 1.1), transparent calc(var(--u) * 1.15));
     background-size: calc(var(--u) * 8) calc(var(--u) * 8);
-    background-position: 0 0, calc(var(--u) * 4) calc(var(--u) * 4);
+    background-position: 50% 0, calc(50% + var(--u) * 4) calc(var(--u) * 4);
 }
 
 .stage[data-world='apps'] .flood {

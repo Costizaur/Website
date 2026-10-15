@@ -10,12 +10,17 @@
  *
  * Install: in the sheet, Extensions > Apps Script, add this as a new file, then
  * Deploy > New deployment > Web app, Execute as: Me, Who has access: Anyone.
+ * Then run fdInstallTrigger once from the editor (pick it in the function list, press Run).
  * After changing this file: Deploy > Manage deployments > Edit > Version: New version,
  * so the address stays the same.
+ *
+ * Opening the sheet from a script makes Google recalculate it, prices and FRED data
+ * included, which takes around 40 seconds. So a visitor never waits for that: once an hour
+ * a trigger works out the answer and keeps it, and the page is always handed the kept copy.
  */
 
 const FD_MODEL_TAB = 'Strategia AS Auto Test 1';
-const FD_STATE_SECONDS = 300;      // the page sees sheet changes within five minutes
+const FD_STATE_SECONDS = 21600;    // the longest the cache keeps anything; the trigger refreshes it hourly
 const FD_TICKER_SECONDS = 21600;   // a looked-up ticker is kept for six hours
 
 const FD_OUTPUT_KEYS = [
@@ -61,11 +66,38 @@ function doGet(e) {
   return ContentService.createTextOutput(JSON.stringify(body)).setMimeType(ContentService.MimeType.JSON);
 }
 
+// The answer the page gets: the cached copy, else the copy kept in the script's properties,
+// and only if neither exists (before the first refresh) a fresh one, which is slow.
 function fdState_() {
-  const cache = CacheService.getScriptCache();
-  const hit = cache.get('fd_state_v1');
+  const hit = CacheService.getScriptCache().get('fd_state_v1');
   if (hit) return JSON.parse(hit);
+  const kept = PropertiesService.getScriptProperties().getProperty('fd_state_v1');
+  if (kept) {
+    CacheService.getScriptCache().put('fd_state_v1', kept, FD_STATE_SECONDS);
+    return JSON.parse(kept);
+  }
+  return fdRefresh();
+}
 
+// Works the answer out from the sheet and keeps it in both places. The hourly trigger runs this.
+function fdRefresh() {
+  const body = fdBuild_();
+  const text = JSON.stringify(body);
+  CacheService.getScriptCache().put('fd_state_v1', text, FD_STATE_SECONDS);
+  PropertiesService.getScriptProperties().setProperty('fd_state_v1', text);
+  return body;
+}
+
+// Run once from the editor: sets up the hourly refresh (replacing any earlier one) and runs it now
+function fdInstallTrigger() {
+  ScriptApp.getProjectTriggers()
+    .filter(t => t.getHandlerFunction() === 'fdRefresh')
+    .forEach(t => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger('fdRefresh').timeBased().everyHours(1).create();
+  fdRefresh();
+}
+
+function fdBuild_() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const tz = ss.getSpreadsheetTimeZone();
   const plain = v => fdPlain_(v, tz);
@@ -145,14 +177,12 @@ function fdState_() {
     });
   }
 
-  const body = {
+  return {
     ok: true, generated_at: new Date().toISOString(),
     output: output, base: base, scores: scores,
     model: { ok: modelOk, signals: signals, totals: totals },
     etfs: etfs, log: log
   };
-  cache.put('fd_state_v1', JSON.stringify(body), FD_STATE_SECONDS);
-  return body;
 }
 
 // Numbers stay numbers, dates become yyyy-MM-dd, everything else is trimmed text.

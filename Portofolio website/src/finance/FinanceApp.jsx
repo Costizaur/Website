@@ -50,13 +50,28 @@ export default function FinanceApp() {
                         <button type="button" className="fd-btn" onClick={() => { setFailed(false); setAttempt(a => a + 1); }}>Try again</button>
                     </div>
                 ) : (
-                    <div className="fd-sheet fd-msg" role="status"><p>Reading the latest numbers from the model…</p></div>
+                    <Waiting />
                 )}
                 <footer className="fd-foot">
                     <span>A personal model by Costin Sarghiuta, built in Google Sheets. Not financial advice.</span>
                     <span>Rule: on the last day of each month, everything goes into one ETF.</span>
                 </footer>
             </div>
+        </div>
+    );
+}
+
+// The server usually answers in a few seconds; if it is slow, say so rather than look stuck
+function Waiting() {
+    const [slow, setSlow] = useState(false);
+    useEffect(() => {
+        const t = setTimeout(() => setSlow(true), 6000);
+        return () => clearTimeout(t);
+    }, []);
+    return (
+        <div className="fd-sheet fd-msg" role="status">
+            <p>Reading the latest numbers from the model…</p>
+            {slow && <p>The model is taking longer than usual. It can need up to a minute when it has just been updated.</p>}
         </div>
     );
 }
@@ -272,7 +287,7 @@ function Scale({ totals, shares, score, group, onPick }) {
                             key={o.g.id} type="button" className={`fd-weight ${tone}`} aria-pressed={o.g.id === group}
                             aria-label={`${o.g.name}, score ${sgn(o.t)}, ${Math.round(o.share * 100)}% of the decision, ${dir}. Show its signals.`}
                             onClick={() => onPick(o.g.id)}
-                            style={{ left: `${o.pos.toFixed(2)}%`, bottom: `${14 + o.lvl * (tall + gap + 2)}px`, width: `${o.px}px`, height: `${tall}px` }}
+                            style={{ translate: `${(o.pos / 100 * beam).toFixed(1)}px ${-(14 + o.lvl * (tall + gap + 2))}px`, width: `${o.px}px`, height: `${tall}px` }}
                         >
                             <span className="fd-weight-top"><Icon d={o.g.icon} />{!compact && <span className="fd-mono">{sgn(o.t)}</span>}</span>
                             {!compact && <span className="fd-weight-name">{o.g.short}</span>}

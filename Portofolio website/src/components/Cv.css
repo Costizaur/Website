@@ -464,8 +464,8 @@
         padding: 9mm 9mm 8.5mm;
         overflow: hidden;
         background: #fff;
-        font-size: 7.9pt;
-        line-height: 1.4;
+        font-size: 7.8pt;
+        line-height: 1.37;
         color: var(--sheet-body);
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
@@ -476,6 +476,12 @@
         display: grid;
         align-content: start;
         gap: 2.6mm;
+    }
+
+    /* The left column is the long one, so it sits a little closer to fit the page */
+    .cv-main,
+    .cv-main .cv-sheets {
+        gap: 2.2mm;
     }
 
     /* ---- The name, the line under it and the profile ---- */
@@ -510,7 +516,7 @@
 
     /* ---- Sheets: outlined, with no shadow (a blurred one prints as a grey box in Preview) ---- */
     .cv-sheet {
-        padding: 3.15mm 4.4mm 3.35mm;
+        padding: 2.9mm 4.4mm 3.1mm;
         border: 0.25mm solid var(--edge);
         border-radius: 3.1mm;
         break-inside: avoid;
@@ -534,6 +540,10 @@
         color: var(--sheet-ink);
     }
 
+    .cv-main .cv-label {
+        margin-bottom: 1.6mm;
+    }
+
     .cv-label .folder {
         --fw: 5.6mm;
         margin-top: calc(var(--fu) * -22);
@@ -545,7 +555,7 @@
     }
 
     .cv-entry + .cv-entry {
-        margin-top: 2.3mm;
+        margin-top: 2mm;
     }
 
     .cv-entry-head {
@@ -565,13 +575,13 @@
 
     .cv-when {
         flex: none;
-        font-size: 7.9pt;
+        font-size: 7.8pt;
         color: var(--sheet-soft);
         white-space: nowrap;
     }
 
     .cv-sub {
-        font-size: 7.9pt;
+        font-size: 7.8pt;
         color: var(--sheet-soft);
     }
 

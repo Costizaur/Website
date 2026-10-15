@@ -25,7 +25,12 @@ export const cv = {
                 {
                     title: 'Game Designer',
                     when: 'Sep 2026 – Feb 2027',
-                    sub: 'Thales · Internship, 6 months'
+                    sub: 'Thales · Internship, 6 months · Scrum Master',
+                    points: [
+                        'Designed interface screens and implemented them myself in Unity and C#.',
+                        'Built reusable interface components so the team can make new screens in one style.',
+                        'Learned the Scrum Master role, running sprint planning, stand-ups and retrospectives.'
+                    ]
                 },
                 {
                     title: 'Retail Assistant & Delivery Driver',
@@ -52,7 +57,7 @@ export const cv = {
                 },
                 {
                     title: 'Motorised Ping Pong Cannon',
-                    when: '2024 · Saxion University',
+                    when: '2026 · Saxion University',
                     sub: 'Hardware project · Arduino · Interactive installation',
                     points: [
                         'Built a phone-controlled ball cannon using two Arduino boards, combining hardware sensors, motorised components and wireless communication.',
@@ -77,7 +82,7 @@ export const cv = {
                 },
                 {
                     title: 'Design Thinking Course',
-                    when: '2023/2024 · Saxion University',
+                    when: '2025/2026 · Saxion University',
                     sub: 'Problem discovery · Field surveys · Hi-fi prototype delivery',
                     points: [
                         'Identified a real-world problem by going outside the university environment and gathering surveys from diverse user groups with different backgrounds and needs.',

@@ -23,7 +23,6 @@ import portfolioHero from '../assets/portfolio-hero.jpg';
 import portfolioAbout from '../assets/portfolio-about.jpg';
 import portfolioWork from '../assets/portfolio-work.jpg';
 import portfolioProject from '../assets/portfolio-project.jpg';
-import financeDashboard from '../assets/finance-dashboard.png';
 import financeLiveScale from '../assets/finance-live-scale.jpg';
 import financeLiveCheck from '../assets/finance-live-check.jpg';
 import financeLiveDecide from '../assets/finance-live-decide.jpg';
@@ -37,7 +36,6 @@ import musterPhone from '../assets/muster-phone.jpg';
 // App icons shown in the Finder and on the folder papers
 import iconShiftPro from '../assets/icons/shiftpro.png';
 import iconCalorie from '../assets/icons/calorie-app.png';
-import iconFinanceDesign from '../assets/icons/finance-design.png';
 import iconFinanceLive from '../assets/icons/finance-live.png';
 import iconPortfolio from '../assets/icons/portfolio.png';
 import iconMuster from '../assets/icons/muster.png';
@@ -95,17 +93,9 @@ const projects = [
           { title: "Design", items: ["Integrated new features seamlessly by strictly adhering to the app’s existing visual language and UI patterns", "Designed a cohesive system of badges and a competitive ranking interface", "Expanded the ecosystem by creating a watch companion prototype for friction-free, on-the-go logging"] },
           { title: "Test & Decide", items: ["Surveyed potential users to compare the appeal of complex mini-games versus streamlined ranking systems", "Prioritized badges and rankings based on user preference for clear, achievement-based motivation"] }
         ]
-      },
-      {
-        title: 'Finance Dashboard',
-        icon: iconFinanceDesign,
-        src: financeDashboard,
-        description: 'A premium, modern dark-mode financial dashboard prototype designed in Figma. Features detailed holdings charts, asset allocation graphs, and custom UI components.',
-        designLink: 'https://www.figma.com/',
-        longDescription: 'This UI/UX project showcases high-fidelity mockups of a comprehensive financial tracking application, using polished glassmorphism effects, consistent layout grids, and visual hierarchy optimized for readability.'
       }
     ],
-    folderImages: [iconShiftPro, iconCalorie, iconFinanceDesign], // Icons that pop out of the folder
+    folderImages: [iconShiftPro, iconCalorie], // Icons that pop out of the folder
     longDescription: 'A collection of my user experience research and user interface design works.'
   },
   {
@@ -293,15 +283,6 @@ const PROJECT_LOOK = {
     more: { label: 'Read the process', to: 'notes' },
     notesTitle: 'The process',
     backdrop: { bg: '#060606', fg: '#f1f5ee' }
-  },
-  'Finance Dashboard': {
-    slug: 'finance-dashboard',
-    type: 'Figma, dashboard UI',
-    line: 'A dark-mode finance dashboard designed in Figma.',
-    pitch: 'High-fidelity mockups of a finance tracker, with holdings charts, asset allocation graphs and custom components.',
-    facts: [['Holdings', 'detailed charts'], ['Allocation', 'asset graphs'], ['Figma', 'custom components']],
-    action: { label: 'See the screens', to: 'screens' },
-    backdrop: { bg: '#0b1020', fg: '#e8ecf8' }
   },
   'Portfolio Website': {
     slug: 'portfolio-website',

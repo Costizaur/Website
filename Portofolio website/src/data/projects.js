@@ -7,10 +7,6 @@ import shiftProFinal from '../assets/shiftpro-final.jpg';
 import shiftProResearch from '../assets/shiftpro-1-research.jpg';
 import shiftProLoFi from '../assets/shiftpro-2-lofi.jpg';
 import shiftProHiFi from '../assets/shiftpro-3-hifi.jpg';
-import unfoldStart from '../assets/unfold-g.webm';
-import unfoldEnd from '../assets/unfold-g-reverse.webm';
-import unfoldStartMobile from '../assets/unfold-g-90.webm';
-import unfoldEndMobile from '../assets/unfold-g-90-reverse.webm';
 import riverRacerRace from '../assets/river-racer-race.jpg';
 import riverRacerLobby from '../assets/river-racer-lobby.jpg';
 import riverRacerController from '../assets/river-racer-controller.jpg';
@@ -63,35 +59,27 @@ const projects = [
         extraImages: [shiftProFinal, shiftProResearch, shiftProLoFi, shiftProHiFi],
         designLink: 'https://www.figma.com/proto/iy2G6HL5QwJBaxSke646jH/Design-Thinking?page-id=0%3A1&node-id=304-590&scaling=scale-down&content-scaling=fixed&starting-point-node-id=304%3A590',
         description: 'At Primark, where I work, the schedule is a printed sheet in a hallway, so swapping a shift comes down to luck. I interviewed a colleague and an HR assistant, then designed ShiftPro: a mobile app where staff can check their shifts anywhere, swap them and read company news.',
-        longDescription: 'A Design Thinking project that went from interviews to three rounds of prototypes: grey lo-fi wireframes, a hi-fi version and a final version. I tested each round (3 people on the lo-fi, 9 on the hi-fi) and let the feedback decide what changed next.',
+        longDescription: 'A Design Thinking project that went from interviews to three rounds of prototypes: grey lo-fi wireframes, a hi-fi version and a final version. I tested the lo-fi with 3 people and the hi-fi with 9, and their feedback decided what changed next.',
         tags: ['Figma', 'UI/UX', 'User Research', 'Usability Testing'],
         tools: ['Figma', 'Figma Make'],
-        unfoldVideoStart: unfoldStart,
-        unfoldVideoEnd: unfoldEnd,
-        unfoldVideoStartMobile: unfoldStartMobile,
-        unfoldVideoEndMobile: unfoldEndMobile,
-        unfoldText: [
+        notes: [
           { title: "Process", items: ["Picked a real problem from my job: the Primark schedule only exists as a printed sheet in the hallway", "Interviewed a colleague and an HR assistant to hear both sides of the story", "Both blamed the paper: staff can't check or swap shifts easily, and HR reprints it every week"] },
           { title: "Concept", items: ["Tried Deputy, Planday and Quinyx to see how other apps handle swaps and time off", "A customer journey map showed that swapping a shift is the worst moment, so it became the priority", "Planned a simple app: log in, then one tap to your schedule, swaps, sick reports and news"] },
           { title: "Design", items: ["Started with grey lo-fi wireframes for one task: change your shift", "Moved to hi-fi with a logo, Primark-inspired blue and shifts grouped by day on clear cards", "Split the unclear 'swap' button into Request (post your shift) and Pick Up (take someone else's)"] },
-          { title: "Test & Decide", items: ["Lo-fi, 3 tests: the screens were clear, but changing the shift was hard and the layout needed grouping and colour", "Hi-fi, 9 tests: people found it simple and familiar, and 3 of them asked for a way to look ahead by date", "Final version: added a calendar view, moved the profile to the top and made faded text fully readable"] }
+          { title: "Test & Decide", items: ["Lo-fi, 3 tests: the screens were clear, but changing the shift was hard and the layout needed grouping and colour", "Hi-fi, 9 tests: people found it simple and familiar, and ==3 of them asked for a way to look ahead by date==", "Final version: added a calendar view, moved the profile to the top and made faded text fully readable"] }
         ]
       },
       {
         title: 'Calorie App',
         icon: iconCalorie,
         src: calorieApp,
-        description: 'This prototype exemplifies how I would gamify a simple calorie-tracking app to motivate people to continue their journey by adding rankings and badges.',
+        description: 'A prototype of how I would add game elements to an ordinary calorie-tracking app, with missions, badges and a ranking, so people stay motivated to keep logging.',
         designLink: 'https://www.figma.com/proto/hQbNFs1uEQt65pwNjoC4nO/Untitled?page-id=0%3A1&node-id=1-2&viewport=-155%2C334%2C0.51&t=tpcoy8Bx0x2wpUVq-1&scaling=scale-down&content-scaling=fixed&starting-point-node-id=1%3A2',
-        unfoldVideoStart: unfoldStart,
-        unfoldVideoEnd: unfoldEnd,
-        unfoldVideoStartMobile: unfoldStartMobile,
-        unfoldVideoEndMobile: unfoldEndMobile,
-        unfoldText: [
-          { title: "Process", items: ["Analyzed standard calorie-tracking apps to identify user churn and engagement drop-offs", "Conducted user research via Google Forms to understand what motivates users to log data consistently", "Defined the core challenge: transforming a monotonous data-entry task into a habit-forming routine"] },
-          { title: "Concept", items: ["Explored diverse gamification mechanics, ranging from mini-games to point systems and social leaderboards", "Conceptualized a \"Mission Tab\" to centralize goals and visualize progress", "Focused on extrinsic motivation triggers (badges and rankings) to combat user fatigue"] },
-          { title: "Design", items: ["Integrated new features seamlessly by strictly adhering to the app’s existing visual language and UI patterns", "Designed a cohesive system of badges and a competitive ranking interface", "Expanded the ecosystem by creating a watch companion prototype for friction-free, on-the-go logging"] },
-          { title: "Test & Decide", items: ["Surveyed potential users to compare the appeal of complex mini-games versus streamlined ranking systems", "Prioritized badges and rankings based on user preference for clear, achievement-based motivation"] }
+        notes: [
+          { title: "Process", items: ["Looked at common calorie-tracking apps to see where people lose interest and stop logging", "Ran a survey in Google Forms to find out what keeps people logging regularly", "Set the main challenge: turn a boring data-entry task into a habit"] },
+          { title: "Concept", items: ["Explored different game mechanics, from mini-games to points and social leaderboards", "Came up with a Mission tab that keeps your goals in one place and shows your progress", "Focused on extrinsic rewards (badges and rankings) to keep people going once logging gets boring"] },
+          { title: "Design", items: ["Kept to the app's existing look and UI patterns, so the new features feel like part of it", "Designed a set of badges and a ranking screen where you compete with others", "Also made a smartwatch prototype for quick logging on the go"] },
+          { title: "Test & Decide", items: ["Asked potential users in a survey whether they preferred complex mini-games or a simple ranking", "==Kept badges and rankings== and cut the mini-games, because people preferred clear goals they could reach"] }
         ]
       }
     ],
@@ -111,8 +99,8 @@ const projects = [
         icon: iconPortfolio,
         src: portfolioHero,
         extraImages: [portfolioHero, portfolioWork, portfolioProject, portfolioAbout],
-        description: 'This site. Four folders sit on a desk and each one opens into its own world, with its own colour, typeface and pattern. A project grows out of its sheet until it fills the screen, and going back runs the same path in reverse.',
-        longDescription: 'Built in React with plain CSS and no animation library. The motion runs on two reversible clocks and a spring, so you can turn it around halfway, and it only ever moves transform, opacity and clip-path. The colours follow your system light or dark setting, phones get their own layout where the folders become a row of tabs, and the keyboard and reduced motion skip the animation.',
+        description: 'The site you are looking at. Four folders sit on a desk and each one opens into its own world, with its own colour, typeface and pattern. A project grows out of its sheet until it fills the screen, and going back runs the same path in reverse.',
+        longDescription: 'I built it in React with plain CSS and no animation library. I wrote the motion myself so it can turn around halfway, for example when you close a folder that is still opening, and it only moves transform, opacity and clip-path so it stays smooth. The colours follow your system light or dark setting, phones get their own layout where the folders become a row of tabs, and keyboard users and anyone with reduced motion turned on skip the animation.',
         tags: ['React', 'CSS', 'Motion', 'Responsive'],
         tools: ['React', 'Vite', 'CSS', 'JavaScript']
       },
@@ -143,43 +131,51 @@ const projects = [
         icon: iconMuster,
         src: musterMenu,
         extraImages: [musterMenu, musterPhase, musterLineup, musterBattle, musterHowToPlay, musterPhone],
-        description: 'A two-player dice strategy duel that takes about 7 to 10 minutes. Each turn you roll three dice and spend them on taxes, the forge and recruits, pay iron for upgrades, scouting and sabotage, then secretly order your troops for a battle where the class triangle and wounds decide who holds the line.',
+        description: 'A dice strategy duel for two players that takes about 7 to 10 minutes. Each turn you roll three dice and spend them on taxes, the forge and recruits, and pay iron for upgrades, scouting and sabotage. Then you secretly line up your troops for a battle where the class triangle and wounds decide who holds the line.',
         longDescription: 'My goal was a short match where every die is a real decision and no single strategy wins. Dice work like workers, a three-class triangle keeps every unit useful, hidden armies make scouting and reading your opponent pay off, and I balanced the numbers by simulating thousands of bot matches. After the first playtests I rebuilt the rules, the tutorial and the battle screen around what testers could not follow. Playable in the browser on desktop and phone.',
         tags: ['Game Design', 'Systems Design', 'Balancing', 'Playtesting'],
         tools: ['Unity', 'C#', 'Figma', 'Excel'],
         gameLink: '/muster/index.html',
-        unfoldVideoStart: unfoldStart,
-        unfoldVideoEnd: unfoldEnd,
-        unfoldVideoStartMobile: unfoldStartMobile,
-        unfoldVideoEndMobile: unfoldEndMobile,
-        unfoldText: [
+        notes: [
           { title: "Process", items: ["Set the design goals: a short match (about 7 to 10 minutes), every die a meaningful choice, and no dominant strategy", "Defined the core loop: roll, assign dice, build an army, line up in secret, battle", "Kept every tunable number in one config and an Excel balance model, so rules could change without rewriting code"] },
           { title: "Concept", items: ["Dice as workers: three dice a turn go on Tax, Forge or Recruit, and the stronger units need a higher roll", "A three-class triangle (Knight → Ranger → Mage → Knight) so no unit is simply the best", "Hidden armies: opponents only see your unit count, which makes Scout and Sabotage worth their iron"] },
           { title: "Design", items: ["Two resources with hard caps and use-it-or-lose-it dice, so hoarding never beats spending: gold buys troops, iron buys tricks", "Attrition battles: winners carry their wounds into the next duel, so one strong unit can't carry a whole army", "Designed a chunky tabletop UI in Figma, then adapted it into a landscape phone layout for playtesting"] },
-          { title: "Test & Decide", items: ["Built bots for four strategies and simulated about 24,000 matches on each version of the rules to measure win rates", "Playtesters could not follow the first version, so I cut four units to a triangle, made the support actions cost iron instead of a die, hid the opponent's resources and replaced the tutorial tour with hints", "Elite (58%), balanced (60%) and counter (61%) play now sit within 3 points of each other; spamming the cheapest unit stays weak (21%) because one class loses to its counter"] }
+          { title: "Test & Decide", items: ["Built bots for four strategies and simulated about 24,000 matches on each version of the rules to measure win rates", "Playtesters could not follow the first version, so I cut four units to a triangle, made the support actions cost iron instead of a die, hid the opponent's resources and replaced the tutorial tour with hints", "==Elite (58%), balanced (60%) and counter (61%) play now sit within 3 points of each other==; spamming the cheapest unit stays weak (21%) because one class loses to its counter"] }
         ]
       },
       {
         title: 'River Racer',
         description: 'A local multiplayer racing game where your phone is the paddle. Scan a QR code, hold both sides to paddle, let go of one to turn, and race a friend down the river.',
-        longDescription: 'Designed for instant, social play: joining takes one scan or a four-letter code, and the whole control scheme is two buttons, so anyone can play within seconds. Hitting a rock or log stuns you, knocks you back and buzzes your phone, so every mistake is felt. Fall behind the screen for five seconds and you are out, which turns every collision into a comeback moment for the other player. Phones connect directly when the network allows it and fall back to a relay, so it works on school Wi-Fi and mobile data too.',
+        longDescription: 'I wanted anyone to be able to pick it up within seconds: joining takes one scan or a four-letter code, and the controls are just two buttons. Hitting a rock or log stuns you, knocks you back and buzzes your phone, so every mistake is felt. Fall behind the screen for five seconds and you are out, which turns every collision into a comeback moment for the other player. Phones connect directly when the network allows it and fall back to a relay, so it works on school Wi-Fi and mobile data too.',
         tags: ['Game Design', 'Local Multiplayer', 'Phone Controls'],
         tools: ['p5.js', 'WebRTC', 'MQTT', 'JavaScript'],
         gameLink: '/game2/index.html',
         icon: iconRiverRacer,
         src: riverRacerRace,
-        extraImages: [riverRacerRace, riverRacerLobby, riverRacerController, riverRacerResults]
+        extraImages: [riverRacerRace, riverRacerLobby, riverRacerController, riverRacerResults],
+        notes: [
+          { title: "Process", items: ["Started from one idea: the phone in your pocket is the controller, so you join from the browser with nothing to install", "Built the race in p5.js and the controller as a plain web page, linked phone to screen over WebRTC", "Made a first version in a few days in January 2026, then called Boat Race, and rebuilt it in September"] },
+          { title: "Concept", items: ["Two buttons only: hold both sides to paddle, let go of one to turn", "Every mistake is felt: hitting a rock or log stuns you for a second, knocks you back and buzzes your phone", "Fall behind the screen for five seconds and you are out, so every crash is a chance for the other player to catch up"] },
+          { title: "Design", items: ["The current pushes idle boats back, so you have to keep paddling to stay in the race", "Joining takes one QR scan, or a four-letter room code typed on the /play page", "Added a tutorial, a countdown, a progress bar and a results screen, and players stay connected between races"] },
+          { title: "Test & Decide", items: ["Added a main menu and a one-player mode to the first version, so you can also race alone", "Direct phone connections did not work on every network, so I added a relay over public MQTT servers for when WebRTC is blocked", "==Phones now join from school Wi-Fi and mobile data too==, and get their place back after a refresh"] }
+        ]
       },
       {
         title: 'Duck Shoot',
-        description: 'A tribute to the light-gun duck games on old home consoles, played with your phone as the gun: point it at the screen, hit the big red Fire button, and hit enough of the 10 ducks to clear each round.',
+        description: 'A tribute to the light-gun duck games on old home consoles, played with your phone as the gun: point it at the screen, press the big red Fire button, and hit enough of the 10 ducks to clear each round.',
         longDescription: 'An experiment in motion controls and nostalgia. I wanted the phone to feel like the plastic light gun I grew up with, so you aim by pointing it like a remote and every shot blacks out the screen for a frame, just like the originals. The classic rules are all there: three shots per duck, a ten-duck hit counter, a quota to clear each round and ducks that fly away when you miss. Up to four phones can play at once, and a mouse works too.',
         tags: ['Game Design', 'Motion Controls', 'Phone Controls', 'Retro'],
         tools: ['p5.js', 'WebRTC', 'MQTT', 'JavaScript'],
         gameLink: '/game/index.html',
         icon: iconDuckShoot,
         src: duckShootPlay,
-        extraImages: [duckShootPlay, duckShootTitle, duckShootFlyAway, duckShootController]
+        extraImages: [duckShootPlay, duckShootTitle, duckShootFlyAway, duckShootController],
+        notes: [
+          { title: "Process", items: ["Wanted the phone to feel like the plastic light gun I grew up with", "Kept the classic rules: 10 ducks a round, 3 shots per duck, and a hit quota that rises from 6 to 10 as the rounds go on", "Made a first version in January 2026 and rebuilt it in September with original pixel art"] },
+          { title: "Concept", items: ["Aim by pointing the phone like a remote: turn it to move left and right, tilt it to move up and down", "Each shot flashes the screen black with white boxes where the ducks are, like the real light gun, and the flash can be turned off", "Up to four phones play at once, each in its own colour, and a mouse works too"] },
+          { title: "Design", items: ["A big red Fire button that buzzes on every shot", "A Re-center button: point at the middle of the screen and tap it to reset your aim", "Game A with one duck at a time and Game B with two, a top score, and ducks that fly away when you run out of shots or time"] },
+          { title: "Test & Decide", items: ["The first controller moved the aim the wrong way up and down, so I flipped the vertical axis", "Phones only share their motion sensors with https pages, so ==the controller now says why motion aiming is off and switches to a drag pad== instead", "Rebuilt the connection the same way as River Racer, so up to four phones can join from any network"] }
+        ]
       }
     ],
     folderImages: [iconMuster, iconRiverRacer, iconDuckShoot], // Icons that pop out of the folder
@@ -245,11 +241,11 @@ const WORLD_LOOK = {
   },
   2: {
     key: 'web', short: 'Web', ink: '#06163a', deep: '#0f2147', deepInk: '#d6e4ff',
-    blurb: 'Things I designed and then coded myself, in React, JavaScript and Python.'
+    blurb: 'Things I designed and then coded myself, in React and JavaScript.'
   },
   3: {
     key: 'games', short: 'Games', ink: '#20160a', deep: '#3a2a08', deepInk: '#ffe9b0',
-    blurb: 'Games built around clear decisions, honest feedback and fair balance. All three play in your browser.'
+    blurb: 'Games where every choice matters, the feedback is clear and the balance is fair. All three play in your browser.'
   },
   4: {
     key: 'apps', short: 'Apps', ink: '#05281a', deep: '#0b3524', deepInk: '#c9f7e2',
@@ -276,8 +272,8 @@ const PROJECT_LOOK = {
   'Calorie App': {
     slug: 'calorie-app',
     type: 'Figma, gamification',
-    line: 'A calorie tracker made stickier with missions, badges and rankings.',
-    pitch: 'A prototype that turns calorie logging into a habit: a missions tab, badges, a ranking, and a watch companion for logging on the go.',
+    line: 'A calorie tracker with missions, badges and a ranking to keep people logging.',
+    pitch: 'A prototype that tries to make calorie logging a habit: a missions tab, badges, a ranking, and a smartwatch app for logging on the go.',
     facts: [['Survey', 'Google Forms research'], ['Kept', 'badges and rankings'], ['Cut', 'mini-games']],
     action: { label: 'Open the prototype', href: 'designLink' },
     more: { label: 'Read the process', to: 'notes' },
@@ -288,7 +284,7 @@ const PROJECT_LOOK = {
     slug: 'portfolio-website',
     type: 'React, CSS',
     line: 'This site, designed and coded in React.',
-    pitch: 'Reusable React components, hand-written CSS animation and the folder idea you just clicked through.',
+    pitch: 'Reusable React components, animation written by hand, and the folder idea you just clicked through.',
     facts: [['React', 'reusable components'], ['CSS', 'hand-written animation'], ['Vite', 'built for GitHub Pages']],
     action: { label: 'See it on GitHub', href: 'https://github.com/Costizaur' },
     backdrop: { bg: '#111110', fg: '#f3efe6' }
@@ -324,6 +320,8 @@ const PROJECT_LOOK = {
     pitch: 'Scan a QR code, hold both sides to paddle, let go of one to turn, and race a friend down the river.',
     facts: [['2', 'players, one screen'], ['2', 'buttons to learn'], ['p5.js', 'and WebRTC']],
     action: { label: 'Play River Racer', href: 'gameLink' },
+    more: { label: 'Read the process', to: 'notes' },
+    notesTitle: 'The process',
     backdrop: { bg: 'linear-gradient(180deg, #0f7f93, #0a5d6d)', fg: '#f2fffd' }
   },
   'Duck Shoot': {
@@ -333,6 +331,8 @@ const PROJECT_LOOK = {
     pitch: 'Point your phone at the screen like a remote, press the big red Fire button and hit enough ducks to clear the round.',
     facts: [['4', 'phones at once'], ['3', 'shots per duck'], ['p5.js', 'and WebRTC']],
     action: { label: 'Play Duck Shoot', href: 'gameLink' },
+    more: { label: 'Read the process', to: 'notes' },
+    notesTitle: 'The process',
     backdrop: { bg: '#5c94fc', fg: '#08153f', dark: { bg: '#101c46', fg: '#dfe7ff' } }
   },
   'Earshot': {

@@ -196,7 +196,7 @@ const Stage = () => {
                             <header className="h-top">
                                 <SiteNav current="work" onGo={onNav} />
                                 <h1 className="h-name"><span>Costin</span> <span>Sarghiuta</span></h1>
-                                <p className="h-sub">Game designer &amp; UI/UX designer, open to internships and junior roles. Every folder below is its own world. Open one.</p>
+                                <p className="h-sub">Game and UI/UX design student, open to internships and junior roles. Each folder below opens into its own world.</p>
                             </header>
                             {/* Empty places that mark where each folder rests on the desk */}
                             <div className="desk" aria-hidden="true">

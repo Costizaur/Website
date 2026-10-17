@@ -232,8 +232,7 @@
 }
 
 /* ---- The rest of the page ---- */
-/* The same column as the first screen. It is a plain box on purpose: the unfolding paper
-   blends into the backdrop, and that only works with nothing layered in between. */
+/* The same column as the first screen */
 .pg-wrap {
     display: grid;
     gap: calc(var(--u) * 8);

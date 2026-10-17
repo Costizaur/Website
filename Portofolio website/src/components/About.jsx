@@ -24,14 +24,14 @@ const About = ({ onNav, onOpenFolder }) => {
 
                 {/* Bio */}
                 <p className="info-lead" data-rise>
-                    I make things that feel good to use, and even better to play.
+                    I like making things that are easy to use and fun to play.
                 </p>
                 <div className="about-text" data-rise>
                     <p>
                         I'm a student working across game design, UI/UX and front-end development. I care most about the first few seconds: can someone figure out what I made, and do they want to keep going?
                     </p>
                     <p>
-                        I like decisions backed by players and data. For Muster I balanced the rules by simulating around 24,000 bot matches. For ShiftPro I tested each prototype with real people and fixed what they struggled with.
+                        I like decisions backed by players and data. For Muster I balanced the rules by simulating around 24,000 bot matches. For ShiftPro I tested my prototypes with 12 people and fixed what they struggled with.
                     </p>
                 </div>
 

@@ -1,46 +1,32 @@
-/* The process notes are printed on a sheet of paper: dark ink, no boxes.
-   The paper keeps its colour in light and in dark, like a real sheet would. */
+/* The process notes are written on a sheet of graph paper: dark ink, no boxes.
+   The paper keeps its colour in light and in dark, like a real sheet would.
+   Each square is one line of text tall, so the notes sit on the grid. */
 .paper {
-    --paper: #dcdad5;
+    --paper: #e7e5de;
     --paper-ink: #1d1a14;
+    --graphite: #57554f;
+    --cell: max(1.5rem, calc(var(--u) * 1.7));
+    --grid: rgba(48, 82, 140, 0.085);
+    --grid-strong: rgba(48, 82, 140, 0.15);
+    --marker: rgba(255, 204, 51, 0.66);
     position: relative;
-    overflow: hidden;
-    border-radius: calc(var(--u) * 0.6);
+    padding: calc(var(--cell) * 2) calc(var(--cell) * 2.5);
+    border-radius: 3px;
+    background-color: var(--paper);
+    /* A heavier line every five squares, as on an engineering pad */
+    background-image:
+        linear-gradient(var(--grid-strong) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-strong) 1px, transparent 1px),
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size:
+        calc(var(--cell) * 5) calc(var(--cell) * 5),
+        calc(var(--cell) * 5) calc(var(--cell) * 5),
+        var(--cell) var(--cell),
+        var(--cell) var(--cell);
+    background-position: calc(var(--cell) * -0.5) calc(var(--cell) * -0.5);
     color: var(--paper-ink);
     box-shadow: 0 calc(var(--u) * 0.2) calc(var(--u) * 0.5) rgba(0, 0, 0, 0.14), 0 calc(var(--u) * 1.6) calc(var(--u) * 3.4) rgba(0, 0, 0, 0.26);
-    transition: box-shadow 300ms ease;
-}
-
-/* Until it is open there is no sheet yet, only the ball lying on the page */
-.paper:not([data-step='open']) {
-    box-shadow: none;
-}
-
-/* The recording of the paper opening. Its last frame is the flat sheet the notes sit on.
-   It was filmed on black, which the blend drops out so the ball lies on the backdrop itself. */
-.paper-video {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    mix-blend-mode: screen;
-}
-
-/* Without the recording (reduced motion, or a browser that cannot play it) the sheet is plain paper */
-.paper[data-plain] {
-    background: var(--paper);
-}
-
-/* On a bright backdrop there is nothing dark to blend into, so the ball gets a dark tray */
-@media (prefers-color-scheme: light) {
-    .page[data-bright] .paper:not([data-plain]) {
-        background: #000;
-    }
-
-    .page[data-bright] .paper-video {
-        mix-blend-mode: normal;
-    }
 }
 
 .paper ::selection {
@@ -48,29 +34,24 @@
     color: var(--paper);
 }
 
-.paper-sheet {
-    position: relative;
-    padding: calc(var(--u) * 3.6) calc(var(--u) * 4.2) calc(var(--u) * 4);
-    transition: opacity 350ms var(--ease-out), transform 350ms var(--ease-out);
-}
-
-/* The ink arrives once the paper is flat */
-.paper:not([data-step='open']) .paper-sheet {
-    opacity: 0;
-    transform: translateY(calc(var(--u) * 0.5));
-    visibility: hidden;
-}
-
 .paper-grid {
     display: grid;
+    list-style: none;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: calc(var(--u) * 3.4) calc(var(--u) * 5);
+    gap: calc(var(--cell) * 2) calc(var(--cell) * 2.5);
+}
+
+.paper-note {
+    min-width: 0;
 }
 
 .paper-note h4 {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--u) * 0.9);
     padding-bottom: calc(var(--u) * 0.8);
     margin-bottom: calc(var(--u) * 1);
-    border-bottom: 2px solid currentColor;
+    border-bottom: 2px solid var(--graphite);
     font-family: var(--w-font);
     font-weight: var(--w-weight);
     letter-spacing: var(--w-track);
@@ -80,16 +61,47 @@
     line-height: 1.05;
 }
 
+/* The stage number, ringed in pencil */
+.paper-step {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 1.55em;
+    height: 1.4em;
+    font-size: 0.82em;
+    color: var(--graphite);
+}
+
+.paper-step svg {
+    position: absolute;
+    inset: -0.12em -0.18em;
+    width: calc(100% + 0.36em);
+    height: calc(100% + 0.24em);
+    overflow: visible;
+}
+
+.paper-step path {
+    fill: none;
+    stroke: var(--graphite);
+    stroke-width: 1.7;
+    stroke-linecap: round;
+}
+
+.paper-step span {
+    position: relative;
+}
+
 .paper-note ul {
     display: grid;
-    gap: calc(var(--u) * 0.7);
+    gap: calc(var(--cell) * 0.25);
 }
 
 .paper-note li {
     position: relative;
     padding-left: 1.1em;
     font-size: max(0.9375rem, calc(var(--u) * 1.15));
-    line-height: 1.45;
+    line-height: var(--cell);
     text-wrap: pretty;
     overflow-wrap: anywhere;
 }
@@ -99,40 +111,33 @@
     content: '';
     position: absolute;
     left: 0;
-    top: 0.52em;
+    top: calc(var(--cell) / 2 - 0.18em);
     width: 0.36em;
     height: 0.36em;
     border-radius: 50%;
     background: currentColor;
 }
 
-.paper-plain {
-    max-width: 62ch;
-    font-size: max(1rem, calc(var(--u) * 1.25));
-    line-height: 1.6;
+/* The result that decided the design, gone over with a highlighter */
+/* The ink bleeds past the words without pushing the next word away */
+.paper mark {
+    margin-inline: -0.12em;
+    padding-inline: 0.12em;
+    background: linear-gradient(100deg, transparent 0.15em, var(--marker) 0.3em, var(--marker) calc(100% - 0.35em), transparent calc(100% - 0.15em)) 0 85% / 100% 58% no-repeat;
+    color: inherit;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
 }
 
 @media (max-width: 899px), (max-height: 520px) {
     .paper {
-        border-radius: 0.5rem;
-    }
-
-    .paper-sheet {
-        padding: 1.9rem 1.4rem 2.1rem;
-    }
-
-    .paper-grid {
-        gap: 2rem 2.25rem;
+        padding: calc(var(--cell) * 1.5) var(--cell);
     }
 
     .paper-note h4 {
         padding-bottom: 0.5rem;
         margin-bottom: 0.7rem;
         font-size: calc(1.5rem * var(--w-scale));
-    }
-
-    .paper-note ul {
-        gap: 0.5rem;
     }
 
     .paper-note li {
@@ -143,12 +148,5 @@
 @media (max-width: 599px) {
     .paper-grid {
         grid-template-columns: minmax(0, 1fr);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .paper,
-    .paper-sheet {
-        transition: none;
     }
 }

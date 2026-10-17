@@ -179,8 +179,8 @@ const PageBody = ({ world, project, index, onClose, onHome, onHop }) => {
                         </ul>
                     </section>
 
-                    {project.unfoldText && (
-                        <ProcessNotes project={project} title={project.notesTitle || 'The process'} />
+                    {project.notes && (
+                        <ProcessNotes notes={project.notes} title={project.notesTitle || 'The process'} />
                     )}
 
                     {/* The way onwards: the neighbours in this folder, or back to the folder itself */}
@@ -235,8 +235,6 @@ const ProjectPage = ({ world, project, index, open, onClose, onHome, onHop }) =>
             className="page"
             inert={!open}
             aria-label={project ? project.title : undefined}
-            // A backdrop that needed a dark counterpart is a bright one
-            data-bright={backdrop && backdrop.dark ? '' : undefined}
             style={look}
         >
             {project && (

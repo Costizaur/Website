@@ -17,6 +17,7 @@ const linksOf = (project) => [
 const PageBody = ({ world, project, index, onClose, onHome, onHop }) => {
     const [shown, setShown] = useState(0);
     const [swapping, setSwapping] = useState(false);
+    const [whole, setWhole] = useState(false);
     const body = useRef(null);
     const timer = useRef(null);
 
@@ -48,6 +49,12 @@ const PageBody = ({ world, project, index, onClose, onHome, onHop }) => {
         const glide = e.detail !== 0 && !reducedMotion();
         target.scrollIntoView({ behavior: glide ? 'smooth' : 'auto', block: 'start' });
         target.focus({ preventScroll: true });
+    };
+
+    // A tall picture, like a phone screen, is shown whole: cropped to the frame it would be a thin strip
+    const fitShot = (e) => {
+        const img = e.currentTarget;
+        setWhole(img.naturalWidth / img.naturalHeight < 1.2);
     };
 
     const { action, more } = project;
@@ -100,8 +107,9 @@ const PageBody = ({ world, project, index, onClose, onHome, onHop }) => {
 
                         <div className="pg-media">
                             <img
-                                className={`pg-shot ${swapping ? 'is-swap' : ''}`}
+                                className={`pg-shot ${swapping ? 'is-swap' : ''} ${whole ? 'is-whole' : ''}`}
                                 src={shots[shown]}
+                                onLoad={fitShot}
                                 alt={`${project.title}, screenshot ${shown + 1} of ${shots.length}`}
                                 draggable="false"
                             />
@@ -124,7 +132,7 @@ const PageBody = ({ world, project, index, onClose, onHome, onHop }) => {
                 </div>
             </div>
 
-            {/* --- THE REST: the write-up, every screen, the process and the way onwards --- */}
+            {/* --- THE REST: the write-up, the process and the way onwards --- */}
             <div className="pg-rest">
                 <div className="pg-wrap">
                     <section className="pg-story" data-part="story" tabIndex={-1} aria-label={`About ${project.title}`}>
@@ -166,17 +174,6 @@ const PageBody = ({ world, project, index, onClose, onHome, onHop }) => {
                                 </div>
                             )}
                         </dl>
-                    </section>
-
-                    <section className="pg-screens" data-part="screens" tabIndex={-1} aria-labelledby="pg-screens-title">
-                        <h3 className="pg-h" id="pg-screens-title">{shots.length === 1 ? 'The screen' : 'The screens'}</h3>
-                        <ul className="pg-shots" data-count={Math.min(shots.length, 2)}>
-                            {shots.map((src, n) => (
-                                <li key={src}>
-                                    <img src={src} alt={`${project.title}, screenshot ${n + 1} of ${shots.length}`} loading="lazy" decoding="async" />
-                                </li>
-                            ))}
-                        </ul>
                     </section>
 
                     {project.notes && (

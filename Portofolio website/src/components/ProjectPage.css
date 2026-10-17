@@ -191,6 +191,11 @@
     transition: opacity 130ms ease, filter 130ms ease;
 }
 
+.pg-shot.is-whole {
+    object-fit: contain;
+    object-position: 50% 50%;
+}
+
 .pg-shot.is-swap {
     opacity: 0.2;
     filter: blur(calc(var(--u) * 0.3));
@@ -335,29 +340,6 @@
     text-underline-offset: 0.25em;
     text-decoration-thickness: 0.08em;
     transition: text-decoration-color 150ms ease;
-}
-
-/* Every screenshot, whole. The first screen crops them to fit; here they keep their shape. */
-.pg-shots {
-    columns: 2;
-    column-gap: calc(var(--u) * 2);
-}
-
-.pg-shots[data-count='1'] {
-    columns: 1;
-}
-
-.pg-shots li {
-    break-inside: avoid;
-    margin-bottom: calc(var(--u) * 2);
-}
-
-.pg-shots img {
-    width: 100%;
-    height: auto;
-    border-radius: calc(var(--u) * 1);
-    background: color-mix(in srgb, var(--p-fg) 8%, transparent);
-    box-shadow: 0 calc(var(--u) * 0.8) calc(var(--u) * 2.4) rgba(0, 0, 0, 0.28);
 }
 
 /* ---- The way onwards ---- */
@@ -634,19 +616,6 @@
     .pg-h {
         margin-bottom: 1.25rem;
         font-size: calc(2.1rem * var(--w-scale));
-    }
-
-    .pg-shots,
-    .pg-shots[data-count='1'] {
-        columns: 1;
-    }
-
-    .pg-shots li {
-        margin-bottom: 1rem;
-    }
-
-    .pg-shots img {
-        border-radius: 0.7rem;
     }
 
     .pg-onward {

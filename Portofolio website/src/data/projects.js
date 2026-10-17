@@ -102,7 +102,13 @@ const projects = [
         description: 'The site you are looking at. Four folders sit on a desk and each one opens into its own world, with its own colour, typeface and pattern. A project grows out of its sheet until it fills the screen, and going back runs the same path in reverse.',
         longDescription: 'I built it in React with plain CSS and no animation library. I wrote the motion myself so it can turn around halfway, for example when you close a folder that is still opening, and it only moves transform, opacity and clip-path so it stays smooth. The colours follow your system light or dark setting, phones get their own layout where the folders become a row of tabs, and keyboard users and anyone with reduced motion turned on skip the animation.',
         tags: ['React', 'CSS', 'Motion', 'Responsive'],
-        tools: ['React', 'Vite', 'CSS', 'JavaScript']
+        tools: ['React', 'Vite', 'CSS', 'JavaScript'],
+        notes: [
+          { title: "Process", items: ["Decided who the site is for first: UI/UX product teams hiring interns and juniors", "Went through three rounds of clickable prototypes before writing the real code: three directions, then more experimental ones, then Folder worlds", "Folder worlds combines ideas from the earlier rounds"] },
+          { title: "Concept", items: ["Four folders on a desk, one per discipline, each opening into a world with its own colour, typeface and pattern", "A project grows out of its sheet to fill the screen, and going back runs the same path in reverse", "The colours follow your system light or dark setting, with no switch on the page"] },
+          { title: "Design", items: ["React with plain CSS and no animation library, and the motion only moves transform, opacity and clip-path", "Phones get their own layout, where the folders become a row of tabs", "Keyboard users and anyone with reduced motion turned on skip the animation"] },
+          { title: "Test & Decide", items: ["On my iPhone 14 the home screen was cut off: Safari leaves about 660 to 700 points of height, not the 844 the screen has, so ==the folders now size themselves to the space that is left==", "The process notes used to unfold from a crumpled-paper video that hid them until you scrolled to them, so they now sit on a sheet of graph paper from the start", "A grid of screenshots repeated the carousel at the top of each project, so I removed it and the write-up leads straight into the process"] }
+        ]
       },
       {
         title: 'Live Finance Dashboard',
@@ -112,7 +118,13 @@ const projects = [
         description: 'Go for growth or play it safe this month? My Google Sheet model weighs thirty market signals and picks one ETF a month. This page puts the model on a see-saw, so someone with no finance knowledge can see which way it leans, check any ETF against the base and follow it to a decision.',
         longDescription: 'Each group of signals is a weight sized by its share of the decision, so the beam tips by exactly the score the sheet decides with. Tap a signal to flip its vote and the scores, the scale and the pick are worked out again with the sheet’s own formulas. A small server reads the sheet, so its address never reaches the browser, and the page says so openly when data is missing.',
         tags: ['React', 'Google Apps Script', 'Google Sheets', 'Data visualisation'],
-        liveLink: '/finance/'
+        liveLink: '/finance/',
+        notes: [
+          { title: "Process", items: ["Started from my own Google Sheet model, which weighs thirty market signals and picks one ETF a month, and a small Streamlit app that showed its score", "Set the goal: someone with no finance knowledge should see which way the model leans and follow it to a decision", "Worked out how the sheet's groups of signals add up to the final score before designing anything"] },
+          { title: "Concept", items: ["Compared three directions: the monthly answer first, a dense dark desk, and a balance you can tip", "Picked the balance: each group of signals is a weight sized by its share of the decision, so the beam tips by exactly the sheet's score", "Added a box to check any ETF against the base, VWCE"] },
+          { title: "Design", items: ["Tap a signal to flip its vote, and the scores, the scale and the pick are worked out again with the sheet's own formulas", "Styled like the Web folder: blue with ruled lines, monospace headings, and light or dark following the system", "The page says openly when data is missing, instead of showing 0.00 and HOLD the way the old app did"] },
+          { title: "Test & Decide", items: ["The sheet's address had to stay private, so the page reads it through a small Google Apps Script server instead of from the browser", "The first server took about 40 seconds to answer, because Google recalculates every formula when the sheet is opened", "==A refresh every hour keeps an answer ready==, so the page now gets its data in about 2 seconds"] }
+        ]
       }
     ],
     folderImages: [iconPortfolio, iconFinanceLive],
@@ -197,7 +209,13 @@ const projects = [
         description: 'A macOS menu bar app that sends each app\'s sound to its own output: Chrome on the monitor speakers, everything else on the laptop, without ever changing the system output. Routes can also follow a window as you drag it between screens.',
         longDescription: 'Built on Apple\'s public Core Audio process-tap API, so there is no driver or kernel extension to install. Each routed app is captured and muted at the source, then played through a private device on the chosen speaker, with per-app volume presets and a level meter. I measured and tuned the audio path so a route switches on in 7 to 14 ms when sound starts, and only holds the audio capture while something is actually playing.',
         tags: ['macOS', 'Core Audio', 'Menu Bar App', 'UX'],
-        tools: ['Swift', 'SwiftUI', 'AppKit', 'Core Audio', 'Xcode']
+        tools: ['Swift', 'SwiftUI', 'AppKit', 'Core Audio', 'Xcode'],
+        notes: [
+          { title: "Process", items: ["Started from my own annoyance: Chrome on the monitor speakers and everything else on the laptop, without changing the system output", "Built it on Apple's public Core Audio process-tap API, so there is no driver or kernel extension to install", "Before planning each new feature, I measured what macOS can and cannot tell an app"] },
+          { title: "Concept", items: ["A menu bar app that lists every app that can play sound, each with its own output device", "An optional Follow window mode: drag a window to another screen and its sound moves with it, with no gap", "The capture only runs while an app is playing and stops 8 seconds after it goes quiet, so a silent app costs nothing"] },
+          { title: "Design", items: ["Apps are listed alphabetically and stay put, because sorting by what is playing would make rows jump under the cursor", "Volume is four one-click presets plus a Custom slider, and the controls only appear once an app is routed, so the list stays easy to scan", "macOS cannot tell which monitors really have speakers, so the Displays section plays a test tone through each one and lets you mark it as having no sound"] },
+          { title: "Test & Decide", items: ["One app's windows cannot be split between screens, because macOS gives no link from a window to the process playing its sound, so the frontmost window decides and the row shows a marker", "Found five performance bugs by measuring; the biggest was a hidden menu that kept redrawing and, after a day, used most of the app's CPU", "Building the slow half of a route once and keeping it means ==a route switches on in 7 to 14 ms== when sound starts"] }
+        ]
       }
     ],
     folderImages: [iconEarshot], // Icons that pop out of the folder
@@ -287,6 +305,8 @@ const PROJECT_LOOK = {
     pitch: 'Reusable React components, animation written by hand, and the folder idea you just clicked through.',
     facts: [['React', 'reusable components'], ['CSS', 'hand-written animation'], ['Vite', 'built for GitHub Pages']],
     action: { label: 'See it on GitHub', href: 'https://github.com/Costizaur' },
+    more: { label: 'Read the process', to: 'notes' },
+    notesTitle: 'The process',
     backdrop: { bg: '#111110', fg: '#f3efe6' }
   },
   'Live Finance Dashboard': {
@@ -296,6 +316,8 @@ const PROJECT_LOOK = {
     pitch: 'Go for growth or play it safe this month? The page weighs thirty signals from my Google Sheet model and walks anyone, finance or not, to the month’s one ETF pick.',
     facts: [['30', 'market signals, weighed'], ['Live', 'from a Google Sheet'], ['1', 'ETF picked each month']],
     action: { label: 'Open the live app', href: 'liveLink' },
+    more: { label: 'Read the process', to: 'notes' },
+    notesTitle: 'The process',
     titleScale: 0.8,
     backdrop: { bg: '#0e1117', fg: '#e6e9ef' }
   },
@@ -341,7 +363,8 @@ const PROJECT_LOOK = {
     line: 'A macOS menu bar app that gives every app its own speaker.',
     pitch: 'Chrome on the monitor speakers, everything else on the laptop, without ever changing the system output.',
     facts: [['7 to 14 ms', 'to switch a route'], ['Swift', 'and Core Audio'], ['No driver', 'nothing to install']],
-    action: { label: 'Read the case study', to: 'story' },
+    action: { label: 'Read the case study', to: 'notes' },
+    notesTitle: 'The case study',
     backdrop: { bg: 'radial-gradient(90% 90% at 20% 80%, #0f3a3a 0%, #0a1517 70%)', fg: '#e6f4f1' }
   }
 };

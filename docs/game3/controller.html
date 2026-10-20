@@ -351,13 +351,13 @@
             <p class="hint" id="sword-hint">Grip the phone <b>like a sword hilt</b>. Point it up to raise the blade, at the screen to level it. <b>Hold</b> it in the bullet's path to block, <b>swing through</b> the bullet to reflect it.</p>
         </div>
 
-        <!-- Gun: hold it like a pistol, tap anywhere to fire -->
+        <!-- Gun: hold it like a pistol, flick up to fire -->
         <div class="mode hidden" id="gun">
             <div class="trigger" id="trigger">
                 <div class="ammo" id="ammo"></div>
                 <div class="aim-meter" id="aim"><div class="aim-dot" id="aim-dot"></div></div>
-                <div class="trigger-label" id="trigger-label">TAP TO FIRE</div>
-                <p class="hint" id="gun-hint">Hold the phone <b>like a pistol</b>, top pointing at the screen. Raise or lower it to aim.</p>
+                <div class="trigger-label" id="trigger-label">FLICK UP TO FIRE</div>
+                <p class="hint" id="gun-hint">Hold the phone <b>like a pistol</b>, top pointing at the screen. Raise or lower it to aim, then <b>flick it up</b> like recoil to fire.</p>
                 <button class="small-btn" id="center-btn">Re-center aim</button>
             </div>
             <button class="duck-strip" id="duck-btn">HOLD TO DUCK</button>
@@ -396,6 +396,10 @@
         const MAG = 6;
         const SWING_RATE = 320;  // degrees per second of rotation that counts as a swing
         const SWING_GAP = 280;   // ms before another swing can count
+        const KICK_RISE = 15;    // gun: the top of the phone snapping up this many degrees...
+        const KICK_MS = 120;     // ...within this long is a shot, like recoil
+        const KICK_GAP = 320;    // ms before another kick can fire
+        const AIM_HOLD = 380;    // ms the aim stays put after a kick, while the phone comes back down
         let link = null;
         let wakeLock = null;
         let role = null;         // 'gun' | 'sword'
@@ -406,6 +410,9 @@
         let pitchZero = null;    // gun: the tilt that means "aim at the middle"
         let lastSent = { v: 999, at: 0 };
         let lastSwing = 0;
+        let elevHist = [];       // gun: recent tilt and aim, to spot a kick and know where it was aimed before it
+        let lastKick = 0;
+        let holdAimUntil = 0;
 
         if (!/^[A-Z0-9]{4}$/.test(code)) {
             $('status').classList.add('hidden');
@@ -456,7 +463,7 @@
             else if (m.t === 'role') {
                 setRole(m.role);
                 showCard(`Round ${m.round}`, m.role === 'gun'
-                    ? 'You have the GUN. Hold the phone like a pistol, point it at the screen and tap anywhere to fire.'
+                    ? 'You have the GUN. Hold the phone like a pistol and point it at the screen. Flick it up like recoil to fire.'
                     : 'You have the SWORD. Grip the phone like a hilt. Hold the blade in the way to block, swing through a bullet to reflect it.', null);
             } else if (m.t === 'ammo') setAmmo(m.n, m.reloading);
             else if (m.t === 'hp') {
@@ -496,6 +503,7 @@
             $('gun').classList.toggle('hidden', r !== 'gun');
             $('sword').classList.toggle('hidden', r !== 'sword');
             pitchZero = null; // the grip changes between roles
+            elevHist = [];
             setDuck(false);
             if (r === 'sword') sendValue(true);
         }
@@ -577,8 +585,25 @@
                 setAngle(elevation - 90);
             } else if (role === 'gun') {
                 if (pitchZero === null) pitchZero = elevation;
-                setAim(-(elevation - pitchZero) / 18);
+                const t = performance.now();
+                const y = -(elevation - pitchZero) / 18;
+                elevHist.push({ t, e: elevation, aim: Math.max(-1, Math.min(1, y)) });
+                while (elevHist.length && elevHist[0].t < t - 600) elevHist.shift();
+                if (t >= holdAimUntil) setAim(y);
+                checkKick(t, elevation);
             }
+        }
+
+        // A kick: the top of the phone snapping up fast, like a pistol's recoil. The kick itself lifts the
+        // aim, so the shot uses the aim from the moment the kick started (the lowest point just before it).
+        function checkKick(t, elevation) {
+            if (t - lastKick < KICK_GAP || ducking) return;
+            const recent = elevHist.filter(h => h.t >= t - KICK_MS);
+            if (recent.length < 2) return;
+            const low = recent.reduce((a, b) => (b.e < a.e ? b : a));
+            if (elevation - low.e < KICK_RISE) return;
+            lastKick = t;
+            shoot(low.aim);
         }
 
         // A flick: the phone spinning fast in any direction
@@ -621,6 +646,7 @@
             $('motion-btn').classList.add('hidden');
             $('sword-hint').innerHTML = `${reason} <b>Drag left and right</b> to move the blade, <b>tap</b> or drag fast to swing through a bullet.`;
             $('gun-hint').innerHTML = `${reason} <b>Drag up and down</b> on the bar to aim, tap anywhere else to fire.`;
+            $('trigger-label').textContent = 'TAP TO FIRE';
             $('aim').classList.add('drag');
             $('center-btn').classList.add('hidden');
         }
@@ -675,22 +701,31 @@
         function setAmmo(n, reloading) {
             $('ammo').innerHTML = Array.from({ length: MAG }, (_, i) => `<i class="${i < n ? '' : 'used'}"></i>`).join('');
             $('trigger').classList.toggle('empty', n === 0);
-            $('trigger-label').textContent = n === 0 ? 'RELOADING…' : 'TAP TO FIRE';
+            $('trigger-label').textContent = n === 0 ? 'RELOADING…' : motionOn ? 'FLICK UP TO FIRE' : 'TAP TO FIRE';
         }
         setAmmo(MAG, false);
 
-        // The trigger: any press on the gun screen except the aim bar and the re-center button
+        // Fire, sending the aim with the shot so the screen uses exactly that
         const trigger = $('trigger');
-        trigger.addEventListener('pointerdown', (e) => {
-            if (e.target.closest('#aim.drag, #center-btn')) return;
-            e.preventDefault();
-            if (!link || ducking) return;
+        function shoot(y) {
+            if (!link || ducking || role !== 'gun') return;
             if (trigger.classList.contains('empty')) { buzz(8); return; }
-            link.send({ t: 'fire' });
+            aim = y;
+            $('aim-dot').style.top = (50 + aim * 42) + '%';
+            holdAimUntil = performance.now() + AIM_HOLD;
+            link.send({ t: 'fire', y: +y.toFixed(3) });
+            lastSent = { v: aim * 100, at: performance.now() };
             trigger.classList.add('down');
+            setTimeout(() => trigger.classList.remove('down'), 120);
             buzz(20);
+        }
+
+        // Without motion sensors, a tap anywhere on the gun screen fires instead
+        trigger.addEventListener('pointerdown', (e) => {
+            if (motionOn || e.target.closest('#aim.drag, #center-btn')) return;
+            e.preventDefault();
+            shoot(aim);
         });
-        ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => trigger.addEventListener(ev, () => trigger.classList.remove('down')));
 
         let ducking = false;
         function setDuck(on) {

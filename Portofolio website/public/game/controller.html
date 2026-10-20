@@ -43,6 +43,11 @@
             -webkit-text-size-adjust: 100%;
         }
 
+        :root {
+            --cw: 100vw; /* the controller's width and height, swapped when it is drawn turned */
+            --ch: 100dvh;
+        }
+
         /* UI pinned to the screen; the page behind it may scroll (iPhone fullscreen trick) */
         .app {
             position: fixed;
@@ -61,6 +66,11 @@
             width: var(--turned-w);
             height: var(--turned-h);
             transform: translate(-50%, -50%) rotate(var(--turned-angle));
+        }
+
+        html.turned {
+            --cw: var(--turned-w);
+            --ch: var(--turned-h);
         }
 
         /* The notch is on a side of the screen now, which is the top of the turned controller */
@@ -197,13 +207,18 @@
         }
 
         #fire {
-            width: min(62vw, 42dvh, 280px);
+            /* Sized from the controller's own width and height; on short phones it gives up room so the
+               buttons below still fit (the rest of the column needs about 380px) */
+            width: max(120px, min(calc(var(--cw) * 0.62), calc(var(--ch) * 0.42), calc(var(--ch) - 380px), 280px));
             aspect-ratio: 1;
             border-radius: 50%;
             background: var(--red);
             color: var(--white);
             font-size: 22px;
             box-shadow: inset -10px -12px 0 #8a0030, 0 0 0 8px #000, 0 0 0 14px #333, 0 14px 0 14px #111;
+            /* The ring and its drop take no layout space, so keep room for them (14px round, 28px below) */
+            margin: 14px 0 28px;
+            flex-shrink: 0;
             transition: transform 0.05s;
         }
 
@@ -220,7 +235,7 @@
         #pad {
             width: 100%;
             flex: 1;
-            max-height: 34dvh;
+            max-height: calc(var(--ch) * 0.34);
             border: 4px dashed #444;
             display: grid;
             place-items: center;

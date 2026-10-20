@@ -264,7 +264,11 @@ function handleMessage(link, msg) {
     if (msg.t === 'a' && typeof msg.r === 'number') p.target = constrain(msg.r, BLADE_MIN, BLADE_MAX);
     else if (msg.t === 'swing') swing(p, constrain(+msg.s || 0.5, 0, 1));
     else if (msg.t === 'aim' && typeof msg.y === 'number') p.aimTarget = constrain(msg.y, -1, 1);
-    else if (msg.t === 'fire') fire(p);
+    else if (msg.t === 'fire') {
+        // The phone sends the aim from just before its kick, so the shot goes where it was pointed
+        if (typeof msg.y === 'number' && p.role === 'gun') p.aim = p.aimTarget = constrain(msg.y, -1, 1);
+        fire(p);
+    }
     else if (msg.t === 'duck') p.ducking = !!msg.on;
     else if (msg.t === 'start' && (state === 'LOBBY' || state === 'OVER')) startMatch();
 }

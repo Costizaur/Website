@@ -305,10 +305,11 @@
         };
     }
 
-    // Room codes carry the game in their first letter: D = Duck Shoot, R = River Racer
+    // Room codes carry the game in their first letter: D = Duck Shoot, R = River Racer, S = Sword vs Gun
     const GAME_BY_PREFIX = {
         D: { game: 'duck', controller: '/game/controller.html' },
-        R: { game: 'river', controller: '/game2/controller.html' }
+        R: { game: 'river', controller: '/game2/controller.html' },
+        S: { game: 'duel', controller: '/game3/controller.html' }
     };
 
     window.GameLink = { createHost, joinRoom, GAME_BY_PREFIX, CODE_CHARS };

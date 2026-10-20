@@ -2,6 +2,7 @@
 //  1. No zooming. iOS ignores user-scalable=no, so pinch and double-tap are blocked here.
 //  2. iPhone "fullscreen". Safari can't hide its bars on request, but it shrinks them when the
 //     page scrolls, so we give the page room to scroll and ask for one swipe up (same trick as Muster).
+//     The bars only go away like this with the phone sideways, so the prompt only shows in landscape.
 //     If that doesn't work, we suggest Add to Home Screen, which opens with no browser bars at all.
 // Pages keep their UI inside a fixed .app container, so the extra scroll room is never visible.
 (function () {
@@ -71,7 +72,7 @@
         const update = () => {
             const k = key();
             if (minHeight[k] === null || innerHeight < minHeight[k]) minHeight[k] = innerHeight;
-            overlay.style.display = dismissed || barsHidden() ? 'none' : 'flex';
+            overlay.style.display = dismissed || k === 'portrait' || barsHidden() ? 'none' : 'flex';
         };
 
         const dismiss = () => {

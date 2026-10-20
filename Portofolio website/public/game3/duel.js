@@ -61,6 +61,7 @@ let popups = [];
 let shake = 0;
 let hudCache = '';
 let banner = null;
+let gunFirst = 0;              // which slot starts with the gun (the lobby can swap it)
 const keys = {};
 
 const $ = (id) => document.getElementById(id);
@@ -198,6 +199,12 @@ function setup() {
     $('again-btn').addEventListener('click', startMatch);
     $('lobby-btn').addEventListener('click', backToLobby);
     $('kb-btn').addEventListener('click', addKeyboardPlayer);
+    $('bot-btn').addEventListener('click', addBot);
+    $('swap-btn').addEventListener('click', () => {
+        gunFirst = 1 - gunFirst;
+        players().forEach(p => { p.role = p.slot === gunFirst ? 'gun' : 'sword'; });
+        renderSlots();
+    });
     window.addEventListener('keydown', e => onKey(e, true));
     window.addEventListener('keyup', e => onKey(e, false));
     renderSlots();
@@ -220,7 +227,8 @@ function makePlayer(slot, source, link) {
     return {
         slot, source, link,
         name: style.name, color: style.color, keys: style.keys,
-        role: slot === 0 ? 'gun' : 'sword',
+        role: slot === gunFirst ? 'gun' : 'sword',
+        bot: source === 'bot' ? { next: 0, goal: 0, burst: 0, watched: null, error: 0, willSwing: false } : null,
         hp: MAX_HP,
         // Sword
         angle: -45, target: -45, speed: 0, trail: [], hist: [], lastSwing: -1e9, swingFx: 0, ignite: 0,
@@ -259,6 +267,15 @@ function handleMessage(link, msg) {
     else if (msg.t === 'fire') fire(p);
     else if (msg.t === 'duck') p.ducking = !!msg.on;
     else if (msg.t === 'start' && (state === 'LOBBY' || state === 'OVER')) startMatch();
+}
+
+// A computer opponent, so one phone can try both the gun and the sword
+function addBot() {
+    const slot = slots.findIndex(s => s === null);
+    if (slot === -1 || state !== 'LOBBY') return;
+    slots[slot] = makePlayer(slot, 'bot', null);
+    slots[slot].name = 'Bot';
+    renderSlots();
 }
 
 function addKeyboardPlayer() {
@@ -301,7 +318,7 @@ function startMatch() {
     players().forEach(p => {
         p.hp = MAX_HP;
         p.stats = { shots: 0, blocks: 0, reflected: 0, hitsTaken: 0 };
-        p.role = p.slot === 0 ? 'gun' : 'sword';
+        p.role = p.slot === gunFirst ? 'gun' : 'sword';
     });
     round = 1;
     $('lobby').classList.add('hidden');
@@ -594,6 +611,55 @@ function popup(x, y, text, color) {
 }
 
 // ---------------------------------------------------------------
+// The bot: good enough to test against, not perfect
+// ---------------------------------------------------------------
+function think(p) {
+    const b = p.bot;
+    if (p.role === 'gun') {
+        // Sweep the aim to a new spot every so often, then fire a short burst there
+        if (simMs >= b.next) {
+            b.goal = random(-1, 1);
+            b.burst = Math.floor(random(1, 4));
+            b.next = simMs + random(900, 2000);
+        }
+        p.aimTarget += constrain(b.goal - p.aimTarget, -2.2 * STEP, 2.2 * STEP);
+        if (b.burst > 0 && p.ammo > 0 && Math.abs(b.goal - p.aim) < 0.05 && !p.ducking) {
+            const before = p.stats.shots;
+            fire(p);
+            if (p.stats.shots > before) b.burst--;
+        }
+        // Duck under about half of the bullets sent back
+        const back = bullets.find(x => x.mode === 'back' && !x.resolved);
+        if (back) {
+            if (back.botDuck === undefined) back.botDuck = random() < 0.5;
+            p.ducking = back.botDuck && back.life > RETURN_SECONDS * 0.35;
+        } else p.ducking = false;
+        return;
+    }
+
+    // Sword: watch the next bullet, react after a moment, sometimes misjudge, sometimes swing through
+    const next = bullets.filter(x => x.mode === 'in' || x.mode === 'contact').sort((x, y) => x.arrives - y.arrives)[0];
+    let goal;
+    if (next) {
+        if (b.watched !== next) {
+            b.watched = next;
+            b.error = random() < 0.2 ? random([-1, 1]) * random(18, 30) : random(-5, 5);
+            b.willSwing = random() < 0.25;
+            b.swung = false;
+        }
+        const phi = degrees(Math.atan2(next.cx - HANDS.x, -(next.cy - HANDS.y)));
+        goal = simMs - next.t0 > 200 ? phi + b.error : p.target;
+        if (b.willSwing && !b.swung && next.arrives - simMs < 90) { b.swung = true; swing(p, 0.8); }
+    } else {
+        // Nothing coming: follow the gun's laser loosely
+        const g = gunner();
+        const c = guardCrossing(muzzle(g), aimPoint(g.aim));
+        goal = degrees(Math.atan2(c.x - HANDS.x, -(c.y - HANDS.y))) + 10;
+    }
+    p.target += constrain(goal - p.target, -320 * STEP, 320 * STEP);
+}
+
+// ---------------------------------------------------------------
 // Simulation
 // ---------------------------------------------------------------
 function update() {
@@ -601,6 +667,7 @@ function update() {
     const live = state === 'PLAYING';
 
     players().forEach(p => {
+        if (p.source === 'bot' && live) think(p);
         if (p.source === 'keyboard') {
             if (p.role === 'sword') {
                 const dir = (keys[p.keys.right] ? 1 : 0) - (keys[p.keys.left] ? 1 : 0);
@@ -914,14 +981,16 @@ function drawBanner() {
 function renderSlots() {
     $('slots').innerHTML = slots.map((p, i) => {
         const s = PLAYER_STYLE[i];
-        const role = i === 0 ? 'Gun first' : 'Sword first';
+        const role = i === gunFirst ? 'Gun first' : 'Sword first';
+        const kind = (pl) => pl.source === 'phone' ? 'Phone' : pl.source === 'bot' ? 'Bot' : 'Keys ' + s.label;
         return p
-            ? `<div class="slot filled" style="--c:${s.color}"><span class="slot-dot"></span><div>${s.name}<small>${role} · ${p.source === 'phone' ? 'Phone' : 'Keys ' + s.label}</small></div></div>`
+            ? `<div class="slot filled" style="--c:${s.color}"><span class="slot-dot"></span><div>${s.name}<small>${role} · ${kind(p)}</small></div></div>`
             : `<div class="slot" style="--c:${s.color}"><span class="slot-dot" style="opacity:.35"></span><div>${s.name}<small>${role} · Waiting…</small></div></div>`;
     }).join('');
     $('start-btn').disabled = players().length < 2;
     $('start-btn').textContent = players().length < 2 ? 'Waiting for 2 players' : 'Start the duel';
     $('kb-btn').disabled = slots.every(Boolean);
+    $('bot-btn').disabled = slots.every(Boolean) || players().some(p => p.source === 'bot');
 }
 
 function updateHud() {

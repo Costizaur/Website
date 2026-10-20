@@ -24,8 +24,12 @@ const RETURN_SECONDS = 0.42;
 const BLADE_LEN = 360;
 const GUARD = 0.82;            // bullets meet the blade this far along it
 const BLOCK_RADIUS = 46;       // how close the blade must pass to where the bullet crosses
-const CONTACT_MS = 140;        // the blade can still cut a bullet this long after it arrives
+const CONTACT_MS = 140;        // the blade can still catch a bullet this long after it arrives
+const SWEEP_MS = 160;          // a blade that swept through the bullet's path this long before it arrived still catches it
 const SWING_EARLY_MS = 350;    // a flick up to this long before the bullet arrives still counts
+const CUT_SPEED = 260;         // degrees per second: a blade moving this fast through the bullet cuts it back
+const BLADE_MIN = -150;        // pointing down toward the floor
+const BLADE_MAX = 40;          // leaning back over the shoulder
 const AIM_EASE = 0.4;
 const KEY_TURN = 210;          // keyboard sword: degrees per second
 const KEY_AIM = 1.5;           // keyboard gun: aim range per second
@@ -219,11 +223,11 @@ function makePlayer(slot, source, link) {
         role: slot === 0 ? 'gun' : 'sword',
         hp: MAX_HP,
         // Sword
-        angle: -45, target: -45, speed: 0, trail: [], lastSwing: -1e9, swingFx: 0, ignite: 0,
+        angle: -45, target: -45, speed: 0, trail: [], hist: [], lastSwing: -1e9, swingFx: 0, ignite: 0,
         // Gun
         aim: 0, aimTarget: 0, ammo: MAG_SIZE, reloadAt: 0, lastShot: -1e9, ducking: false, recoil: 0,
         hurtFx: 0,
-        stats: { shots: 0, cuts: 0, sentBack: 0, hitsTaken: 0 }
+        stats: { shots: 0, blocks: 0, reflected: 0, hitsTaken: 0 }
     };
 }
 
@@ -249,7 +253,7 @@ function handleLeave(link) {
 function handleMessage(link, msg) {
     const p = slots.find(s => s && s.link === link);
     if (!p) return;
-    if (msg.t === 'a' && typeof msg.r === 'number') p.target = constrain(msg.r, -120, 40);
+    if (msg.t === 'a' && typeof msg.r === 'number') p.target = constrain(msg.r, BLADE_MIN, BLADE_MAX);
     else if (msg.t === 'swing') swing(p, constrain(+msg.s || 0.5, 0, 1));
     else if (msg.t === 'aim' && typeof msg.y === 'number') p.aimTarget = constrain(msg.y, -1, 1);
     else if (msg.t === 'fire') fire(p);
@@ -296,7 +300,7 @@ function startMatch() {
     Sound.resume();
     players().forEach(p => {
         p.hp = MAX_HP;
-        p.stats = { shots: 0, cuts: 0, sentBack: 0, hitsTaken: 0 };
+        p.stats = { shots: 0, blocks: 0, reflected: 0, hitsTaken: 0 };
         p.role = p.slot === 0 ? 'gun' : 'sword';
     });
     round = 1;
@@ -368,7 +372,7 @@ function endMatch(loser) {
     $('results-title').style.color = winner.color;
     $('scoreboard').innerHTML = [winner, loser].map((p, i) => `<div class="score-row" style="--c:${p.color};animation-delay:${i * 0.08}s">
             <span class="score-rank">#${i + 1}</span>
-            <span class="score-name">${p.name} <small>${p.stats.shots} shots · ${p.stats.cuts} cut · ${p.stats.sentBack} sent back</small></span>
+            <span class="score-name">${p.name} <small>${p.stats.shots} shots · ${p.stats.blocks} blocked · ${p.stats.reflected} reflected</small></span>
             <span class="score-value">${Math.max(0, Math.round(p.hp))} hp</span>
         </div>`).join('');
     setTimeout(() => {
@@ -480,10 +484,12 @@ function updateBullets() {
         if (b.mode === 'contact') {
             const c = { x: b.cx, y: b.cy };
             // Either the angle shown or the newest one from the phone can cut it
-            if (bladeDistance(s.angle, c) < BLOCK_RADIUS || bladeDistance(s.target, c) < BLOCK_RADIUS) b.cut = true;
-            if (b.cut && s.lastSwing >= b.arrives - SWING_EARLY_MS) sendBack(b, s, g);
+            const caught = bladeMeets(s, b, c);
+            if (caught.covered) b.caught = true;
+            // Swinging through it cuts it back at the gun; just holding the blade there blocks it
+            if (b.caught && (caught.fast || s.lastSwing >= b.arrives - SWING_EARLY_MS)) reflect(b, s, g);
             else if (simMs >= b.arrives + CONTACT_MS) {
-                if (b.cut) cutBullet(b, s);
+                if (b.caught) block(b, s);
                 else { b.mode = 'through'; b.life = 0; }
             }
         }
@@ -515,27 +521,51 @@ function updateBullets() {
     bullets = bullets.filter(b => b.mode !== 'dead');
 }
 
-function cutBullet(b, s) {
-    b.mode = 'dead';
-    s.stats.cuts++;
-    // Two halves spin away
-    [-1, 1].forEach(side => halves.push({ x: b.cx, y: b.cy, vx: random(-200, 150), vy: side * random(250, 450) - 150, rot: random(TWO_PI), spin: side * random(10, 20), life: 0.8 }));
-    burst(b.cx, b.cy, s.color, 14, 6);
-    popup(b.cx, b.cy - 40, 'CUT', s.color);
-    Sound.cut();
-    sendTo(s, { t: 'fx', kind: 'cut' });
+// Did the blade meet this bullet? Looks back over the last moments, so a blade that was there,
+// or swept through the spot between two updates, still counts. Fast means it was swung through.
+function bladeMeets(s, b, c) {
+    const phi = degrees(Math.atan2(c.x - HANDS.x, -(c.y - HANDS.y)));
+    const tol = degrees(BLOCK_RADIUS / GUARD_R);
+    const recent = s.hist.filter(h => h.t >= b.arrives - SWEEP_MS);
+    let covered = false, fast = false;
+    ['a', 'g'].forEach(k => {
+        for (let i = 0; i < recent.length; i++) {
+            const d = recent[i][k] - phi;
+            if (Math.abs(d) < tol) covered = true;
+            if (i === 0) continue;
+            const prev = recent[i - 1][k] - phi;
+            const crossed = (prev < 0) !== (d < 0);
+            const speed = Math.abs(recent[i][k] - recent[i - 1][k]) / Math.max(1, recent[i].t - recent[i - 1].t) * 1000;
+            if (crossed) covered = true;
+            // Speed from the smoothed angle only: phone updates arrive in steps that would look like swings
+            if (k === 'a' && (crossed || Math.abs(d) < tol) && speed > CUT_SPEED) fast = true;
+        }
+    });
+    return { covered, fast };
 }
 
-function sendBack(b, s, g) {
+// Held in the way: the bullet bounces off into the floor
+function block(b, s) {
+    b.mode = 'dead';
+    s.stats.blocks++;
+    halves.push({ x: b.cx, y: b.cy, vx: random(-250, -80), vy: random(-200, 50), rot: random(TWO_PI), spin: random(-20, 20), life: 1 });
+    burst(b.cx, b.cy, s.color, 14, 6);
+    popup(b.cx, b.cy - 40, 'BLOCKED', s.color);
+    Sound.cut();
+    sendTo(s, { t: 'fx', kind: 'block' });
+}
+
+// Swung through: the bullet is cut and flies back at the gun
+function reflect(b, s, g) {
     b.mode = 'back';
     b.life = 0;
     const sh = { x: GUN_X + 4, y: shoulderY(false) + 20 }; // the gun player's chest when standing
     b.rx = sh.x; b.ry = sh.y;
-    s.stats.sentBack++;
+    s.stats.reflected++;
     burst(b.cx, b.cy, s.color, 24, 9);
-    popup(b.cx, b.cy - 40, 'SENT BACK', s.color);
+    popup(b.cx, b.cy - 40, 'REFLECTED', s.color);
     Sound.sendBack();
-    sendTo(s, { t: 'fx', kind: 'back' });
+    sendTo(s, { t: 'fx', kind: 'reflect' });
     sendTo(g, { t: 'fx', kind: 'incoming' });
 }
 
@@ -574,7 +604,7 @@ function update() {
         if (p.source === 'keyboard') {
             if (p.role === 'sword') {
                 const dir = (keys[p.keys.right] ? 1 : 0) - (keys[p.keys.left] ? 1 : 0);
-                p.target = constrain(p.target + dir * KEY_TURN * STEP, -120, 40);
+                p.target = constrain(p.target + dir * KEY_TURN * STEP, BLADE_MIN, BLADE_MAX);
             } else {
                 const dir = (keys[p.keys.down] ? 1 : 0) - (keys[p.keys.up] ? 1 : 0);
                 p.aimTarget = constrain(p.aimTarget + dir * KEY_AIM * STEP, -1, 1);
@@ -588,6 +618,8 @@ function update() {
             p.ignite = Math.min(1, p.ignite + STEP * 3);
             p.swingFx = Math.max(0, p.swingFx - STEP * 3);
             p.trail.push({ a: p.angle, life: 1 });
+            p.hist.push({ t: simMs, a: p.angle, g: p.target });
+            while (p.hist.length && p.hist[0].t < simMs - 800) p.hist.shift();
             p.trail.forEach(t => { t.life -= STEP * 9; });
             p.trail = p.trail.filter(t => t.life > 0);
             Sound.startHum();

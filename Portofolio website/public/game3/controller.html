@@ -72,6 +72,12 @@
             position: relative;
         }
 
+        #gun {
+            padding: 0;
+            align-items: stretch;
+            gap: 0;
+        }
+
         .hint {
             color: var(--muted);
             line-height: 1.5;
@@ -162,10 +168,11 @@
         }
 
         .aim-meter {
-            width: 64px;
+            width: 56px;
             flex: 1;
-            max-height: 220px;
-            min-height: 110px;
+            max-height: 200px;
+            min-height: 90px;
+            pointer-events: none;
             border-radius: 32px;
             border: 2px solid var(--line);
             position: relative;
@@ -173,9 +180,9 @@
         }
 
         .aim-meter.drag {
-            width: 100%;
-            max-width: 280px;
+            width: 120px;
             border-style: dashed;
+            pointer-events: auto;
         }
 
         .aim-dot {
@@ -189,46 +196,66 @@
             background: var(--pc);
         }
 
-        .gun-buttons {
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1.6fr;
-            gap: 10px;
-            padding: 0 10px max(12px, env(safe-area-inset-bottom));
+        /* The whole gun screen is the trigger, except the duck strip */
+        .trigger {
+            flex: 1;
+            margin: 10px 10px 0;
+            border-radius: 24px;
+            border: 2px solid color-mix(in srgb, var(--coral) 55%, transparent);
+            background: color-mix(in srgb, var(--coral) 10%, var(--ink));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.9rem;
+            padding: 1rem;
+            touch-action: none;
+            transition: background 0.06s;
         }
 
-        .gun-btn {
-            height: min(30vh, 200px);
-            border-radius: 24px;
+        .trigger.down {
+            background: color-mix(in srgb, var(--coral) 35%, var(--ink));
+        }
+
+        .trigger.empty {
+            border-color: var(--line);
+            background: var(--panel-2);
+        }
+
+        .trigger-label {
+            font-family: var(--display);
+            font-weight: 800;
+            font-size: 1.6rem;
+            color: var(--coral);
+            pointer-events: none;
+        }
+
+        .trigger.empty .trigger-label {
+            color: var(--muted);
+        }
+
+        .trigger .ammo,
+        .trigger .hint {
+            pointer-events: none;
+        }
+
+        .duck-strip {
+            height: min(18vh, 120px);
+            margin: 10px 10px max(12px, env(safe-area-inset-bottom));
+            border-radius: 20px;
             border: 2px solid var(--line);
             background: var(--panel-2);
             color: var(--text);
             font-family: var(--display);
             font-weight: 800;
-            font-size: 1.5rem;
-            box-shadow: 0 8px 0 #000;
-            transition: transform 0.06s ease, box-shadow 0.06s ease;
+            font-size: 1.2rem;
+            touch-action: none;
         }
 
-        .gun-btn.fire {
-            background: var(--coral);
-            border-color: transparent;
-            color: var(--ink);
-            font-size: 2rem;
-        }
-
-        .gun-btn.down {
-            transform: translateY(6px);
-            box-shadow: 0 2px 0 #000;
-        }
-
-        .gun-btn.duck.down {
+        .duck-strip.down {
             background: var(--pc);
             color: var(--ink);
-        }
-
-        .gun-btn:disabled {
-            opacity: 0.45;
+            border-color: transparent;
         }
 
         .small-btn {
@@ -321,19 +348,19 @@
             <div class="emitter"></div>
             <div class="end-label">↑ blade end</div>
             <div class="dial"><div class="dial-blade" id="dial-blade"></div><div class="dial-hub"></div></div>
-            <p class="hint" id="sword-hint">Hold the phone <b>upright, screen facing you</b>. Tilt left to lean the blade toward the gun. Flick as a bullet lands to send it back.</p>
+            <p class="hint" id="sword-hint">Grip the phone <b>like a sword hilt</b>. Point it up to raise the blade, at the screen to level it. <b>Hold</b> it in the bullet's path to block, <b>swing through</b> the bullet to reflect it.</p>
         </div>
 
-        <!-- Gun -->
+        <!-- Gun: hold it like a pistol, tap anywhere to fire -->
         <div class="mode hidden" id="gun">
-            <div class="ammo" id="ammo"></div>
-            <div class="aim-meter" id="aim"><div class="aim-dot" id="aim-dot"></div></div>
-            <p class="hint" id="gun-hint">Point the phone at the screen and <b>tilt it up and down</b> to aim.</p>
-            <button class="small-btn" id="center-btn">Re-center aim</button>
-            <div class="gun-buttons">
-                <button class="gun-btn duck" id="duck-btn">DUCK</button>
-                <button class="gun-btn fire" id="fire-btn">FIRE</button>
+            <div class="trigger" id="trigger">
+                <div class="ammo" id="ammo"></div>
+                <div class="aim-meter" id="aim"><div class="aim-dot" id="aim-dot"></div></div>
+                <div class="trigger-label" id="trigger-label">TAP TO FIRE</div>
+                <p class="hint" id="gun-hint">Hold the phone <b>like a pistol</b>, top pointing at the screen. Raise or lower it to aim.</p>
+                <button class="small-btn" id="center-btn">Re-center aim</button>
             </div>
+            <button class="duck-strip" id="duck-btn">HOLD TO DUCK</button>
         </div>
 
         <div class="flash" id="flash"></div>
@@ -429,16 +456,16 @@
             else if (m.t === 'role') {
                 setRole(m.role);
                 showCard(`Round ${m.round}`, m.role === 'gun'
-                    ? 'You have the GUN. Point the phone at the screen, tilt to aim, tap Fire.'
-                    : 'You have the SWORD. Hold the phone upright, screen facing you, and tilt to angle the blade.', null);
+                    ? 'You have the GUN. Hold the phone like a pistol, point it at the screen and tap anywhere to fire.'
+                    : 'You have the SWORD. Grip the phone like a hilt. Hold the blade in the way to block, swing through a bullet to reflect it.', null);
             } else if (m.t === 'ammo') setAmmo(m.n, m.reloading);
             else if (m.t === 'hp') {
                 $('hp-bar').style.width = m.hp + '%';
                 $('hp-n').textContent = Math.round(m.hp);
             } else if (m.t === 'fx') {
-                const look = { hurt: 'var(--coral)', back: '#fff', cut: 'var(--pc)', incoming: 'var(--coral)' }[m.kind];
+                const look = { hurt: 'var(--coral)', reflect: '#fff', block: 'var(--pc)', incoming: 'var(--coral)' }[m.kind];
                 if (look) flash(look);
-                buzz({ hurt: 280, back: [30, 40, 30], cut: 25, incoming: [60, 40, 60] }[m.kind] || 0);
+                buzz({ hurt: 280, reflect: [30, 40, 30], block: 25, incoming: [60, 40, 60] }[m.kind] || 0);
             } else if (m.t === 'result') {
                 showCard(m.won ? 'You win!' : 'You lost', m.won ? 'Last one standing.' : 'Swap the hands and try again.', 'Rematch');
                 buzz(m.won ? [80, 60, 80, 60, 200] : 400);
@@ -517,7 +544,7 @@
         }
 
         function setAngle(a) {
-            angle = Math.max(-120, Math.min(40, a));
+            angle = Math.max(-150, Math.min(40, a));
             $('dial-blade').style.transform = `rotate(${angle}deg)`;
             sendValue(false);
         }
@@ -537,18 +564,20 @@
         }
 
         // ---------- Motion ----------
-        // Sword: the phone's tilt in the plane of its screen, from the direction of "up".
-        // Built from beta and gamma only, so the compass (alpha) can't make it drift.
-        // Gun: how far the top of the phone is tipped up or down from where aiming started.
+        // Both roles read one thing: how far the top of the phone points up or down (90 = straight up,
+        // 0 = level, negative = toward the floor). It comes from beta alone, so it is the same however
+        // the screen faces in the hand, and the compass (alpha) can't make it drift.
+        // Sword: straight up is a raised blade, level points it at the gun.
+        // Gun: up and down from where aiming started.
         function onOrientation(e) {
-            if (e.beta == null || e.gamma == null) return;
+            if (e.beta == null) return;
             gotMotion = true;
+            const elevation = Math.asin(Math.sin(e.beta * Math.PI / 180)) * 180 / Math.PI;
             if (role === 'sword') {
-                const b = e.beta * Math.PI / 180, g = e.gamma * Math.PI / 180;
-                setAngle(Math.atan2(Math.cos(b) * Math.sin(g), Math.sin(b)) * 180 / Math.PI);
+                setAngle(elevation - 90);
             } else if (role === 'gun') {
-                if (pitchZero === null) pitchZero = e.beta;
-                setAim(-(e.beta - pitchZero) / 18);
+                if (pitchZero === null) pitchZero = elevation;
+                setAim(-(elevation - pitchZero) / 18);
             }
         }
 
@@ -590,8 +619,8 @@
         // ---------- No motion: drag instead ----------
         function useTouch(reason) {
             $('motion-btn').classList.add('hidden');
-            $('sword-hint').innerHTML = `${reason} <b>Drag left and right</b> to tilt the blade, <b>tap</b> to swing.`;
-            $('gun-hint').innerHTML = `${reason} <b>Drag up and down</b> on the bar to aim.`;
+            $('sword-hint').innerHTML = `${reason} <b>Drag left and right</b> to move the blade, <b>tap</b> or drag fast to swing through a bullet.`;
+            $('gun-hint').innerHTML = `${reason} <b>Drag up and down</b> on the bar to aim, tap anywhere else to fire.`;
             $('aim').classList.add('drag');
             $('center-btn').classList.add('hidden');
         }
@@ -644,20 +673,24 @@
 
         // ---------- Gun buttons ----------
         function setAmmo(n, reloading) {
-            $('ammo').innerHTML = Array.from({ length: MAG }, (_, i) => `<i class="${i < n ? '' : 'used'}"></i>`).join('') + (reloading ? ' reloading' : '');
-            $('fire-btn').disabled = n === 0;
+            $('ammo').innerHTML = Array.from({ length: MAG }, (_, i) => `<i class="${i < n ? '' : 'used'}"></i>`).join('');
+            $('trigger').classList.toggle('empty', n === 0);
+            $('trigger-label').textContent = n === 0 ? 'RELOADING…' : 'TAP TO FIRE';
         }
         setAmmo(MAG, false);
 
-        const fireBtn = $('fire-btn');
-        fireBtn.addEventListener('pointerdown', (e) => {
+        // The trigger: any press on the gun screen except the aim bar and the re-center button
+        const trigger = $('trigger');
+        trigger.addEventListener('pointerdown', (e) => {
+            if (e.target.closest('#aim.drag, #center-btn')) return;
             e.preventDefault();
-            if (!link || fireBtn.disabled) return;
+            if (!link || ducking) return;
+            if (trigger.classList.contains('empty')) { buzz(8); return; }
             link.send({ t: 'fire' });
-            fireBtn.classList.add('down');
+            trigger.classList.add('down');
             buzz(20);
         });
-        ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => fireBtn.addEventListener(ev, () => fireBtn.classList.remove('down')));
+        ['pointerup', 'pointercancel', 'pointerleave'].forEach(ev => trigger.addEventListener(ev, () => trigger.classList.remove('down')));
 
         let ducking = false;
         function setDuck(on) {

@@ -217,6 +217,16 @@
             background: color-mix(in srgb, var(--coral) 35%, var(--ink));
         }
 
+        .trigger.ducking {
+            border-color: var(--pc);
+            background: color-mix(in srgb, var(--pc) 18%, var(--ink));
+        }
+
+        .trigger.ducking .trigger-label {
+            color: var(--pc);
+            font-size: 1.2rem;
+        }
+
         .trigger.empty {
             border-color: var(--line);
             background: var(--panel-2);
@@ -348,7 +358,7 @@
             <div class="emitter"></div>
             <div class="end-label">↑ blade end</div>
             <div class="dial"><div class="dial-blade" id="dial-blade"></div><div class="dial-hub"></div></div>
-            <p class="hint" id="sword-hint">Grip the phone <b>like a sword hilt</b>. Point it up to raise the blade, at the screen to level it. <b>Hold</b> it in the bullet's path to block, <b>swing through</b> the bullet to reflect it.</p>
+            <p class="hint" id="sword-hint">Hold the phone <b>upright like a hilt</b>, screen facing you. <b>Tilt it left and right</b> to move the blade. Hold it in the bullet's path to block, <b>swing through</b> the bullet to reflect it.</p>
         </div>
 
         <!-- Gun: hold it like a pistol, flick up to fire -->
@@ -357,7 +367,7 @@
                 <div class="ammo" id="ammo"></div>
                 <div class="aim-meter" id="aim"><div class="aim-dot" id="aim-dot"></div></div>
                 <div class="trigger-label" id="trigger-label">FLICK UP TO FIRE</div>
-                <p class="hint" id="gun-hint">Hold the phone <b>like a pistol</b>, top pointing at the screen. Raise or lower it to aim, then <b>flick it up</b> like recoil to fire.</p>
+                <p class="hint" id="gun-hint">Hold the phone <b>like a pistol</b>, top pointing at the screen. Raise or lower it to aim, <b>flick it up</b> like recoil to fire, <b>point it at the floor</b> to duck.</p>
                 <button class="small-btn" id="center-btn">Re-center aim</button>
             </div>
             <button class="duck-strip" id="duck-btn">HOLD TO DUCK</button>
@@ -400,6 +410,9 @@
         const KICK_MS = 120;     // ...within this long is a shot, like recoil
         const KICK_GAP = 320;    // ms before another kick can fire
         const AIM_HOLD = 380;    // ms the aim stays put after a kick, while the phone comes back down
+        const DUCK_TILT = 35;    // gun: pointing this many degrees below the aim's middle ducks
+        const STAND_TILT = 27;   // ...and coming back above this stands up (the gap stops flicker)
+        const STAND_CALM = 450;  // ms after standing up before a kick can fire (standing up is a fast lift too)
         let link = null;
         let wakeLock = null;
         let role = null;         // 'gun' | 'sword'
@@ -413,6 +426,8 @@
         let elevHist = [];       // gun: recent tilt and aim, to spot a kick and know where it was aimed before it
         let lastKick = 0;
         let holdAimUntil = 0;
+        let stoodUpAt = 0;
+        let ducking = false;
 
         if (!/^[A-Z0-9]{4}$/.test(code)) {
             $('status').classList.add('hidden');
@@ -463,8 +478,8 @@
             else if (m.t === 'role') {
                 setRole(m.role);
                 showCard(`Round ${m.round}`, m.role === 'gun'
-                    ? 'You have the GUN. Hold the phone like a pistol and point it at the screen. Flick it up like recoil to fire.'
-                    : 'You have the SWORD. Grip the phone like a hilt. Hold the blade in the way to block, swing through a bullet to reflect it.', null);
+                    ? 'You have the GUN. Hold the phone like a pistol and point it at the screen. Flick it up to fire, point it at the floor to duck.'
+                    : 'You have the SWORD. Hold the phone upright, screen facing you, and tilt it left and right. Hold the blade in the way to block, swing through a bullet to reflect it.', null);
             } else if (m.t === 'ammo') setAmmo(m.n, m.reloading);
             else if (m.t === 'hp') {
                 $('hp-bar').style.width = m.hp + '%';
@@ -572,24 +587,28 @@
         }
 
         // ---------- Motion ----------
-        // Both roles read one thing: how far the top of the phone points up or down (90 = straight up,
-        // 0 = level, negative = toward the floor). It comes from beta alone, so it is the same however
-        // the screen faces in the hand, and the compass (alpha) can't make it drift.
-        // Sword: straight up is a raised blade, level points it at the gun.
-        // Gun: up and down from where aiming started.
+        // Built from beta and gamma only, so the compass (alpha) can't make anything drift.
+        // Sword: held upright like a hilt, screen facing you. Tilting it left and right leans the blade
+        //   left (toward the gun) and right: the phone's tilt in the plane of its screen.
+        // Gun: how far the top of the phone points up or down, from where aiming started. Pointing it
+        //   down at the floor ducks.
         function onOrientation(e) {
-            if (e.beta == null) return;
+            if (e.beta == null || e.gamma == null) return;
             gotMotion = true;
-            const elevation = Math.asin(Math.sin(e.beta * Math.PI / 180)) * 180 / Math.PI;
+            const b = e.beta * Math.PI / 180, g = e.gamma * Math.PI / 180;
             if (role === 'sword') {
-                setAngle(elevation - 90);
+                setAngle(Math.atan2(Math.cos(b) * Math.sin(g), Math.sin(b)) * 180 / Math.PI);
             } else if (role === 'gun') {
+                const elevation = Math.asin(Math.sin(b)) * 180 / Math.PI;
                 if (pitchZero === null) pitchZero = elevation;
                 const t = performance.now();
+                const below = pitchZero - elevation;
+                if (!ducking && below > DUCK_TILT) setDuck(true);
+                else if (ducking && below < STAND_TILT) { setDuck(false); stoodUpAt = t; }
                 const y = -(elevation - pitchZero) / 18;
                 elevHist.push({ t, e: elevation, aim: Math.max(-1, Math.min(1, y)) });
                 while (elevHist.length && elevHist[0].t < t - 600) elevHist.shift();
-                if (t >= holdAimUntil) setAim(y);
+                if (!ducking && t >= holdAimUntil) setAim(y);
                 checkKick(t, elevation);
             }
         }
@@ -597,11 +616,12 @@
         // A kick: the top of the phone snapping up fast, like a pistol's recoil. The kick itself lifts the
         // aim, so the shot uses the aim from the moment the kick started (the lowest point just before it).
         function checkKick(t, elevation) {
-            if (t - lastKick < KICK_GAP || ducking) return;
+            if (t - lastKick < KICK_GAP || ducking || t - stoodUpAt < STAND_CALM) return;
             const recent = elevHist.filter(h => h.t >= t - KICK_MS);
             if (recent.length < 2) return;
             const low = recent.reduce((a, b) => (b.e < a.e ? b : a));
             if (elevation - low.e < KICK_RISE) return;
+            if (pitchZero - low.e > STAND_TILT) return; // a lift out of the duck, not a kick
             lastKick = t;
             shoot(low.aim);
         }
@@ -632,11 +652,14 @@
             window.addEventListener('devicemotion', onMotion);
             motionOn = true;
             $('motion-btn').classList.add('hidden');
+            $('duck-btn').classList.add('hidden'); // ducking is a motion now
+            updateTriggerLabel();
             setTimeout(() => {
                 if (gotMotion) return;
                 window.removeEventListener('deviceorientation', onOrientation);
                 window.removeEventListener('devicemotion', onMotion);
                 motionOn = false;
+                $('duck-btn').classList.remove('hidden');
                 useTouch('No motion sensor found.');
             }, 1500);
         }
@@ -646,7 +669,7 @@
             $('motion-btn').classList.add('hidden');
             $('sword-hint').innerHTML = `${reason} <b>Drag left and right</b> to move the blade, <b>tap</b> or drag fast to swing through a bullet.`;
             $('gun-hint').innerHTML = `${reason} <b>Drag up and down</b> on the bar to aim, tap anywhere else to fire.`;
-            $('trigger-label').textContent = 'TAP TO FIRE';
+            updateTriggerLabel();
             $('aim').classList.add('drag');
             $('center-btn').classList.add('hidden');
         }
@@ -698,10 +721,16 @@
         }));
 
         // ---------- Gun buttons ----------
+        function updateTriggerLabel() {
+            const empty = $('trigger').classList.contains('empty');
+            $('trigger-label').textContent = ducking ? 'DUCKING · RAISE TO STAND'
+                : empty ? 'RELOADING…' : motionOn ? 'FLICK UP TO FIRE' : 'TAP TO FIRE';
+        }
+
         function setAmmo(n, reloading) {
             $('ammo').innerHTML = Array.from({ length: MAG }, (_, i) => `<i class="${i < n ? '' : 'used'}"></i>`).join('');
             $('trigger').classList.toggle('empty', n === 0);
-            $('trigger-label').textContent = n === 0 ? 'RELOADING…' : motionOn ? 'FLICK UP TO FIRE' : 'TAP TO FIRE';
+            updateTriggerLabel();
         }
         setAmmo(MAG, false);
 
@@ -727,11 +756,13 @@
             shoot(aim);
         });
 
-        let ducking = false;
         function setDuck(on) {
             if (ducking === on) return;
             ducking = on;
             $('duck-btn').classList.toggle('down', on);
+            $('trigger').classList.toggle('ducking', on);
+            updateTriggerLabel();
+            if (on) buzz(15);
             if (link && role) link.send({ t: 'duck', on });
         }
         const duckBtn = $('duck-btn');

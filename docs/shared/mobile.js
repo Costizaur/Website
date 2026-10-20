@@ -1,9 +1,8 @@
 // Phone helpers for the game controllers.
 //  1. No zooming. iOS ignores user-scalable=no, so pinch and double-tap are blocked here.
-//  2. iPhone "fullscreen". Safari can't hide its bars on request, but it shrinks them when the
-//     page scrolls, so we give the page room to scroll and ask for one swipe up (same trick as Muster).
-//     The bars only go away like this with the phone sideways, so the prompt only shows in landscape.
-//     If that doesn't work, we suggest Add to Home Screen, which opens with no browser bars at all.
+//  2. iPhone "fullscreen". Safari can't hide its bars on request, but in landscape it shrinks them when
+//     the page scrolls, so we give the page room to scroll and ask for one swipe up (same script as Muster).
+//     If the bars don't shrink after two tries, we suggest Add to Home Screen, which opens with no bars at all.
 // Pages keep their UI inside a fixed .app container, so the extra scroll room is never visible.
 (function () {
     // ---------- 1. No zoom ----------
@@ -20,14 +19,17 @@
     }, { passive: false });
 
     // ---------- 2. iPhone swipe-up fullscreen ----------
-    const isIphone = /iPhone|iPod/.test(navigator.userAgent);
-    if (!isIphone || navigator.standalone) return;
+    if (!/iPhone|iPod/.test(navigator.userAgent) || navigator.standalone) return;
 
+    // The controllers set touch-action: none and overscroll-behavior: none on body. touch-action carries down to
+    // every child, so the swipe could never scroll the page and Safari never shrank its bars. The game UI sits in
+    // .app, which keeps its own touch-action: none, so only the overlay and the room below it can scroll.
     const css = `
-        html.ios-swipe, html.ios-swipe body { overflow: visible !important; height: auto !important; }
+        html.ios-swipe, html.ios-swipe body { overflow: visible !important; height: auto !important;
+            touch-action: auto !important; overscroll-behavior: auto !important; }
         html.ios-swipe body { min-height: calc(100vh + 400px) !important; }
         #swipe-up { position: fixed; inset: 0; z-index: 1000; display: none; flex-direction: column; align-items: center;
-            justify-content: center; gap: 14px; padding: 24px; text-align: center; touch-action: pan-y;
+            justify-content: center; gap: 14px; padding: 24px; text-align: center; touch-action: auto;
             background: rgba(0, 0, 0, 0.97); color: #fff; font-family: inherit; }
         #swipe-up .hand { font-size: 46px; animation: swipeHand 1.4s ease-in-out infinite; }
         #swipe-up .title { font-size: 20px; font-weight: 800; color: var(--pc, #ffc53d); line-height: 1.3; }
@@ -61,47 +63,40 @@
         document.documentElement.classList.add('ios-swipe');
 
         let dismissed = false;
-        try { dismissed = sessionStorage.getItem('cs-swipe-dismissed') === '1'; } catch { /* private mode */ }
         let failedTries = 0;
         let check = null;
-        const minHeight = { landscape: null, portrait: null }; // smallest height seen = bars showing
+        let barsHeight = null; // the smallest landscape height seen, i.e. with Safari's bars showing
 
-        const key = () => (innerWidth > innerHeight ? 'landscape' : 'portrait');
-        const barsHidden = () => minHeight[key()] !== null && innerHeight > minHeight[key()] + 30;
+        const landscape = () => innerWidth > innerHeight;
+        const barsHidden = () => barsHeight !== null && innerHeight > barsHeight + 30;
 
         const update = () => {
-            const k = key();
-            if (minHeight[k] === null || innerHeight < minHeight[k]) minHeight[k] = innerHeight;
-            overlay.style.display = dismissed || k === 'portrait' || barsHidden() ? 'none' : 'flex';
+            if (!landscape()) { overlay.style.display = 'none'; return; }
+            if (barsHeight === null || innerHeight < barsHeight) barsHeight = innerHeight;
+            overlay.style.display = dismissed || barsHidden() ? 'none' : 'flex';
         };
 
-        const dismiss = () => {
-            dismissed = true;
-            try { sessionStorage.setItem('cs-swipe-dismissed', '1'); } catch { /* ignore */ }
-            update();
+        const showTip = () => {
+            tip.style.display = 'flex';
+            setTimeout(() => { tip.style.display = 'none'; }, 12000);
         };
 
-        overlay.querySelector('button').addEventListener('click', dismiss);
+        overlay.querySelector('button').addEventListener('click', () => { dismissed = true; update(); });
         tip.querySelector('button').addEventListener('click', () => { tip.style.display = 'none'; });
 
-        // After a swipe, give Safari a moment to animate its bars away, then check it worked
+        // After a swipe, give Safari a moment to animate its bars away, then see whether it worked
         addEventListener('touchend', () => {
             if (dismissed || overlay.style.display === 'none') return;
             clearTimeout(check);
             check = setTimeout(() => {
                 update();
-                if (barsHidden()) return;
-                if (++failedTries >= 2) {
-                    dismiss();
-                    tip.style.display = 'flex';
-                    setTimeout(() => { tip.style.display = 'none'; }, 12000);
-                }
+                if (barsHidden() || !landscape()) return;
+                if (++failedTries >= 2) { dismissed = true; update(); showTip(); }
             }, 900);
         }, { passive: true });
 
         addEventListener('resize', update);
         addEventListener('scroll', update, { passive: true });
-        scrollTo(0, 0);
         update();
     };
 

@@ -52,6 +52,22 @@
             touch-action: none;
         }
 
+        /* Phone turned sideways: the controller is drawn turned back, so it stays upright in the hand */
+        html.turned .app,
+        html.turned .screen {
+            inset: auto;
+            top: 50%;
+            left: 50%;
+            width: var(--turned-w);
+            height: var(--turned-h);
+            transform: translate(-50%, -50%) rotate(var(--turned-angle));
+        }
+
+        /* The notch is on a side of the screen now, which is the top of the turned controller */
+        html.turned .bar {
+            padding-top: max(14px, env(safe-area-inset-left), env(safe-area-inset-right));
+        }
+
         button,
         input {
             touch-action: manipulation;
@@ -303,7 +319,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
 </head>
 
-<body>
+<body data-no-swipe>
     <div class="app">
     <div class="bar">
         <div class="tag"><i></i><span id="name">P?</span></div>
@@ -542,13 +558,37 @@
         });
         pad.addEventListener('pointermove', (e) => {
             if (!dragging) return;
-            const r = pad.getBoundingClientRect();
-            aim.x = clamp(aim.x + ((e.clientX - dragging.x) / r.width) * 2.4);
-            aim.y = clamp(aim.y + ((e.clientY - dragging.y) / r.height) * 2.4);
+            // Screen movement, turned into the controller's own directions when it is drawn turned
+            const a = turn * Math.PI / 180;
+            const dx = e.clientX - dragging.x, dy = e.clientY - dragging.y;
+            const mx = dx * Math.cos(a) + dy * Math.sin(a);
+            const my = dy * Math.cos(a) - dx * Math.sin(a);
+            aim.x = clamp(aim.x + (mx / pad.offsetWidth) * 2.4);
+            aim.y = clamp(aim.y + (my / pad.offsetHeight) * 2.4);
             dragging = { x: e.clientX, y: e.clientY };
             sendAim();
         });
         ['pointerup', 'pointercancel'].forEach(ev => pad.addEventListener(ev, () => { dragging = null; sendAim(true); }));
+
+        // ---------- Stay upright ----------
+        // A web page can't lock its rotation on iPhones, and tilting the phone to aim can flip the page sideways,
+        // which squeezes the controls. So when the page turns, the controller is drawn turned back by the same angle
+        // and stays where it was in the hand. Swipe-up fullscreen only works sideways, so this page doesn't offer it.
+        let turn = 0; // degrees the controller is drawn turned
+        function stayUpright() {
+            const angle = typeof window.orientation === 'number' ? window.orientation
+                : (screen.orientation ? screen.orientation.angle : 0);
+            const sideways = innerWidth > innerHeight;
+            turn = sideways ? (((angle + 540) % 360) - 180 >= 0 ? -90 : 90) : 0;
+            const root = document.documentElement;
+            root.classList.toggle('turned', sideways);
+            root.style.setProperty('--turned-w', innerHeight + 'px');
+            root.style.setProperty('--turned-h', innerWidth + 'px');
+            root.style.setProperty('--turned-angle', turn + 'deg');
+        }
+        addEventListener('resize', stayUpright);
+        addEventListener('orientationchange', stayUpright);
+        stayUpright();
 
         // Phones without a permission prompt can start motion aiming straight away
         if (window.isSecureContext && typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission !== 'function') {
